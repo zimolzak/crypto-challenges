@@ -10,7 +10,7 @@ our @ISA= qw( Exporter );
 
 our @EXPORT_OK = qw( histogram print_histo print_sig);
 
-our @EXPORT = qw( histogram print_histo);
+our @EXPORT = qw( histogram print_histo print_sig);
 
 my $N = 128; # number of ascii chars
 
