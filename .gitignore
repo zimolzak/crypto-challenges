@@ -1,2 +1,5 @@
 *~
-out.txt
+*.txt
+!4.txt
+!6.txt
+

@@ -1,13 +1,14 @@
 #!/usr/bin/perl -w
-# usage ./chal6.pl 6.txt
+# usage ./chal6.pl 6.txt > out.txt
 
 use strict;
-use Cryptopals qw(hamming h2b b2h ascii2hex keys_ascending ceil);
+use Cryptopals qw(hamming h2b b2h ascii2hex);
+use Histogram qw(print_sig);
+use Rkxor;
 
 # use MIME::Base64;
 
 #tests
-
 die unless hamming(ascii2hex("this is a test"),
 		   ascii2hex("wokka wokka!!!")) == 37;
 my $cipher_hex = "ff00abc12";
@@ -20,63 +21,16 @@ die unless h2b($cipher_hex) eq $b;
 
 # main
 
+my $max_key_len = 40; # go up to 40 for full scale. ch5 has 74 by so max 37. I used 20 or 5.
+
 $b = "";
 while(<>){
     chomp;
     $b .= $_
 }
 $cipher_hex = b2h($b);
+break_rk_xor($cipher_hex, $max_key_len);
 
-my @keysizelist = (2 .. 40);
-my %normdistances;
+# $cipher_hex="0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f";
 
-for my $keysize (@keysizelist){
-    my $first = substr($cipher_hex, 0, 2*$keysize);
-    my $second = substr($cipher_hex, 2*$keysize, 2*$keysize);
-    $normdistances{$keysize} = hamming($first,$second) / $keysize;
-}
-
-my @best_key_sizes = keys_ascending(\%normdistances);
-
-print join(', ', @best_key_sizes[0 .. 2]), "\n";
-
-my $N_top_keysizes = 3;
-
-$cipher_hex = "aabbccAABBCC112233"; #deleteme
-
-for my $ks (@best_key_sizes[0 .. ($N_top_keysizes - 1)]){
-    # ks is in bytes, not hex characters
-
-    # break the ciphertext into blocks of KEYSIZE length.
-    my @blocks = ();
-    my $m = ceil(length($cipher_hex) / 2 / $ks); # number of blocks
-    print "ks $ks so $m blocks.\n";
-    for my $i (0 .. $m-1) {
-	if ($i < $m-1) { 
-	    push @blocks, substr($cipher_hex, $ks * 2 * $i, 2 * $ks);
-	}
-	else {
-	    # on last block, grab unlimited to end of string.
-	    push @blocks, substr($cipher_hex, $ks * 2 * $i);
-	}
-    }
-    print join(':',@blocks), "\n";
-
-    # Now transpose the blocks:
-    my @transposed;
-    for my $i (0 .. $ks-1){
-	for my $j (0 .. $m-1) {
-	    if ($j==0){
-		push @transposed, substr($blocks[$j], $i * 2, 2);
-	    }
-	    else {
-		$transposed[$i] .= substr($blocks[$j], $i * 2, 2);
-		# Don't need to check len(b_j) because substr is OK?
-	    }
-	}
-    }
-    print "  T: ", join(':',@transposed), "\n";
-
-    # Solve each block as if it was single-character XOR.
-    
-}
+# break_rk_xor($cipher_hex, $max_key_len);

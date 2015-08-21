@@ -8,9 +8,9 @@ our $VERSION = 1;
 our @ISA= qw( Exporter );
 
 our @EXPORT_OK = qw( find_decrypts printhash hex_xor_hex hex2ascii ascii2hex
-letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending ceil);
+letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending ceil signature);
 
-our @EXPORT = qw( find_decrypts printhash hex_xor_hex h2b );
+our @EXPORT = qw( find_decrypts printhash hex_xor_hex h2b signature hamming keys_ascending ceil);
 
 # construct table
 our @b64table;
@@ -121,14 +121,70 @@ sub proportion {
 }
 
 my $letters = "abcdefghijklmnopqrstuvwxyz";
+my $spaces = "\r\n ";
+my $unprintable;
+for (0..9, 11, 12, 14..31, 127) {
+    $unprintable .= chr($_);
+}
+
+my $misc;
+for (33..64, 91..96, 123..126) {
+    $misc .= chr($_);
+}
+
+die unless (length($letters) * 2)
+    + length ($spaces . $unprintable . $misc) == 128;
+
+my %ascii_class;
+$ascii_class{"letters"} = $letters;
+$ascii_class{"spaces"} = $spaces;
+$ascii_class{"misc"} = $misc;
+$ascii_class{"unprintable"} = $unprintable;
 
 my $nonletters = chr(0);
 for my $val (1 .. 64, 91 .. 96, 123 .. 127){
     $nonletters .= chr($val);
 }
 
+my $printable;
+for (32 .. 126) {
+    $printable .= chr($_);
+}
+
 sub metric {
-    return proportion($letters, @_) * proportion("etaoin", @_);
+    # improving this improves your breaking!
+    # higher means more likely to be English.
+    # rememember, PROPORTION() does it case-insensitive.
+
+    # return proportion($letters, @_) * proportion("etaoin", @_);
+
+    # return proportion($printable, @_);
+
+    # return (1 - proportion($unprintable, @_));
+    
+    # return proportion($letters, @_);
+
+#     return proportion($letters, @_)
+# 	* (1 - proportion($unprintable, @_))
+# 	* (1 - proportion($misc, @_));
+
+    my $strictly_decreasing = (
+	proportion($letters,@_) > proportion($spaces,@_) &&
+	proportion($spaces,@_) >= proportion($misc,@_) &&
+	proportion($misc,@_) >= proportion($unprintable,@_)
+	);
+
+    return proportion($letters, @_) * $strictly_decreasing;
+
+}
+
+sub signature {
+    my ($text) = @_;
+    my %sig; 
+    while(my($k, $v) = each %ascii_class) {
+	$sig{$k} = proportion($v, $text);
+    }
+    return \%sig;
 }
 
 sub argmax {
@@ -155,7 +211,7 @@ sub arg {
 }
 
 sub key_xor_hex_to_text {
-    # take actual char string, xor it with hex string, return real text.
+    # take actual char string (key), xor it with hex string, return real text.
     my ($char, $hex_in) = @_;
     my $hex_char = ascii2hex($char);
     my $int_repeats = int ((length $hex_in) / (length $hex_char));
@@ -166,26 +222,38 @@ sub key_xor_hex_to_text {
 }
 
 sub find_decrypts {
+    # tries to break a single-character XOR cipher.
     my %results;
-    my @metrics = (0.0) x 127;
+    my @metrics = (0.0) x 255;
     my ($cipher_hex) = @_;
     
-    for my $charval (32 .. 126) { # " " .. "~"
+    for my $charval (0 .. 255) { # Formerly assuming 32 .. 126 or " " .. "~"
 	my $plaintext = key_xor_hex_to_text(chr($charval), $cipher_hex);
 	$metrics[$charval] = metric($plaintext);
     }
 
     for my $arg (argmax(@metrics)){
-	$results{chr($arg)} = key_xor_hex_to_text(chr($arg), $cipher_hex);
+	$results{chr($arg)} = key_xor_hex_to_text(chr($arg), $cipher_hex) if $metrics[$arg] > 0;
     }
     return \%results;
 }
 
 sub printhash {
+    # eats the real thing, not a pointer.
     my $iskey = 1;
     for my $x (@_) {
-	print "$x -> " if $iskey;
-	print "$x\n" if not $iskey;
+	if ($iskey){
+	    print "  $x -> " ;
+	}
+	else {
+	    $x =~ s/[\r\n\v]//g;
+	    if (length($x) > 70){
+		print substr($x, 0, 70), "\n";
+	    }
+	    else {
+		print "$x\n";
+	    }
+	}
 	$iskey ^= 1;
     }
 }
