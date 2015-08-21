@@ -8,7 +8,7 @@ our $VERSION = 1;
 our @ISA= qw( Exporter );
 
 our @EXPORT_OK = qw( find_decrypts printhash hex_xor_hex hex2ascii ascii2hex
-letterfreq sum proportion metric argmax key_xor_hex_to_text );
+letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits);
 
 our @EXPORT = qw( find_decrypts printhash hex_xor_hex h2b );
 
@@ -46,6 +46,17 @@ sub hex_xor_hex {
     }
     $returnme =~ s/ //g;
     return $returnme;
+}
+
+sub hex_bits {
+    #  return number of bits set in a hex string
+    my ($hex) = @_;
+    my $bits_set = 0;
+    for (my $i = 0; $i < length $hex; $i++){
+	my @bits = split(//, sprintf "%b", hex substr($hex, $i, 1));
+	$bits_set += sum(@bits);
+    }
+    return $bits_set;
 }
 
 sub hex2ascii {
@@ -143,6 +154,13 @@ sub printhash {
 	print "$x\n" if not $iskey;
 	$iskey ^= 1;
     }
+}
+
+sub hamming {
+    #  takes two equal-length buffers and returns bitwise edit distance
+    my ($str1, $str2) = @_;
+    die if (length $str1) != (length $str2);
+    return hex_bits(hex_xor_hex(ascii2hex($str1), ascii2hex($str2)));
 }
 
 1;
