@@ -19,11 +19,17 @@ sub break_rk_xor {
     my @keysizelist = (2 .. $max_key_len);
     my %normdistances;
 
+    # 3. For each KEYSIZE, take the first KEYSIZE worth of bytes, and
+    # the second KEYSIZE worth of bytes, and find the edit distance.
+    
     for my $keysize (@keysizelist){
 	my $first = substr($cipher_hex, 0, 2*$keysize);
 	my $second = substr($cipher_hex, 2*$keysize, 2*$keysize);
 	$normdistances{$keysize} = hamming($first,$second) / $keysize;
     }
+
+    # 4. The KEYSIZE with the smallest normalized edit distance is
+    # probably the key.
 
     my @best_key_sizes = keys_ascending(\%normdistances);
 
@@ -31,12 +37,10 @@ sub break_rk_xor {
 
     my $N_top_keysizes = 3;
 
-# $cipher_hex = "aabbccAABBCC112233";
+    for my $ks (@best_key_sizes[0 .. ($N_top_keysizes - 1)]){ # ks is in bytes
 
-    for my $ks (@best_key_sizes[0 .. ($N_top_keysizes - 1)]){
-	# ks is in bytes, not hex characters
+	# 5. Break the ciphertext into blocks of KEYSIZE length.
 
-	# break the ciphertext into blocks of KEYSIZE length.
 	my @blocks = ();
 	my $m = ceil(length($cipher_hex) / 2 / $ks); # number of blocks
 	print "\nKey size $ks implies $m blocks.\n";
@@ -44,14 +48,13 @@ sub break_rk_xor {
 	    if ($i < $m-1) { 
 		push @blocks, substr($cipher_hex, $ks * 2 * $i, 2 * $ks);
 	    }
-	    else {
-		# on last block, grab unlimited to end of string.
+	    else { # on last block, grab unlimited to end of string.
 		push @blocks, substr($cipher_hex, $ks * 2 * $i);
 	    }
 	}
-	# print join(':',@blocks), "\n";
 
-	# Now transpose the blocks:
+	# 6. Now transpose the blocks:
+
 	my @transposed;
 	for my $i (0 .. $ks-1){
 	    for my $j (0 .. $m-1) {
@@ -60,13 +63,12 @@ sub break_rk_xor {
 		}
 		else {
 		    $transposed[$i] .= substr($blocks[$j], $i * 2, 2) if length($blocks[$j]) >= ($i+1)*2;
-		    # Don't need to check len(b_j) because substr is OK?
 		}
 	    }
 	}
-	# print "  T: ", join(':',@transposed), "\n";
 
-	# Solve each block as if it was single-character XOR.
+	# 7. Solve each block as if it was single-character XOR.
+
 	my $key_ch_num = 0;
 	for (@transposed) {
 	    print "ch $key_ch_num =\n";
