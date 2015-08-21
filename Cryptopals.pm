@@ -10,7 +10,7 @@ our @ISA= qw( Exporter );
 our @EXPORT_OK = qw( find_decrypts printhash hex_xor_hex hex2ascii ascii2hex
 letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending ceil signature);
 
-our @EXPORT = qw( find_decrypts printhash hex_xor_hex h2b signature);
+our @EXPORT = qw( find_decrypts printhash hex_xor_hex h2b signature hamming keys_ascending ceil);
 
 # construct table
 our @b64table;
@@ -160,7 +160,14 @@ sub metric {
 
     # return proportion($printable, @_);
 
-    return (1 - proportion($unprintable, @_));
+    # return (1 - proportion($unprintable, @_));
+    
+    return proportion($letters, @_);
+
+#     return proportion($letters, @_)
+# 	* (1 - proportion($unprintable, @_))
+# 	* (1 - proportion($misc, @_));
+
 }
 
 sub signature {
@@ -209,10 +216,10 @@ sub key_xor_hex_to_text {
 sub find_decrypts {
     # tries to break a single-character XOR cipher.
     my %results;
-    my @metrics = (0.0) x 127;
+    my @metrics = (0.0) x 255;
     my ($cipher_hex) = @_;
     
-    for my $charval (0 .. 127) { # Formerly assuming 32 .. 126 or " " .. "~"
+    for my $charval (0 .. 255) { # Formerly assuming 32 .. 126 or " " .. "~"
 	my $plaintext = key_xor_hex_to_text(chr($charval), $cipher_hex);
 	$metrics[$charval] = metric($plaintext);
     }
