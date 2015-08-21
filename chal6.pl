@@ -2,7 +2,7 @@
 # usage ./chal6.pl 6.txt
 
 use strict;
-use Cryptopals qw(hamming h2b b2h ascii2hex argmin argmax);
+use Cryptopals qw(hamming h2b b2h ascii2hex argmin argmax printhash);
 
 # use MIME::Base64;
 
@@ -28,18 +28,20 @@ while(<>){
 $h = b2h($b);
 
 my @keysizelist = (2 .. 40);
-my @normdistances;
+my %normdistances;
 
 for my $keysize (@keysizelist){
     my $first = substr($h, 0, 2*$keysize);
     my $second = substr($h, 2*$keysize, 2*$keysize);
-    my $nd = hamming($first,$second) / $keysize;
-    push (@normdistances, $nd);
+    $normdistances{$keysize} = hamming($first,$second) / $keysize;
 }
-print join(" ", @normdistances), "\n";
-die unless $#keysizelist == $#normdistances;
 
-my @am = argmin(@normdistances);
-my $ks = $keysizelist[$am[0]];
+printhash %normdistances;
 
-print "Arg $am[0], key size $ks.\n"
+# print join(" ", @normdistances), "\n";
+# die unless $#keysizelist == $#normdistances;
+
+# my @am = argmin(@normdistances);
+# my $ks = $keysizelist[$am[0]];
+
+# print "Arg $am[0], key size $ks.\n"
