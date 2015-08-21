@@ -212,7 +212,7 @@ sub find_decrypts {
     my @metrics = (0.0) x 127;
     my ($cipher_hex) = @_;
     
-    for my $charval (32 .. 126) { # " " .. "~"
+    for my $charval (0 .. 127) { # Formerly assuming 32 .. 126 or " " .. "~"
 	my $plaintext = key_xor_hex_to_text(chr($charval), $cipher_hex);
 	$metrics[$charval] = metric($plaintext);
     }
