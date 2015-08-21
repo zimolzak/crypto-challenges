@@ -158,7 +158,9 @@ sub metric {
 
     # return proportion($letters, @_) * proportion("etaoin", @_);
 
-    return proportion($printable, @_);
+    # return proportion($printable, @_);
+
+    return (1 - proportion($unprintable, @_));
 }
 
 sub signature {
