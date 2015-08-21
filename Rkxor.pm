@@ -14,10 +14,10 @@ our @EXPORT_OK = qw( break_rk_xor );
 our @EXPORT = qw( break_rk_xor );
 
 sub break_rk_xor {
-    my ($cipher_hex) = @_;
+    my ($cipher_hex,  $max_key_len) = @_;
 
 #indent
-my @keysizelist = (2 .. 40);
+my @keysizelist = (2 .. $max_key_len);
 my %normdistances;
 
 for my $keysize (@keysizelist){
