@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl 
 
 # Take string of hex chars and output string of base64 chars.
 
@@ -26,7 +26,8 @@ sub h2b {
     return $returnme;
 }
 
-print h2b("4d616e") . "\n";
+print "TEST " . h2b("4d616e") . "\n";
+print "Challenge 1 b64: ";
 print h2b("49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d") . "\n";
 
 sub hex_xor_hex {
@@ -43,4 +44,60 @@ sub hex_xor_hex {
     return $returnme;
 }
 
+print "Challenge 2 XOR result: ";
+
 print hex_xor_hex("1c0111001f010100061a024b53535009181c", "686974207468652062756c6c277320657965") . "\n";
+
+
+
+
+
+# find single char, XOR it against ciphertext, score english plaintext.
+
+print "Challenge 3 ";
+
+my $ciphertext = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
+
+sub hex2ascii {
+    return pack "H*", @_;
+}
+
+sub letterfreq {
+    my @freqs = (0) x 26;
+    my ($str) = @_;
+    my $i = 0;
+    for my $letter ("A" .. "Z") {
+	$freqs[$i] =  $freqs[$i] + ($str =~ s/$letter/$letter/gi);
+	$i++;
+    }
+    return @freqs;
+}
+
+sub sum {
+    my $total = 0;
+    for my $x (@_) {
+	$total += $x;
+    }
+    return $total;
+}
+
+print "CIPH: " . (hex2ascii $ciphertext) . "\n" ;
+
+print "  ";
+for my $letter ("A" .. "Z") {
+    print $letter;
+}
+print "\n";
+
+for my $charval (32 .. 126) { # " " .. "~"
+    my $single_char = chr($charval);
+    my $hex_char = sprintf "%x", $charval;
+    my $repeated_key = $hex_char x ((length $ciphertext) / 2);
+    my $plaintext = hex2ascii(hex_xor_hex($ciphertext, $repeated_key));
+    my @f = letterfreq($plaintext);
+    if ( (sum(@f) / (length($ciphertext) / 2)) > 0.75 ) {
+	print $single_char . " ";
+	print @f;
+	print " " . sum(@f) . " " . sum(@f) / (length($ciphertext) / 2)  . " " . $plaintext . "\n";
+    }
+}
