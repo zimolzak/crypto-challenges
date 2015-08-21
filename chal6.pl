@@ -4,6 +4,8 @@
 use strict;
 use Cryptopals qw(hamming h2b b2h ascii2hex argmin argmax);
 
+# use MIME::Base64;
+
 #tests
 
 die unless hamming(ascii2hex("this is a test"),
