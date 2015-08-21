@@ -2,7 +2,7 @@
 # usage ./chal6.pl 6.txt
 
 use strict;
-use Cryptopals qw(hamming h2b b2h ascii2hex keys_ascending);
+use Cryptopals qw(hamming h2b b2h ascii2hex keys_ascending ceil);
 
 # use MIME::Base64;
 
@@ -45,13 +45,38 @@ my $N_top_keysizes = 3;
 $cipher_hex = "aabbccAABBCC112233"; #deleteme
 
 for my $ks (@best_key_sizes[0 .. ($N_top_keysizes - 1)]){
-    my @single_char_xors;
-    for my $i (0..$ks){
-	for(my $j = 0;
-	    my $contents = substr($cipher_hex, $ks * 2 * $j + 2 * $i, 2);
-	    $j++){
-	    $single_char_xors[$i] .= $contents;
+    # ks is in bytes, not hex characters
+
+    # break the ciphertext into blocks of KEYSIZE length.
+    my @blocks = ();
+    my $m = ceil(length($cipher_hex) / 2 / $ks); # number of blocks
+    print "ks $ks so $m blocks.\n";
+    for my $i (0 .. $m-1) {
+	if ($i < $m-1) { 
+	    push @blocks, substr($cipher_hex, $ks * 2 * $i, 2 * $ks);
+	}
+	else {
+	    # on last block, grab unlimited to end of string.
+	    push @blocks, substr($cipher_hex, $ks * 2 * $i);
 	}
     }
-    print "$ks ", join(':',@single_char_xors), "\n";
+    print join(':',@blocks), "\n";
+
+    # Now transpose the blocks:
+    my @transposed;
+    for my $i (0 .. $ks-1){
+	for my $j (0 .. $m-1) {
+	    if ($j==0){
+		push @transposed, substr($blocks[$j], $i * 2, 2);
+	    }
+	    else {
+		$transposed[$i] .= substr($blocks[$j], $i * 2, 2);
+		# Don't need to check len(b_j) because substr is OK?
+	    }
+	}
+    }
+    print "  T: ", join(':',@transposed), "\n";
+
+    # Solve each block as if it was single-character XOR.
+    
 }
