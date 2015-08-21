@@ -1,8 +1,16 @@
-#!/usr/bin/perl 
-
-# Take string of hex chars and output string of base64 chars.
-
+package Cryptopals;
 use strict;
+use warnings;
+use Exporter;
+
+our $VERSION = 1;
+
+our @ISA= qw( Exporter );
+
+our @EXPORT_OK = qw( find_decrypts printhash hex_xor_hex hex2ascii
+letterfreq sum proportion metric argmax key_xor_hex_to_text );
+
+our @EXPORT = qw( find_decrypts printhash hex_xor_hex h2b );
 
 # construct table
 my @b64table;
@@ -26,10 +34,6 @@ sub h2b {
     return $returnme;
 }
 
-print "TEST " . h2b("4d616e") . "\n";
-print "Challenge 1 b64: ";
-print h2b("49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d") . "\n";
-
 sub hex_xor_hex {
     #  takes two equal-length buffers and produces their XOR combination
     my ($buf1, $buf2) = @_;
@@ -44,25 +48,11 @@ sub hex_xor_hex {
     return $returnme;
 }
 
-print "Challenge 2 XOR result: ";
-
-print hex_xor_hex("1c0111001f010100061a024b53535009181c", "686974207468652062756c6c277320657965") . "\n";
-
-
-
-
-
-# find single char, XOR it against ciphertext, score english plaintext.
-
-print "Challenge 3 ";
-
-my $cipher_hex = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
-
 sub hex2ascii {
     return pack "H*", @_;
 }
 
-sub letterfreq { # unused but could be handy later
+sub letterfreq { 
     my @freqs = (0) x 26;
     my ($str) = @_;
     my $i = 0;
@@ -73,7 +63,7 @@ sub letterfreq { # unused but could be handy later
     return @freqs;
 }
 
-sub sum { # unused but could be handy later
+sub sum { 
     my $total = 0;
     for my $x (@_) {
 	$total += $x;
@@ -97,6 +87,7 @@ sub proportion {
 }
 
 my $letters = "abcdefghijklmnopqrstuvwxyz";
+
 my $nonletters = chr(0);
 for my $val (1 .. 64, 91 .. 96, 123 .. 127){
     $nonletters .= chr($val);
@@ -146,7 +137,4 @@ sub printhash {
     }
 }
 
-### end declarations
-
-my %decrypts = %{find_decrypts($cipher_hex)};
-printhash(%decrypts);
+1;
