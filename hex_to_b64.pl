@@ -62,7 +62,7 @@ sub hex2ascii {
     return pack "H*", @_;
 }
 
-sub letterfreq {
+sub letterfreq { # unused but could be handy later
     my @freqs = (0) x 26;
     my ($str) = @_;
     my $i = 0;
@@ -73,7 +73,7 @@ sub letterfreq {
     return @freqs;
 }
 
-sub sum {
+sub sum { # unused but could be handy later
     my $total = 0;
     for my $x (@_) {
 	$total += $x;
@@ -90,7 +90,7 @@ sub proportion {
     my $found = 0;
     for my $s (@string) {
 	for my $c (@chars){
-	    $found++ if $s eq $c; # s/// fails with char like '('
+	    $found++ if $s eq $c; # s/// fails with chars like '('
 	}
     }
     return $found / (length $str);
@@ -127,11 +127,7 @@ sub find_decrypts {
     my ($cipher_hex) = @_;
     
     for my $charval (32 .. 126) { # " " .. "~"
-
-	my $hex_char = sprintf "%x", $charval;
-	my $repeated_key = $hex_char x ((length $cipher_hex) / 2);
-	my $plaintext = hex2ascii(hex_xor_hex($cipher_hex, $repeated_key));
-
+	my $plaintext = key_xor_hex_to_text(chr($charval), $cipher_hex);
 	$metrics[$charval] = metric($plaintext);
     }
 
