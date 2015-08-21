@@ -8,7 +8,7 @@ our $VERSION = 1;
 our @ISA= qw( Exporter );
 
 our @EXPORT_OK = qw( find_decrypts printhash hex_xor_hex hex2ascii ascii2hex
-letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending ceil);
+letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending ceil signature);
 
 our @EXPORT = qw( find_decrypts printhash hex_xor_hex h2b );
 
@@ -121,14 +121,53 @@ sub proportion {
 }
 
 my $letters = "abcdefghijklmnopqrstuvwxyz";
+my $spaces = "\r\n ";
+my $unprintable;
+for (0..9, 11, 12, 14..31, 127) {
+    $unprintable .= chr($_);
+}
+
+my $misc;
+for (33..64, 91..96, 123..126) {
+    $misc .= chr($_);
+}
+
+die unless (length($letters) * 2)
+    + length ($spaces . $unprintable . $misc) == 128;
+
+my %ascii_class;
+$ascii_class{"letters"} = $letters;
+$ascii_class{"spaces"} = $spaces;
+$ascii_class{"misc"} = $misc;
+$ascii_class{"unprintable"} = $unprintable;
 
 my $nonletters = chr(0);
 for my $val (1 .. 64, 91 .. 96, 123 .. 127){
     $nonletters .= chr($val);
 }
 
+my $printable;
+for (32 .. 126) {
+    $printable .= chr($_);
+}
+
 sub metric {
-    return proportion($letters, @_) * proportion("etaoin", @_);
+    # improving this improves your breaking!
+    # higher means more likely to be English.
+    # rememember, PROPORTION() does it case-insensitive.
+
+    # return proportion($letters, @_) * proportion("etaoin", @_);
+
+    return proportion($printable, @_);
+}
+
+sub signature {
+    my ($text) = @_;
+    my %sig; 
+    while(my($k, $v) = each %ascii_class) {
+	$sig{$k} = proportion($v, $text);
+    }
+    return \%sig;
 }
 
 sub argmax {
@@ -166,6 +205,7 @@ sub key_xor_hex_to_text {
 }
 
 sub find_decrypts {
+    # tries to break a single-character XOR cipher.
     my %results;
     my @metrics = (0.0) x 127;
     my ($cipher_hex) = @_;
@@ -182,6 +222,7 @@ sub find_decrypts {
 }
 
 sub printhash {
+    # eats the real thing, not a pointer.
     my $iskey = 1;
     for my $x (@_) {
 	print "$x -> " if $iskey;
