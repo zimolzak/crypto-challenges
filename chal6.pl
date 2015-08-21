@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
-# usage ./chal6.pl 6.txt
+# usage ./chal6.pl 6.txt > out.txt
 
 use strict;
-use Cryptopals qw(hamming h2b b2h ascii2hex keys_ascending ceil);
+use Cryptopals qw(hamming h2b b2h ascii2hex keys_ascending ceil find_decrypts printhash);
 
 # use MIME::Base64;
 
@@ -42,7 +42,7 @@ print join(', ', @best_key_sizes[0 .. 2]), "\n";
 
 my $N_top_keysizes = 3;
 
-$cipher_hex = "aabbccAABBCC112233"; #deleteme
+# $cipher_hex = "aabbccAABBCC112233";
 
 for my $ks (@best_key_sizes[0 .. ($N_top_keysizes - 1)]){
     # ks is in bytes, not hex characters
@@ -60,7 +60,7 @@ for my $ks (@best_key_sizes[0 .. ($N_top_keysizes - 1)]){
 	    push @blocks, substr($cipher_hex, $ks * 2 * $i);
 	}
     }
-    print join(':',@blocks), "\n";
+    # print join(':',@blocks), "\n";
 
     # Now transpose the blocks:
     my @transposed;
@@ -75,8 +75,12 @@ for my $ks (@best_key_sizes[0 .. ($N_top_keysizes - 1)]){
 	    }
 	}
     }
-    print "  T: ", join(':',@transposed), "\n";
+    # print "  T: ", join(':',@transposed), "\n";
 
     # Solve each block as if it was single-character XOR.
+    for (@transposed) {
+	my %decrypts = %{find_decrypts($_)};
+	printhash(%decrypts);
+    }
     
 }
