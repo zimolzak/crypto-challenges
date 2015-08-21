@@ -162,11 +162,19 @@ sub metric {
 
     # return (1 - proportion($unprintable, @_));
     
-    return proportion($letters, @_);
+    # return proportion($letters, @_);
 
 #     return proportion($letters, @_)
 # 	* (1 - proportion($unprintable, @_))
 # 	* (1 - proportion($misc, @_));
+
+    my $strictly_decreasing = (
+	proportion($letters,@_) > proportion($spaces,@_) &&
+	proportion($spaces,@_) >= proportion($misc,@_) &&
+	proportion($misc,@_) >= proportion($unprintable,@_)
+	);
+
+    return proportion($letters, @_) * $strictly_decreasing;
 
 }
 
@@ -225,7 +233,7 @@ sub find_decrypts {
     }
 
     for my $arg (argmax(@metrics)){
-	$results{chr($arg)} = key_xor_hex_to_text(chr($arg), $cipher_hex);
+	$results{chr($arg)} = key_xor_hex_to_text(chr($arg), $cipher_hex) if $metrics[$arg] > 0;
     }
     return \%results;
 }
