@@ -7,7 +7,7 @@ our $VERSION = 1;
 
 our @ISA= qw( Exporter );
 
-our @EXPORT_OK = qw( find_decrypts printhash hex_xor_hex hex2ascii
+our @EXPORT_OK = qw( find_decrypts printhash hex_xor_hex hex2ascii ascii2hex
 letterfreq sum proportion metric argmax key_xor_hex_to_text );
 
 our @EXPORT = qw( find_decrypts printhash hex_xor_hex h2b );
@@ -50,6 +50,11 @@ sub hex_xor_hex {
 
 sub hex2ascii {
     return pack "H*", @_;
+}
+
+sub ascii2hex {
+    my ($str) = @_;
+    return unpack "H*", $str;
 }
 
 sub letterfreq { 
@@ -107,8 +112,11 @@ sub argmax {
 sub key_xor_hex_to_text {
     # take actual char string, xor it with hex string, return real text.
     my ($char, $hex_in) = @_;
-    my $hex_char = sprintf "%x", ord($char);
-    my $repeated_key = $hex_char x ((length $hex_in) / 2);
+    my $hex_char = ascii2hex($char);
+    my $int_repeats = int ((length $hex_in) / (length $hex_char));
+    my $extra_chars = (length $hex_in) % (length $hex_char);
+    my $repeated_key = $hex_char x $int_repeats . substr($hex_char, 0, $extra_chars);
+
     return hex2ascii(hex_xor_hex($hex_in, $repeated_key));
 }
 
