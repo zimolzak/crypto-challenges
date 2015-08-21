@@ -196,7 +196,7 @@ sub arg {
 }
 
 sub key_xor_hex_to_text {
-    # take actual char string, xor it with hex string, return real text.
+    # take actual char string (key), xor it with hex string, return real text.
     my ($char, $hex_in) = @_;
     my $hex_char = ascii2hex($char);
     my $int_repeats = int ((length $hex_in) / (length $hex_char));
@@ -227,8 +227,18 @@ sub printhash {
     # eats the real thing, not a pointer.
     my $iskey = 1;
     for my $x (@_) {
-	print "$x -> " if $iskey;
-	print "$x\n" if not $iskey;
+	if ($iskey){
+	    print "  $x -> " ;
+	}
+	else {
+	    $x =~ s/[\r\n\v]//g;
+	    if (length($x) > 70){
+		print substr($x, 0, 70), "\n";
+	    }
+	    else {
+		print "$x\n";
+	    }
+	}
 	$iskey ^= 1;
     }
 }

@@ -28,7 +28,7 @@ while(<>){
 }
 $cipher_hex = b2h($b);
 
-$DB::single=2;
+#$DB::single=2;
 
 my @keysizelist = (2 .. 40);
 my %normdistances;
@@ -73,7 +73,7 @@ for my $ks (@best_key_sizes[0 .. ($N_top_keysizes - 1)]){
 		push @transposed, substr($blocks[$j], $i * 2, 2);
 	    }
 	    else {
-		$transposed[$i] .= substr($blocks[$j], $i * 2, 2);
+		$transposed[$i] .= substr($blocks[$j], $i * 2, 2) if length($blocks[$j]) >= ($i+1)*2;
 		# Don't need to check len(b_j) because substr is OK?
 	    }
 	}
@@ -85,7 +85,7 @@ for my $ks (@best_key_sizes[0 .. ($N_top_keysizes - 1)]){
     for (@transposed) {
 	print "ch $key_ch_num =\n";
 	my %decrypts = %{find_decrypts($_)};
-	# printhash(%decrypts);
+	printhash(%decrypts);
 	print_sig(%decrypts);
 	$key_ch_num++;
     }

@@ -54,7 +54,7 @@ sub print_sig {
     my $iskey = 1;
     for my $x (@_) {
 	if ($iskey) {
-	    print "$x -> ";
+	    print "  $x -> ";
 	}
 	else {
 	    my %h = %{signature($x)};
