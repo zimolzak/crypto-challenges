@@ -8,12 +8,12 @@ our $VERSION = 1;
 our @ISA= qw( Exporter );
 
 our @EXPORT_OK = qw( find_decrypts printhash hex_xor_hex hex2ascii ascii2hex
-letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits);
+letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits b2h);
 
 our @EXPORT = qw( find_decrypts printhash hex_xor_hex h2b );
 
 # construct table
-my @b64table;
+our @b64table;
 for my $x ("A" .. "Z") {push @b64table, $x;}
 for my $x ("a" .. "z") {push @b64table, $x;}
 for my $x ("0" .. "9") {push @b64table, $x;}
@@ -21,6 +21,7 @@ push @b64table, "+";
 push @b64table, "/";
 
 sub h2b {
+    # hex to base64. 3 hex chars --> 4 octal --> 2 base64.
     my ($str) = @_;
     my $returnme = " ";
     for (my $i = 0; $i < length $str; $i += 3){
@@ -28,7 +29,22 @@ sub h2b {
 	my $octal = sprintf "%04o", (hex $threehex);
 	my $idx1 = oct(substr($octal, 0, 2));
 	my $idx2 = oct(substr($octal, 2, 2));
-	$returnme = $returnme . $b64table[$idx1] . $b64table[$idx2];
+	$returnme = $returnme . $Cryptopals::b64table[$idx1] . $Cryptopals::b64table[$idx2];
+    }
+    $returnme =~ s/ //g;
+    return $returnme;
+}
+
+sub b2h {
+    # every two base64 chars to three hex chars
+    my ($str) = @_;
+    my $returnme = " ";
+    for (my $i = 0; $i < length $str; $i += 2){
+	my @idx1 = arg(substr($str, $i, 1), \@Cryptopals::b64table);
+	my @idx2 = arg(substr($str, $i+1, 1), \@Cryptopals::b64table);
+	my $val = ($idx1[0] << 6) + $idx2[0];
+	my $deleteme = substr($str, $i, 1);
+	$returnme .= sprintf "%03x", $val;
     }
     $returnme =~ s/ //g;
     return $returnme;
@@ -118,6 +134,13 @@ sub argmax {
     my @sort_desc = sort {$b<=>$a} @list;
     my @args = grep { $list[$_] == $sort_desc[0] } 0 .. $#list;
     return @args;
+}
+
+sub arg {
+    my ($val, $listptr) = @_;
+    my @list = @{$listptr};
+    my @args = grep { $list[$_] eq $val } 0 .. $#list;
+    return @args;    
 }
 
 sub key_xor_hex_to_text {
