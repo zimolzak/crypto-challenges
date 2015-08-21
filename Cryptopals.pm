@@ -8,7 +8,7 @@ our $VERSION = 1;
 our @ISA= qw( Exporter );
 
 our @EXPORT_OK = qw( find_decrypts printhash hex_xor_hex hex2ascii ascii2hex
-letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits b2h);
+letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits b2h argmin);
 
 our @EXPORT = qw( find_decrypts printhash hex_xor_hex h2b );
 
@@ -40,6 +40,8 @@ sub b2h {
     my ($str) = @_;
     my $returnme = " ";
     for (my $i = 0; $i < length $str; $i += 2){
+	# does not handle equal sign padding! FIX ME!
+	next if substr($str, $i, 1) eq "=" or substr($str, $i+1, 1) eq "=";
 	my @idx1 = arg(substr($str, $i, 1), \@Cryptopals::b64table);
 	my @idx2 = arg(substr($str, $i+1, 1), \@Cryptopals::b64table);
 	my $val = ($idx1[0] << 6) + $idx2[0];
@@ -136,7 +138,16 @@ sub argmax {
     return @args;
 }
 
+sub argmin {
+    # returns an ARRAY!!
+    my @list = @_;
+    my @sort_desc = sort {$a<=>$b} @list;
+    my @args = grep { $list[$_] == $sort_desc[0] } 0 .. $#list;
+    return @args;
+}
+
 sub arg {
+    ## IMPORTANT! Takes a value AND an array POINTER, and does STRING compare.
     my ($val, $listptr) = @_;
     my @list = @{$listptr};
     my @args = grep { $list[$_] eq $val } 0 .. $#list;
@@ -180,10 +191,11 @@ sub printhash {
 }
 
 sub hamming {
-    #  takes two equal-length buffers and returns bitwise edit distance
+    #  takes two equal-length buffers (strings) and returns bitwise
+    #  edit distance.
     my ($str1, $str2) = @_;
     die if (length $str1) != (length $str2);
-    return hex_bits(hex_xor_hex(ascii2hex($str1), ascii2hex($str2)));
+    return hex_bits(hex_xor_hex($str1, $str2));
 }
 
 1;
