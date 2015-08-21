@@ -13,6 +13,21 @@ our @EXPORT_OK = qw( break_rk_xor );
 
 our @EXPORT = qw( break_rk_xor );
 
+sub hex2blocks {
+    my ($cipher_hex, $bytes) = @_;
+    my @blocks = ();
+    my $m = ceil(length($cipher_hex) / 2 / $bytes); # number of blocks
+    for my $i (0 .. $m-1) {
+	if ($i < $m-1) { 
+	    push @blocks, substr($cipher_hex, $bytes * 2 * $i, 2 * $bytes);
+	}
+	else { # on last block, grab unlimited to end of string.
+	    push @blocks, substr($cipher_hex, $bytes * 2 * $i);
+	}
+    }
+    return @blocks;
+}
+
 sub break_rk_xor {
     my ($cipher_hex,  $max_key_len) = @_;
 
@@ -23,9 +38,9 @@ sub break_rk_xor {
     # the second KEYSIZE worth of bytes, and find the edit distance.
     
     for my $keysize (@keysizelist){
-	my $first = substr($cipher_hex, 0, 2*$keysize);
-	my $second = substr($cipher_hex, 2*$keysize, 2*$keysize);
-	$normdistances{$keysize} = hamming($first,$second) / $keysize;
+	my @b = hex2blocks($cipher_hex, $keysize);
+	my $avg_dist = ( hamming($b[0],$b[1]) + hamming($b[2],$b[3]) + hamming($b[4],$b[5]) ) / 3;
+	$normdistances{$keysize} = $avg_dist / $keysize;
     }
 
     # 4. The KEYSIZE with the smallest normalized edit distance is
@@ -41,23 +56,14 @@ sub break_rk_xor {
 
 	# 5. Break the ciphertext into blocks of KEYSIZE length.
 
-	my @blocks = ();
-	my $m = ceil(length($cipher_hex) / 2 / $ks); # number of blocks
-	print "\nKey size $ks implies $m blocks.\n";
-	for my $i (0 .. $m-1) {
-	    if ($i < $m-1) { 
-		push @blocks, substr($cipher_hex, $ks * 2 * $i, 2 * $ks);
-	    }
-	    else { # on last block, grab unlimited to end of string.
-		push @blocks, substr($cipher_hex, $ks * 2 * $i);
-	    }
-	}
+	my @blocks = hex2blocks($cipher_hex, $ks);
+	print "\nKey size $ks implies $#blocks blocks.\n";
 
 	# 6. Now transpose the blocks:
 
 	my @transposed;
 	for my $i (0 .. $ks-1){
-	    for my $j (0 .. $m-1) {
+	    for my $j (0 .. $#blocks-1) {
 		if ($j==0){
 		    push @transposed, substr($blocks[$j], $i * 2, 2);
 		}
