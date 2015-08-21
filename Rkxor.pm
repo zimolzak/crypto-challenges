@@ -46,12 +46,10 @@ sub break_rk_xor {
     # 4. The KEYSIZE with the smallest normalized edit distance is
     # probably the key.
 
+    my $N_top_keysizes = 5;
+
     my @best_key_sizes = keys_ascending(\%normdistances);
-
-    print "Trying keys of size ", join(', ', @best_key_sizes[0 .. 2]), ".\n";
-
-    my $N_top_keysizes = 3;
-
+    print "Trying keys of size ", join(', ', @best_key_sizes[0 .. $N_top_keysizes-1]), ".\n";
     for my $ks (@best_key_sizes[0 .. ($N_top_keysizes - 1)]){ # ks is in bytes
 
 	# 5. Break the ciphertext into blocks of KEYSIZE length.
