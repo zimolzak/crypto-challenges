@@ -58,10 +58,10 @@ sub print_sig {
 	}
 	else {
 	    my %h = %{signature($x)};
-
-	    print $h{'letters'}, " ", $h{'spaces'}, " ", $h{'misc'},
-	    " ", $h{'unprintable'}, "\n";
-
+	    for my $key qw (letters spaces misc unprintable){ # do it in order
+		printf '%.3f ', $h{$key};
+	    }
+	    print "\n";
 	}
 	$iskey ^= 1;
     }
