@@ -2,12 +2,13 @@ package Histogram;
 use strict;
 use warnings;
 use Exporter;
+use Cryptopals;
 
 our $VERSION = 1;
 
 our @ISA= qw( Exporter );
 
-our @EXPORT_OK = qw( histogram print_histo);
+our @EXPORT_OK = qw( histogram print_histo print_sig);
 
 our @EXPORT = qw( histogram print_histo);
 
@@ -44,6 +45,25 @@ sub print_histo {
 	    print "$el\t";
 	}
 	print "\n\n";
+    }
+}
+
+sub print_sig {
+    # instead of printing hash, prints the keys & the 4-num sigs of
+    # the vals.
+    my $iskey = 1;
+    for my $x (@_) {
+	if ($iskey) {
+	    print "$x -> ";
+	}
+	else {
+	    my %h = %{signature($x)};
+
+	    print $h{'letters'}, " ", $h{'spaces'}, " ", $h{'misc'},
+	    " ", $h{'unprintable'}, "\n";
+
+	}
+	$iskey ^= 1;
     }
 }
 

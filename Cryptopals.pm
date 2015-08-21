@@ -10,7 +10,7 @@ our @ISA= qw( Exporter );
 our @EXPORT_OK = qw( find_decrypts printhash hex_xor_hex hex2ascii ascii2hex
 letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending ceil signature);
 
-our @EXPORT = qw( find_decrypts printhash hex_xor_hex h2b );
+our @EXPORT = qw( find_decrypts printhash hex_xor_hex h2b signature);
 
 # construct table
 our @b64table;

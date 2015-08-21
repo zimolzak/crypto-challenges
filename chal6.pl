@@ -3,6 +3,7 @@
 
 use strict;
 use Cryptopals qw(hamming h2b b2h ascii2hex keys_ascending ceil find_decrypts printhash);
+use Histogram qw(print_sig);
 
 # use MIME::Base64;
 
@@ -26,6 +27,8 @@ while(<>){
     $b .= $_
 }
 $cipher_hex = b2h($b);
+
+$DB::single=2;
 
 my @keysizelist = (2 .. 40);
 my %normdistances;
@@ -80,7 +83,8 @@ for my $ks (@best_key_sizes[0 .. ($N_top_keysizes - 1)]){
     # Solve each block as if it was single-character XOR.
     for (@transposed) {
 	my %decrypts = %{find_decrypts($_)};
-	printhash(%decrypts);
+	# printhash(%decrypts);
+	print_sig(%decrypts);
     }
     
 }
