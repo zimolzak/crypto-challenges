@@ -53,7 +53,7 @@ for my $ks (@best_key_sizes[0 .. ($N_top_keysizes - 1)]){
     # break the ciphertext into blocks of KEYSIZE length.
     my @blocks = ();
     my $m = ceil(length($cipher_hex) / 2 / $ks); # number of blocks
-    print "Key size $ks implies $m blocks.\n";
+    print "\nKey size $ks implies $m blocks.\n";
     for my $i (0 .. $m-1) {
 	if ($i < $m-1) { 
 	    push @blocks, substr($cipher_hex, $ks * 2 * $i, 2 * $ks);
@@ -83,7 +83,7 @@ for my $ks (@best_key_sizes[0 .. ($N_top_keysizes - 1)]){
     # Solve each block as if it was single-character XOR.
     my $key_ch_num = 0;
     for (@transposed) {
-	print "  ch $key_ch_num = ";
+	print "ch $key_ch_num =\n";
 	my %decrypts = %{find_decrypts($_)};
 	# printhash(%decrypts);
 	print_sig(%decrypts);
