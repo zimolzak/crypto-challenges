@@ -56,7 +56,7 @@ print hex_xor_hex("1c0111001f010100061a024b53535009181c", "686974207468652062756
 
 print "Challenge 3 ";
 
-my $ciphertext = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
+my $cipher_hex = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
 
 sub hex2ascii {
     return pack "H*", @_;
@@ -67,7 +67,7 @@ sub letterfreq {
     my ($str) = @_;
     my $i = 0;
     for my $letter ("A" .. "Z") {
-	$freqs[$i] =  $freqs[$i] + ($str =~ s/$letter/$letter/gi);
+	$freqs[$i] = $freqs[$i] + ($str =~ s/$letter/$letter/gi);
 	$i++;
     }
     return @freqs;
@@ -81,23 +81,76 @@ sub sum {
     return $total;
 }
 
-print "CIPH: " . (hex2ascii $ciphertext) . "\n" ;
-
-print "  ";
-for my $letter ("A" .. "Z") {
-    print $letter;
+sub proportion {
+    my ($charset, $str) = @_;
+    $charset =~ tr/a-z/A-Z/;
+    $str =~ tr/a-z/A-Z/;
+    my @chars = split(//, $charset);
+    my @string = split(//, $str);
+    my $found = 0;
+    for my $s (@string) {
+	for my $c (@chars){
+	    $found++ if $s eq $c; # s/// fails with char like '('
+	}
+    }
+    return $found / (length $str);
 }
-print "\n";
 
-for my $charval (32 .. 126) { # " " .. "~"
-    my $single_char = chr($charval);
-    my $hex_char = sprintf "%x", $charval;
-    my $repeated_key = $hex_char x ((length $ciphertext) / 2);
-    my $plaintext = hex2ascii(hex_xor_hex($ciphertext, $repeated_key));
-    my @f = letterfreq($plaintext);
-    if ( (sum(@f) / (length($ciphertext) / 2)) > 0.75 ) {
-	print $single_char . " ";
-	print @f;
-	print " " . sum(@f) . " " . sum(@f) / (length($ciphertext) / 2)  . " " . $plaintext . "\n";
+my $letters = "abcdefghijklmnopqrstuvwxyz";
+my $nonletters = chr(0);
+for my $val (1 .. 64, 91 .. 96, 123 .. 127){
+    $nonletters .= chr($val);
+}
+
+sub metric {
+    return proportion($letters, @_) * proportion("etaoin", @_);
+}
+
+sub argmax {
+    my @list = @_;
+    my @sort_desc = sort {$b<=>$a} @list;
+    my @args = grep { $list[$_] == $sort_desc[0] } 0 .. $#list;
+    return @args;
+}
+
+sub key_xor_hex_to_text {
+    # take actual char string, xor it with hex string, return real text.
+    my ($char, $hex_in) = @_;
+    my $hex_char = sprintf "%x", ord($char);
+    my $repeated_key = $hex_char x ((length $hex_in) / 2);
+    return hex2ascii(hex_xor_hex($hex_in, $repeated_key));
+}
+
+sub find_decrypts {
+    my %results;
+    my @metrics = (0.0) x 127;
+    my ($cipher_hex) = @_;
+    
+    for my $charval (32 .. 126) { # " " .. "~"
+
+	my $hex_char = sprintf "%x", $charval;
+	my $repeated_key = $hex_char x ((length $cipher_hex) / 2);
+	my $plaintext = hex2ascii(hex_xor_hex($cipher_hex, $repeated_key));
+
+	$metrics[$charval] = metric($plaintext);
+    }
+
+    for my $arg (argmax(@metrics)){
+	$results{chr($arg)} = key_xor_hex_to_text(chr($arg), $cipher_hex);
+    }
+    return \%results;
+}
+
+sub printhash {
+    my $iskey = 1;
+    for my $x (@_) {
+	print "$x -> " if $iskey;
+	print "$x\n" if not $iskey;
+	$iskey ^= 1;
     }
 }
+
+### end declarations
+
+my %decrypts = %{find_decrypts($cipher_hex)};
+printhash(%decrypts);
