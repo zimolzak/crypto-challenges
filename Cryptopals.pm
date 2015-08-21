@@ -8,7 +8,7 @@ our $VERSION = 1;
 our @ISA= qw( Exporter );
 
 our @EXPORT_OK = qw( find_decrypts printhash hex_xor_hex hex2ascii ascii2hex
-letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits b2h argmin);
+letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending);
 
 our @EXPORT = qw( find_decrypts printhash hex_xor_hex h2b );
 
@@ -196,6 +196,14 @@ sub hamming {
     my ($str1, $str2) = @_;
     die if (length $str1) != (length $str2);
     return hex_bits(hex_xor_hex($str1, $str2));
+}
+
+sub keys_ascending {
+    # take pointer, return real array. Return keys with lowest vals.
+    my ($p) = @_;
+    my %h = %{$p};
+    my @a = sort { $h{$a} <=> $h{$b} } keys %h;
+    return @a;
 }
 
 1;

@@ -2,7 +2,7 @@
 # usage ./chal6.pl 6.txt
 
 use strict;
-use Cryptopals qw(hamming h2b b2h ascii2hex argmin argmax printhash);
+use Cryptopals qw(hamming h2b b2h ascii2hex keys_ascending);
 
 # use MIME::Base64;
 
@@ -36,12 +36,6 @@ for my $keysize (@keysizelist){
     $normdistances{$keysize} = hamming($first,$second) / $keysize;
 }
 
-printhash %normdistances;
+my @best_key_sizes = keys_ascending(\%normdistances);
 
-# print join(" ", @normdistances), "\n";
-# die unless $#keysizelist == $#normdistances;
-
-# my @am = argmin(@normdistances);
-# my $ks = $keysizelist[$am[0]];
-
-# print "Arg $am[0], key size $ks.\n"
+print join(', ', @best_key_sizes[0 .. 2]), "\n";
