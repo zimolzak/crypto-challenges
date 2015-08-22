@@ -10,7 +10,7 @@ use strict;
 use MIME::Base64 qw(decode_base64);
 use Crypt::OpenSSL::AES;
 use Cryptopals qw(ascii2hex);
-use Crypt::CBC; 
+use Crypt::Mode::ECB; 
 
 my $ciphertext;
 while(<>){
