@@ -1,3 +1,10 @@
+#     Rkxor.pm - Functions to assist analysis of a Repeating Key XOR
+#     cipher, akin to a Vigenere cipher.
+# 
+#     Copyright (C) 2015 Andrew J. Zimolzak <andyzimolzak@gmail.com>
+#     Full notice is found in the file 'LICENSE' in the same directory
+#     as this file.
+
 package Rkxor;
 use strict;
 use warnings;

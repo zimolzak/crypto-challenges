@@ -1,4 +1,13 @@
 #!/usr/bin/perl -w
+
+#     chal6.pl - Input a base64 ciphertext, apply a function that will
+#     guess key length and determine print parts of possible keys from
+#     English-looking results.
+# 
+#     Copyright (C) 2015 Andrew J. Zimolzak <andyzimolzak@gmail.com>
+#     Full notice is found in the file 'LICENSE' in the same directory
+#     as this file.
+
 # usage ./chal6.pl 6.txt > out.txt
 
 use strict;

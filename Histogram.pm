@@ -1,3 +1,10 @@
+#     Histogram.pm - Functions for calculating distributions of
+#     characters in a text.
+# 
+#     Copyright (C) 2015 Andrew J. Zimolzak <andyzimolzak@gmail.com>
+#     Full notice is found in the file 'LICENSE' in the same directory
+#     as this file.
+
 package Histogram;
 use strict;
 use warnings;
