@@ -188,7 +188,7 @@ sub argmax {
 }
 
 sub argmin {
-    # returns an ARRAY!!
+    # returns an ARRAY!! In case of ties.
     my @list = @_;
     my @sort_desc = sort {$a<=>$b} @list;
     my @args = grep { $list[$_] == $sort_desc[0] } 0 .. $#list;
@@ -305,7 +305,6 @@ sub aes_ecb_decrypt {
     }
     my $aes = new Crypt::OpenSSL::AES($key);
     my $plaintext;
-    print length($ciphertext), " bytes of $ciphertext\n";
     for (my $i=0; my $block = substr($ciphertext, 16*$i, 16); $i++) {
 	$plaintext .= $aes->decrypt($block);
     }

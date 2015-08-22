@@ -16,7 +16,7 @@ our $VERSION = 1;
 
 our @ISA= qw( Exporter );
 
-our @EXPORT_OK = qw( break_rk_xor break_cipher_given_keysize);
+our @EXPORT_OK = qw( break_rk_xor break_cipher_given_keysize hex2blocks);
 
 our @EXPORT = qw( break_rk_xor );
 

@@ -11,9 +11,9 @@
 
 use strict;
 use Crypt::OpenSSL::AES;
-use Cryptopals qw(aes_ecb_decrypt hex2ascii);
+use Cryptopals qw(aes_ecb_decrypt hex2ascii hamming argmax argmin);
 use Histogram;
-use Rkxor qw(break_cipher_given_keysize);
+use Rkxor qw(break_cipher_given_keysize hex2blocks);
 
 sub aes_key_hex {
     my ($key, $cipher_hex) = @_;
@@ -21,11 +21,23 @@ sub aes_key_hex {
     return aes_ecb_decrypt($key, $ciphertext);
 }
 
+my @normdistances;
 while(<>){
     chomp;
-    my @keysizelist = (16);
-    my $kspointer = \@keysizelist;
-    # print aes_ecb_decrypt($key, $ciphertext), "\n";
-    # print_sig(($key, aes_ecb_decrypt($key, $ciphertext) . "\n"));
-    break_cipher_given_keysize($kspointer, $_, \&aes_key_hex);
+    my @b = hex2blocks($_, 16);
+    my $avg_dist = ( hamming($b[0],$b[1]) +
+		     hamming($b[2],$b[3]) +
+		     hamming($b[4],$b[5]) ) / 3;
+    push @normdistances, $avg_dist / 16;
+    print "$.: ", $avg_dist / 16, "\n";
 }
+
+my $ax = join(',', argmax(@normdistances));
+my $an = join(',', argmin(@normdistances));
+
+print "\n\n";
+
+print argmax(@normdistances), " $ax\n";
+
+print "Line ", $ax+1, " dist $normdistances[$ax], line ",
+    $an+1, " dist $normdistances[$an]\n";
