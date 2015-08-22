@@ -14,10 +14,10 @@ our $VERSION = 1;
 
 our @ISA= qw( Exporter );
 
-our @EXPORT_OK = qw( find_decrypts printhash hex_xor_hex hex2ascii ascii2hex
+our @EXPORT_OK = qw( find_scxor_decrypts printhash hex_xor_hex hex2ascii ascii2hex
 letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending ceil signature aes_ecb_decrypt);
 
-our @EXPORT = qw( find_decrypts printhash hex_xor_hex h2b signature hamming keys_ascending ceil);
+our @EXPORT = qw( find_scxor_decrypts printhash hex_xor_hex h2b signature hamming keys_ascending ceil find_generic_decrypts key_xor_hex_to_text);
 
 # construct table
 our @b64table;
@@ -159,30 +159,16 @@ for (32 .. 126) {
 }
 
 sub metric {
-    # improving this improves your breaking!
-    # higher means more likely to be English.
-    # rememember, PROPORTION() does it case-insensitive.
-
-    # return proportion($letters, @_) * proportion("etaoin", @_);
-
-    # return proportion($printable, @_);
-
-    # return (1 - proportion($unprintable, @_));
-    
-    # return proportion($letters, @_);
-
-#     return proportion($letters, @_)
-# 	* (1 - proportion($unprintable, @_))
-# 	* (1 - proportion($misc, @_));
+    # Improving this improves your codebreaking! Higher metric means
+    # more likely to be English. Remember, PROPORTION() does it
+    # case-insensitive (already).
 
     my $strictly_decreasing = (
 	proportion($letters,@_) > proportion($spaces,@_) &&
 	proportion($spaces,@_) >= proportion($misc,@_) &&
 	proportion($misc,@_) >= proportion($unprintable,@_)
 	);
-
     return proportion($letters, @_) * $strictly_decreasing;
-
 }
 
 sub signature {
@@ -202,7 +188,7 @@ sub argmax {
 }
 
 sub argmin {
-    # returns an ARRAY!!
+    # returns an ARRAY!! In case of ties.
     my @list = @_;
     my @sort_desc = sort {$a<=>$b} @list;
     my @args = grep { $list[$_] == $sort_desc[0] } 0 .. $#list;
@@ -228,19 +214,32 @@ sub key_xor_hex_to_text {
     return hex2ascii(hex_xor_hex($hex_in, $repeated_key));
 }
 
-sub find_decrypts {
-    # tries to break a single-character XOR cipher.
+sub find_scxor_decrypts {
+    my ($cipher_hex) = @_;
+    return find_generic_decrypts($cipher_hex, \&key_xor_hex_to_text);
+}
+
+sub find_generic_decrypts {
+    # Tries to break a *generic* cipher that uses a single-character
+    # key (not given). This function receives the ciphertext in hex
+    # and a pointer to a single char decrypt function that does
+    # something like the following: decryptor("K", "0105ffdcba") -->
+    # "Hello", where "J" is a single letter key that gets repeated.
+    # The find_generic_decrypts function makes certain assumptions
+    # about how the decryptor function operates.
     my %results;
     my @metrics = (0.0) x 255;
-    my ($cipher_hex) = @_;
+    my ($cipher_hex, $decrypt_func) = @_;
     
     for my $charval (0 .. 255) { # Formerly assuming 32 .. 126 or " " .. "~"
-	my $plaintext = key_xor_hex_to_text(chr($charval), $cipher_hex);
+	my $plaintext = &$decrypt_func(chr($charval), $cipher_hex);
 	$metrics[$charval] = metric($plaintext);
-    }
+    } # first pass, check all chars, before storing the best.
 
     for my $arg (argmax(@metrics)){
-	$results{chr($arg)} = key_xor_hex_to_text(chr($arg), $cipher_hex) if $metrics[$arg] > 0;
+	$results{chr($arg)} =
+	    &$decrypt_func(chr($arg), $cipher_hex)
+	    if $metrics[$arg] > 0;
     }
     return \%results;
 }
@@ -294,8 +293,16 @@ die unless ceil(2.5) == 3;
 die unless ceil(-2.5) == -2;
 
 sub aes_ecb_decrypt {
-    my ($key, $ciphertext) = @_;
-    die unless length($key)==16;
+    # note that 2nd arg is cipherTEXT, that is, NOT in hex form.
+    my ($keyfrag, $ciphertext) = @_;
+    my $l = length($keyfrag);
+    my $key;
+    if ($l==1 or $l==2 or $l==4 or $l==8 or $l==16){
+	$key = $keyfrag x (16/$l);
+    }
+    else {
+	die "I do not know how to feed AES a $l byte key";
+    }
     my $aes = new Crypt::OpenSSL::AES($key);
     my $plaintext;
     for (my $i=0; my $block = substr($ciphertext, 16*$i, 16); $i++) {

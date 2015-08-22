@@ -56,8 +56,10 @@ sub print_histo {
 }
 
 sub print_sig {
-    # instead of printing hash, prints the keys & the 4-num sigs of
-    # the vals.
+    # Instead of printing hash, prints the keys & the 4-num sigs of
+    # the values of the hash (i.e. sigs of the putative plaintexts).
+    # Expects a hash made up like (key, plaintext, key, plaintext,
+    # ...).
     my $iskey = 1;
     for my $x (@_) {
 	if ($iskey) {
