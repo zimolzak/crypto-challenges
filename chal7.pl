@@ -10,6 +10,7 @@ use strict;
 use MIME::Base64 qw(decode_base64);
 use Crypt::OpenSSL::AES;
 use Cryptopals qw(ascii2hex);
+use Crypt::CBC; 
 
 my $ciphertext;
 while(<>){
@@ -19,4 +20,19 @@ while(<>){
     $ciphertext .= decode_base64($_); 
 }
 
-print ascii2hex($ciphertext), "\n";
+my $key = "YELLOW SUBMARINE";
+
+warn "len = ", length($ciphertext), ". Len mod 16 = ",
+(length($ciphertext) % 16), ".\n";
+
+# can't use Crypt::OpenSSL::AES directly; wants EXACTLY 16 bytes.
+#      my $cipher = new Crypt::OpenSSL::AES($key);
+
+my $cipher = Crypt::CBC->new(
+    -key    => $key,
+    -cipher => "Crypt::OpenSSL::AES",
+    -header => "none"
+    ); # depend on Crypt::DES ??
+
+print $cipher->decrypt($ciphertext);
+print "\n";
