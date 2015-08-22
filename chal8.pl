@@ -13,11 +13,19 @@ use strict;
 use Crypt::OpenSSL::AES;
 use Cryptopals qw(aes_ecb_decrypt hex2ascii);
 use Histogram;
+use Rkxor qw(break_cipher_given_keysize);
+
+sub aes_key_hex {
+    my ($key, $cipher_hex) = @_;
+    my $ciphertext = hex2ascii($cipher_hex);
+    return aes_ecb_decrypt($key, $ciphertext);
+}
 
 while(<>){
     chomp;
-    my $ciphertext .= hex2ascii($_);
-    my $key = "YELLOW SUBMARINE";
+    my @keysizelist = (16);
+    my $kspointer = \@keysizelist;
     # print aes_ecb_decrypt($key, $ciphertext), "\n";
-    print_sig(($key, aes_ecb_decrypt($key, $ciphertext) . "\n"));
+    # print_sig(($key, aes_ecb_decrypt($key, $ciphertext) . "\n"));
+    break_cipher_given_keysize($kspointer, $_, \&aes_key_hex);
 }

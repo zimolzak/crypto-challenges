@@ -293,10 +293,19 @@ die unless ceil(2.5) == 3;
 die unless ceil(-2.5) == -2;
 
 sub aes_ecb_decrypt {
-    my ($key, $ciphertext) = @_;
-    die unless length($key)==16;
+    # note that 2nd arg is cipherTEXT, that is, NOT in hex form.
+    my ($keyfrag, $ciphertext) = @_;
+    my $l = length($keyfrag);
+    my $key;
+    if ($l==1 or $l==2 or $l==4 or $l==8 or $l==16){
+	$key = $keyfrag x (16/$l);
+    }
+    else {
+	die "I do not know how to feed AES a $l byte key";
+    }
     my $aes = new Crypt::OpenSSL::AES($key);
     my $plaintext;
+    print length($ciphertext), " bytes of $ciphertext\n";
     for (my $i=0; my $block = substr($ciphertext, 16*$i, 16); $i++) {
 	$plaintext .= $aes->decrypt($block);
     }
