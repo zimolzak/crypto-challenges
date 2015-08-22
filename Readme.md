@@ -9,8 +9,9 @@ For more information, see http://cryptopals.com/
 
 To do
 ----
-* use real base64 library
+* use real base64 library - use MIME::Base64;
 * ceil() from POSIX
+* oops, installed Crypt::OpenSSL::AES to ~/perl5
 
 Important conclusion
 --------
