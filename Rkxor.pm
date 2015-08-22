@@ -58,12 +58,17 @@ sub break_rk_xor {
     my $N_top_keysizes = 5;
     my @best_key_sizes = keys_ascending(\%normdistances);
     my @keysizes_to_try = @best_key_sizes[0 .. $N_top_keysizes-1];
-    break_rkxor_given_keysize(\@keysizes_to_try, $cipher_hex);
+    break_cipher_given_keysize(\@keysizes_to_try,
+			       $cipher_hex, \&key_xor_hex_to_text);
 }
 
-sub break_rkxor_given_keysize {
-    my ($p, $cipher_hex) = @_;
-    my @keysize_list = @{$p};
+sub break_cipher_given_keysize {
+    # Works on a generic (abstract) cipher that uses a multi-character
+    # key. 3rd argument is a pointer to a single char decrypt function
+    # that does the following: decryptor("J", "0105ffdcba01") -->
+    # "Hello." Where "J" is a single letter key that gets repeated.
+    my ($kspointer, $cipher_hex, $fp) = @_;
+    my @keysize_list = @{$kspointer};
 
     # 5. Break the ciphertext into blocks of KEYSIZE length.
 
@@ -90,12 +95,12 @@ sub break_rkxor_given_keysize {
 	    }
 	}
 
-    # 7. Solve each block as if it was single-character XOR.
+    # 7. Solve each block as if it was single-character cipher.
 
 	my $key_ch_num = 0;
 	for (@transposed) {
 	    print "ch $key_ch_num =\n";
-	    my %decrypts = %{find_scxor_decrypts($_)};
+	    my %decrypts = %{find_generic_decrypts($_, $fp)};
 	    printhash(%decrypts);
 	    print_sig(%decrypts);
 	    $key_ch_num++;

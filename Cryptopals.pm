@@ -17,7 +17,7 @@ our @ISA= qw( Exporter );
 our @EXPORT_OK = qw( find_scxor_decrypts printhash hex_xor_hex hex2ascii ascii2hex
 letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending ceil signature aes_ecb_decrypt);
 
-our @EXPORT = qw( find_scxor_decrypts printhash hex_xor_hex h2b signature hamming keys_ascending ceil);
+our @EXPORT = qw( find_scxor_decrypts printhash hex_xor_hex h2b signature hamming keys_ascending ceil find_generic_decrypts key_xor_hex_to_text);
 
 # construct table
 our @b64table;
@@ -215,19 +215,30 @@ sub key_xor_hex_to_text {
 }
 
 sub find_scxor_decrypts {
-    # tries to break a single-character XOR cipher.
+    my ($cipher_hex) = @_;
+    return find_generic_decrypts($cipher_hex, \&key_xor_hex_to_text);
+}
+
+sub find_generic_decrypts {
+    # Tries to break a *generic* cipher that uses a single-character
+    # key (not given). This function receives the ciphertext in hex
+    # and a pointer to a single char decrypt function that does
+    # something like the following: decryptor("K", "0105ffdcba") -->
+    # "Hello", where "J" is a single letter key that gets repeated.
+    # The find_generic_decrypts function makes certain assumptions
+    # about how the decryptor function operates.
     my %results;
     my @metrics = (0.0) x 255;
-    my ($cipher_hex) = @_;
+    my ($cipher_hex, $decrypt_func) = @_;
     
     for my $charval (0 .. 255) { # Formerly assuming 32 .. 126 or " " .. "~"
-	my $plaintext = key_xor_hex_to_text(chr($charval), $cipher_hex);
+	my $plaintext = &$decrypt_func(chr($charval), $cipher_hex);
 	$metrics[$charval] = metric($plaintext);
-    }
+    } # first pass, check all chars, before storing the best.
 
     for my $arg (argmax(@metrics)){
 	$results{chr($arg)} =
-	    key_xor_hex_to_text(chr($arg), $cipher_hex)
+	    &$decrypt_func(chr($arg), $cipher_hex)
 	    if $metrics[$arg] > 0;
     }
     return \%results;
