@@ -159,30 +159,16 @@ for (32 .. 126) {
 }
 
 sub metric {
-    # improving this improves your breaking!
-    # higher means more likely to be English.
-    # rememember, PROPORTION() does it case-insensitive.
-
-    # return proportion($letters, @_) * proportion("etaoin", @_);
-
-    # return proportion($printable, @_);
-
-    # return (1 - proportion($unprintable, @_));
-    
-    # return proportion($letters, @_);
-
-#     return proportion($letters, @_)
-# 	* (1 - proportion($unprintable, @_))
-# 	* (1 - proportion($misc, @_));
+    # Improving this improves your codebreaking! Higher metric means
+    # more likely to be English. Remember, PROPORTION() does it
+    # case-insensitive (already).
 
     my $strictly_decreasing = (
 	proportion($letters,@_) > proportion($spaces,@_) &&
 	proportion($spaces,@_) >= proportion($misc,@_) &&
 	proportion($misc,@_) >= proportion($unprintable,@_)
 	);
-
     return proportion($letters, @_) * $strictly_decreasing;
-
 }
 
 sub signature {
@@ -240,7 +226,9 @@ sub find_decrypts {
     }
 
     for my $arg (argmax(@metrics)){
-	$results{chr($arg)} = key_xor_hex_to_text(chr($arg), $cipher_hex) if $metrics[$arg] > 0;
+	$results{chr($arg)} =
+	    key_xor_hex_to_text(chr($arg), $cipher_hex)
+	    if $metrics[$arg] > 0;
     }
     return \%results;
 }

@@ -36,7 +36,7 @@ sub hex2blocks {
 }
 
 sub break_rk_xor {
-    my ($cipher_hex,  $max_key_len) = @_;
+    my ($cipher_hex, $max_key_len) = @_;
 
     my @keysizelist = (2 .. $max_key_len);
     my %normdistances;
@@ -46,25 +46,35 @@ sub break_rk_xor {
     
     for my $keysize (@keysizelist){
 	my @b = hex2blocks($cipher_hex, $keysize);
-	my $avg_dist = ( hamming($b[0],$b[1]) + hamming($b[2],$b[3]) + hamming($b[4],$b[5]) ) / 3;
+	my $avg_dist = ( hamming($b[0],$b[1]) +
+			 hamming($b[2],$b[3]) +
+			 hamming($b[4],$b[5]) ) / 3;
 	$normdistances{$keysize} = $avg_dist / $keysize;
     }
 
     # 4. The KEYSIZE with the smallest normalized edit distance is
-    # probably the key.
+    # probably the right keysize.
 
     my $N_top_keysizes = 5;
-
     my @best_key_sizes = keys_ascending(\%normdistances);
-    print "Trying keys of size ", join(', ', @best_key_sizes[0 .. $N_top_keysizes-1]), ".\n";
-    for my $ks (@best_key_sizes[0 .. ($N_top_keysizes - 1)]){ # ks is in bytes
+    my @keysizes_to_try = @best_key_sizes[0 .. $N_top_keysizes-1];
+    break_rkxor_given_keysize(\@keysizes_to_try, $cipher_hex);
+}
 
-	# 5. Break the ciphertext into blocks of KEYSIZE length.
+sub break_rkxor_given_keysize {
+    my ($p, $cipher_hex) = @_;
+    my @keysize_list = @{$p};
+
+    # 5. Break the ciphertext into blocks of KEYSIZE length.
+
+    print "Trying keys of size "
+	, join(', ', @keysize_list), ".\n";
+    for my $ks (@keysize_list){ # ks is in bytes
 
 	my @blocks = hex2blocks($cipher_hex, $ks);
 	print "\nKey size $ks implies $#blocks blocks.\n";
 
-	# 6. Now transpose the blocks:
+    # 6. Now transpose the blocks:
 
 	my @transposed;
 	for my $i (0 .. $ks-1){
@@ -73,12 +83,14 @@ sub break_rk_xor {
 		    push @transposed, substr($blocks[$j], $i * 2, 2);
 		}
 		else {
-		    $transposed[$i] .= substr($blocks[$j], $i * 2, 2) if length($blocks[$j]) >= ($i+1)*2;
+		    $transposed[$i] .=
+			substr($blocks[$j], $i * 2, 2)
+			if length($blocks[$j]) >= ($i+1)*2;
 		}
 	    }
 	}
 
-	# 7. Solve each block as if it was single-character XOR.
+    # 7. Solve each block as if it was single-character XOR.
 
 	my $key_ch_num = 0;
 	for (@transposed) {
