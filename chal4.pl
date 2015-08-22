@@ -14,7 +14,7 @@ use Cryptopals;
 
 while(<>){
     chomp;
-    my %best4line = %{find_decrypts($_)};
+    my %best4line = %{find_scxor_decrypts($_)};
     print $_, "\n----\n";
     printhash(%best4line);
     print "\n\n";

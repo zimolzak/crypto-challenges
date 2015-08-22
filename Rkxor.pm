@@ -95,7 +95,7 @@ sub break_rkxor_given_keysize {
 	my $key_ch_num = 0;
 	for (@transposed) {
 	    print "ch $key_ch_num =\n";
-	    my %decrypts = %{find_decrypts($_)};
+	    my %decrypts = %{find_scxor_decrypts($_)};
 	    printhash(%decrypts);
 	    print_sig(%decrypts);
 	    $key_ch_num++;

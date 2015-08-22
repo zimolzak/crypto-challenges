@@ -14,7 +14,7 @@ print "Challenge 3\n";
 
 my $cipher_hex = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
 
-my %decrypts = %{find_decrypts($cipher_hex)};
+my %decrypts = %{find_scxor_decrypts($cipher_hex)};
 
 print "Key -> plaintext\n";
 printhash(%decrypts);

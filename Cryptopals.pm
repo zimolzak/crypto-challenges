@@ -14,10 +14,10 @@ our $VERSION = 1;
 
 our @ISA= qw( Exporter );
 
-our @EXPORT_OK = qw( find_decrypts printhash hex_xor_hex hex2ascii ascii2hex
+our @EXPORT_OK = qw( find_scxor_decrypts printhash hex_xor_hex hex2ascii ascii2hex
 letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending ceil signature aes_ecb_decrypt);
 
-our @EXPORT = qw( find_decrypts printhash hex_xor_hex h2b signature hamming keys_ascending ceil);
+our @EXPORT = qw( find_scxor_decrypts printhash hex_xor_hex h2b signature hamming keys_ascending ceil);
 
 # construct table
 our @b64table;
@@ -214,7 +214,7 @@ sub key_xor_hex_to_text {
     return hex2ascii(hex_xor_hex($hex_in, $repeated_key));
 }
 
-sub find_decrypts {
+sub find_scxor_decrypts {
     # tries to break a single-character XOR cipher.
     my %results;
     my @metrics = (0.0) x 255;
