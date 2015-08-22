@@ -11,7 +11,7 @@
 # usage ./chal6.pl 6.txt > out.txt
 
 use strict;
-use Cryptopals qw(hamming h2b b2h ascii2hex);
+use Cryptopals qw(hamming h2b b2h ascii2hex key_xor_hex_to_text);
 use Histogram qw(print_sig);
 use Rkxor;
 
@@ -41,5 +41,7 @@ $cipher_hex = b2h($b);
 break_rk_xor($cipher_hex, $max_key_len);
 
 # $cipher_hex="0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f";
-
 # break_rk_xor($cipher_hex, $max_key_len);
+
+my $key = "Terminator X: Bring the noise"; # obtained by inspection of output.
+print key_xor_hex_to_text($key, $cipher_hex);
