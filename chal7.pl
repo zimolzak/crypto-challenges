@@ -11,7 +11,7 @@
 use strict;
 use MIME::Base64 qw(decode_base64);
 use Crypt::OpenSSL::AES;
-use Cryptopals qw(ascii2hex);
+use Cryptopals qw(aes_ecb_decrypt);
 
 my $ciphertext;
 while(<>){
@@ -22,7 +22,4 @@ while(<>){
 }
 
 my $key = "YELLOW SUBMARINE";
-my $aes = new Crypt::OpenSSL::AES($key);
-for (my $i=0; my $block = substr($ciphertext, 16*$i, 16); $i++) {
-    print $aes->decrypt($block);
-}
+print aes_ecb_decrypt($key, $ciphertext);

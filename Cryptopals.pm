@@ -15,7 +15,7 @@ our $VERSION = 1;
 our @ISA= qw( Exporter );
 
 our @EXPORT_OK = qw( find_decrypts printhash hex_xor_hex hex2ascii ascii2hex
-letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending ceil signature);
+letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending ceil signature aes_ecb_decrypt);
 
 our @EXPORT = qw( find_decrypts printhash hex_xor_hex h2b signature hamming keys_ascending ceil);
 
@@ -292,5 +292,16 @@ sub ceil {
 die unless ceil(3) == 3;
 die unless ceil(2.5) == 3;
 die unless ceil(-2.5) == -2;
+
+sub aes_ecb_decrypt {
+    my ($key, $ciphertext) = @_;
+    die unless length($key)==16;
+    my $aes = new Crypt::OpenSSL::AES($key);
+    my $plaintext;
+    for (my $i=0; my $block = substr($ciphertext, 16*$i, 16); $i++) {
+	$plaintext .= $aes->decrypt($block);
+    }
+    return $plaintext;
+}
 
 1;
