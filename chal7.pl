@@ -6,6 +6,8 @@
 #     Full notice is found in the file 'LICENSE' in the same directory
 #     as this file.
 
+# usage: ./chal7.pl 7.txt
+
 use strict;
 use MIME::Base64 qw(decode_base64);
 use Crypt::OpenSSL::AES;
@@ -19,4 +21,8 @@ while(<>){
     $ciphertext .= decode_base64($_); 
 }
 
-print ascii2hex($ciphertext), "\n";
+my $key = "YELLOW SUBMARINE";
+my $aes = new Crypt::OpenSSL::AES($key);
+for (my $i=0; my $block = substr($ciphertext, 16*$i, 16); $i++) {
+    print $aes->decrypt($block);
+}

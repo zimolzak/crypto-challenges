@@ -13,6 +13,11 @@ To do
 * ceil() from POSIX
 * oops, installed Crypt::OpenSSL::AES to ~/perl5
 
+* Maybe Crypt::PK::ECC?
+
+* "encode_base64url" is not exported by the MIME::Base64 module. Seems
+  like a version problem.
+
 Important conclusion
 --------
 * Be more accurate about picking the best key size, and about the metric.
