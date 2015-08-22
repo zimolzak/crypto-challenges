@@ -16,6 +16,7 @@ use Histogram;
 use Rkxor qw(hex2blocks);
 
 my @normdistances;
+my @repeat_blocks_per_row;
 while(<>){
     chomp;
     my @b = hex2blocks($_, 16);
@@ -23,13 +24,20 @@ while(<>){
 		     hamming($b[2],$b[3]) +
 		     hamming($b[4],$b[5]) ) / 3;
     push @normdistances, $avg_dist / 16;
+    my $repeats_this_row = 0;
+    for my $i (0..$#b){
+	for my $j (0..$#b){
+	    next if $i >= $j; # left upper triangle matrix
+	    $repeats_this_row++ if $b[$i] eq $b[$j];
+	}
+    }
+    push @repeat_blocks_per_row, $repeats_this_row;
 }
 
-my $ax = join(',', argmax(@normdistances));
+my $ax = join(',', argmax(@normdistances)); #um might not want to join.
 my $an = join(',', argmin(@normdistances));
 
 print "Line ", $ax+1, " dist $normdistances[$ax], line ",
     $an+1, " dist $normdistances[$an]\n";
 
-
-# next consider looking for any repeated blocks
+print join(" ", @repeat_blocks_per_row), "\n";
