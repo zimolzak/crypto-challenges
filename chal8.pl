@@ -10,9 +10,7 @@
 # usage: ./chal8.pl 8.txt
 
 use strict;
-use Crypt::OpenSSL::AES;
 use Cryptopals qw(hamming argmax argmin);
-use Histogram;
 use Rkxor qw(hex2blocks);
 
 my @normdistances;
