@@ -11,15 +11,9 @@
 
 use strict;
 use Crypt::OpenSSL::AES;
-use Cryptopals qw(aes_ecb_decrypt hex2ascii hamming argmax argmin);
+use Cryptopals qw(hamming argmax argmin);
 use Histogram;
-use Rkxor qw(break_cipher_given_keysize hex2blocks);
-
-sub aes_key_hex {
-    my ($key, $cipher_hex) = @_;
-    my $ciphertext = hex2ascii($cipher_hex);
-    return aes_ecb_decrypt($key, $ciphertext);
-}
+use Rkxor qw(hex2blocks);
 
 my @normdistances;
 while(<>){
@@ -29,15 +23,13 @@ while(<>){
 		     hamming($b[2],$b[3]) +
 		     hamming($b[4],$b[5]) ) / 3;
     push @normdistances, $avg_dist / 16;
-    print "$.: ", $avg_dist / 16, "\n";
 }
 
 my $ax = join(',', argmax(@normdistances));
 my $an = join(',', argmin(@normdistances));
 
-print "\n\n";
-
-print argmax(@normdistances), " $ax\n";
-
 print "Line ", $ax+1, " dist $normdistances[$ax], line ",
     $an+1, " dist $normdistances[$an]\n";
+
+
+# next consider looking for any repeated blocks
