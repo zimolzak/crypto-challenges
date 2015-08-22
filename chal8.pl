@@ -32,6 +32,9 @@ while(<>){
 	}
     }
     push @repeat_blocks_per_row, $repeats_this_row;
+    print "$repeats_this_row repeats in line $.:\n  "
+	, join("\n  ", @b), "\n"
+	if $repeats_this_row;
 }
 
 my $ax = join(',', argmax(@normdistances)); #um might not want to join.
@@ -39,5 +42,3 @@ my $an = join(',', argmin(@normdistances));
 
 print "Line ", $ax+1, " dist $normdistances[$ax], line ",
     $an+1, " dist $normdistances[$an]\n";
-
-print join(" ", @repeat_blocks_per_row), "\n";
