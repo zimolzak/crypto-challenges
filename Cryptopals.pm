@@ -14,10 +14,14 @@ our $VERSION = 1;
 
 our @ISA= qw( Exporter );
 
-our @EXPORT_OK = qw( find_scxor_decrypts printhash hex_xor_hex hex2ascii ascii2hex
-letterfreq sum proportion metric argmax key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending ceil signature aes_ecb_decrypt);
+our @EXPORT_OK = qw( find_scxor_decrypts printhash hex_xor_hex
+    hex2ascii ascii2hex letterfreq sum proportion metric argmax
+    key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending
+    ceil signature aes_ecb_decrypt pad_text);
 
-our @EXPORT = qw( find_scxor_decrypts printhash hex_xor_hex h2b signature hamming keys_ascending ceil find_generic_decrypts key_xor_hex_to_text);
+our @EXPORT = qw( find_scxor_decrypts printhash hex_xor_hex h2b
+    signature hamming keys_ascending ceil find_generic_decrypts
+    key_xor_hex_to_text);
 
 # construct table
 our @b64table;
@@ -309,6 +313,12 @@ sub aes_ecb_decrypt {
 	$plaintext .= $aes->decrypt($block);
     }
     return $plaintext;
+}
+
+sub pad_text {
+    my ($block, $blocklength) = @_;
+    die "Block is too long" if length($block) > $blocklength;
+    return $block . ("\x04" x ($blocklength - length($block) ) );
 }
 
 1;
