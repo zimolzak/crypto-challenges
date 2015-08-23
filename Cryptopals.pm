@@ -17,7 +17,8 @@ our @ISA= qw( Exporter );
 our @EXPORT_OK = qw( find_scxor_decrypts printhash hex_xor_hex
     hex2ascii ascii2hex letterfreq sum proportion metric argmax
     key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending
-    ceil signature aes_ecb_decrypt pad_text aes_cbc_decrypt_block);
+    ceil signature aes_ecb_decrypt pad_text aes_cbc_decrypt_block
+    aes_cbc_decrypt);
 
 our @EXPORT = qw( find_scxor_decrypts printhash hex_xor_hex h2b
     signature hamming keys_ascending ceil find_generic_decrypts
@@ -330,6 +331,16 @@ sub aes_cbc_decrypt_block {
     my $intermediate = $aes->decrypt($cipher_block);
     my $plaintext = hex2ascii(hex_xor_hex(ascii2hex($intermediate),
 					  ascii2hex($iv)));
+    return $plaintext;
+}
+
+sub aes_cbc_decrypt {
+    my ($key, $ciphertext, $iv) = @_;
+    my $plaintext;
+    for (my $i=0; my $block = substr($ciphertext, 16*$i, 16); $i++) {
+	$plaintext .= aes_cbc_decrypt_block($key, $block, $iv);
+	$iv = $block;
+    }
     return $plaintext;
 }
 

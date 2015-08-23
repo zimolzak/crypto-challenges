@@ -11,7 +11,7 @@
 use strict;
 use MIME::Base64 qw(decode_base64);
 use Crypt::OpenSSL::AES;
-use Cryptopals qw(aes_ecb_decrypt aes_cbc_decrypt_block);
+use Cryptopals qw(aes_ecb_decrypt aes_cbc_decrypt_block aes_cbc_decrypt);
 
 my $ciphertext;
 while(<>){
@@ -28,6 +28,8 @@ my $block = substr($ciphertext, 0, 16);
 my $iv = "\x00" x 16;
 
 print aes_cbc_decrypt_block($key, $block, $iv), "\n";
+
+print aes_cbc_decrypt($key, $ciphertext, $iv);
 
 # my @plaintextlines = split(/\n/, aes_ecb_decrypt($key, $ciphertext));
 # die unless $plaintextlines[1] =~ /BLAHBLAHBLAH/;
