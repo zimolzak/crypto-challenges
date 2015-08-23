@@ -11,7 +11,7 @@
 use strict;
 use MIME::Base64 qw(decode_base64);
 use Crypt::OpenSSL::AES;
-use Cryptopals qw(aes_ecb_decrypt aes_cbc_decrypt);
+use Cryptopals qw(aes_cbc_decrypt);
 
 my $ciphertext;
 while(<>){

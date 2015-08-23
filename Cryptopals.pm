@@ -17,7 +17,7 @@ our @ISA= qw( Exporter );
 our @EXPORT_OK = qw( find_scxor_decrypts printhash hex_xor_hex
     hex2ascii ascii2hex letterfreq sum proportion metric argmax
     key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending
-    ceil signature aes_ecb_decrypt pad_text aes_cbc_decrypt_block
+    ceil signature aes_ecb pad_text aes_cbc_decrypt_block
     aes_cbc_decrypt);
 
 our @EXPORT = qw( find_scxor_decrypts printhash hex_xor_hex h2b
@@ -298,9 +298,10 @@ die unless ceil(3) == 3;
 die unless ceil(2.5) == 3;
 die unless ceil(-2.5) == -2;
 
-sub aes_ecb_decrypt {
+sub aes_ecb {
     # note that 2nd arg is cipherTEXT, that is, NOT in hex form.
-    my ($keyfrag, $ciphertext) = @_;
+    my ($keyfrag, $in_text, $mode) = @_;
+    die "bad mode" unless $mode eq "enc" or $mode eq "dec";
     my $l = length($keyfrag);
     my $key;
     if ($l==1 or $l==2 or $l==4 or $l==8 or $l==16){
@@ -310,11 +311,12 @@ sub aes_ecb_decrypt {
 	die "I do not know how to feed AES a $l byte key";
     }
     my $aes = new Crypt::OpenSSL::AES($key);
-    my $plaintext;
-    for (my $i=0; my $block = substr($ciphertext, 16*$i, 16); $i++) {
-	$plaintext .= $aes->decrypt($block);
+    my $out_text;
+    for (my $i=0; my $block = substr($in_text, 16*$i, 16); $i++) {
+	$out_text .= $aes->decrypt($block) if $mode eq "dec";
+	$out_text .= $aes->encrypt($block) if $mode eq "enc";
     }
-    return $plaintext;
+    return $out_text;
 }
 
 sub pad_text {
@@ -342,6 +344,15 @@ sub aes_cbc_decrypt {
 	$iv = $block;
     }
     return $plaintext;
+}
+
+sub encrypt_randomly {
+    my ($input) = @_;
+    my $key;
+    for (1..16) {
+	$key .= chr int(rand(256));
+    }
+    
 }
 
 1;
