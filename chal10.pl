@@ -11,26 +11,20 @@
 use strict;
 use MIME::Base64 qw(decode_base64);
 use Crypt::OpenSSL::AES;
-use Cryptopals qw(aes_ecb_decrypt aes_cbc_decrypt_block aes_cbc_decrypt);
+use Cryptopals qw(aes_ecb_decrypt aes_cbc_decrypt);
 
 my $ciphertext;
 while(<>){
     chomp;
-    # no slurp if all lines have multiple of four base64 chars
-    die if (length($_)) % 4 != 0; 
+    die if (length($_)) % 4 != 0; # else need slurp
     $ciphertext .= decode_base64($_); 
 }
 
 my $key = "YELLOW SUBMARINE";
-# print aes_ecb_decrypt($key, $ciphertext); # expect to fail because ecb.
-
 my $block = substr($ciphertext, 0, 16);
 my $iv = "\x00" x 16;
-
-print aes_cbc_decrypt_block($key, $block, $iv), "\n";
-
 print aes_cbc_decrypt($key, $ciphertext, $iv);
 
-# my @plaintextlines = split(/\n/, aes_ecb_decrypt($key, $ciphertext));
-# die unless $plaintextlines[1] =~ /BLAHBLAHBLAH/;
-# print "Passed assertion\n";
+my @plaintextlines = split(/\n/, aes_cbc_decrypt($key, $ciphertext, $iv));
+die unless $plaintextlines[1] =~ /on the mike/;
+print "Passed assertion\n";
