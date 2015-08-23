@@ -12,10 +12,19 @@
 use strict;
 use Cryptopals;
 
+my $found_expected_plaintext = 0;
+
 while(<>){
     chomp;
     my %best4line = %{find_scxor_decrypts($_)};
     print $_, "\n----\n";
     printhash(%best4line);
     print "\n\n";
+
+    for my $plaintext (values %best4line){
+	$found_expected_plaintext++ if $plaintext =~ /the party/;
+    }
 }
+
+die unless $found_expected_plaintext;
+print "Passed assertion\n";

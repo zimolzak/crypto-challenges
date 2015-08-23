@@ -18,3 +18,7 @@ my %decrypts = %{find_scxor_decrypts($cipher_hex)};
 
 print "Key -> plaintext\n";
 printhash(%decrypts);
+
+my $plaintext = $decrypts{"X"};
+die unless $plaintext =~ /like a pound/;
+print "Passed assertion\n";

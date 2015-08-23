@@ -23,3 +23,7 @@ while(<>){
 
 my $key = "YELLOW SUBMARINE";
 print aes_ecb_decrypt($key, $ciphertext);
+
+my @plaintextlines = split(/\n/, aes_ecb_decrypt($key, $ciphertext));
+die unless $plaintextlines[0] =~ /back and I/;
+print "Passed assertion\n";
