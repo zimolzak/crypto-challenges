@@ -18,7 +18,8 @@ our @EXPORT_OK = qw( find_scxor_decrypts printhash hex_xor_hex
     hex2ascii ascii2hex letterfreq sum proportion metric argmax
     key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending
     ceil signature aes_ecb pad_text aes_cbc_block aes_cbc
-    encrypt_randomly distribution range encryption_oracle);
+    encrypt_randomly distribution range encryption_oracle
+    print_float_ary random_bytes);
 
 our @EXPORT = qw( find_scxor_decrypts printhash hex_xor_hex h2b
     signature hamming keys_ascending ceil find_generic_decrypts
@@ -428,5 +429,14 @@ sub encryption_oracle {
     # kind of splits the difference.
 
 }
+
+sub print_float_ary {
+    my $str;
+    for my $el (@_[0..25]){
+	$str .= sprintf '%.3f ', $el;
+    }
+    print "$str\n";
+}
+
 
 1;

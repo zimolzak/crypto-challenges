@@ -12,6 +12,7 @@ quicktest : 7.txt 8.txt 10.txt
 	./chal9.pl
 	./chal10.pl 10.txt
 	./chal11.pl
+	./chal12.pl
 
 4.txt :
 	curl -O 'http://cryptopals.com/static/challenge-data/4.txt'
