@@ -18,7 +18,7 @@ our @EXPORT_OK = qw( find_scxor_decrypts printhash hex_xor_hex
     hex2ascii ascii2hex letterfreq sum proportion metric argmax
     key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending
     ceil signature aes_ecb pad_text aes_cbc_block aes_cbc
-    encrypt_randomly);
+    encrypt_randomly distribution range encryption_oracle);
 
 our @EXPORT = qw( find_scxor_decrypts printhash hex_xor_hex h2b
     signature hamming keys_ascending ceil find_generic_decrypts
@@ -390,6 +390,41 @@ sub encrypt_randomly {
 	my $iv = random_bytes(16);
 	return aes_cbc($key, $input, $iv, "enc");
     }
+}
+
+sub distribution {
+    my ($ciphertext) = @_;
+    my @distribution = (0) x 256;
+    for (split (//, $ciphertext)) {
+	$distribution[ord $_] = $distribution[ord $_] + 1 / length($ciphertext);
+    }
+    return @distribution;
+}
+
+sub range {
+    # (max - min) of array of numbers
+    my @list = @_;
+    my @sort_asc = sort {$a<=>$b} @list;
+    return $sort_asc[-1] - $sort_asc[1];
+}
+
+sub encryption_oracle {
+    my ($ciphertext) = @_;
+    if (range(distribution($ciphertext)) > 0.0368){
+	return "ECB";
+    }
+    else {
+	return "CBC";
+    }
+
+    # 0.0368 obtained empirically. ECB tends to have a lot of bytes
+    # that never occur, and some that occur 0.06 of the time (or
+    # more). Expected value for any given byte is 0.003; thus 0.06 is
+    # much much too common. The range from min to max is around 0.05
+    # or greater for ECB. In CBC, by contrast, any given byte does
+    # occur around 0.003 of the time, with typical range [0.001,
+    # 0.008] or range = 0.007. 0.0368 kind of splits the difference.
+
 }
 
 1;

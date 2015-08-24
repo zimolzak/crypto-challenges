@@ -8,19 +8,20 @@
 
 use strict;
 use Crypt::OpenSSL::AES;
-use Cryptopals qw(aes_cbc encrypt_randomly ascii2hex);
+use Cryptopals qw(aes_cbc encrypt_randomly encryption_oracle);
 
 my $key = "YELLOW SUBMARINE";
 my $iv = "\x00" x 16;
 my $text = "Got me a movie, I want you to k\n";
 
-my $ciph = aes_cbc($key, $text, $iv, "enc");
+my $ciph = aes_cbc($key, $text, $iv, "enc"); # enc hasn't been tested til now
 my $decrypt = aes_cbc($key, $ciph, $iv, "dec");
 die unless $text eq $decrypt;
 
-print ascii2hex(encrypt_randomly($text)), "\n";
-print ascii2hex(encrypt_randomly($text)), "\n";
-print ascii2hex(encrypt_randomly($text)), "\n";
-print ascii2hex(encrypt_randomly($text)), "\n";
+for (1..40){
+    my $ciphertext = encrypt_randomly($text);
+    print encryption_oracle($ciphertext), " ";
+}
+print "\n";
 
 print "Passed assertions (challenge 11)\n";
