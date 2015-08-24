@@ -14,9 +14,9 @@ our $VERSION = 1;
 
 our @ISA= qw( Exporter );
 
-our @EXPORT_OK = qw( find_ecb_blocksize find_char);
+our @EXPORT_OK = qw( find_ecb_blocksize find_char find_unk_str);
 
-our @EXPORT = qw( find_ecb_blocksize find_char);
+our @EXPORT = qw( find_ecb_blocksize find_char find_unk_str);
 
 sub find_ecb_blocksize {
     # Expects its arg to be pointer to a func that takes string &
@@ -56,6 +56,18 @@ sub find_char {
 	
 	return (chr $_) if $output_of_short eq $output_of_long;
     }
+}
+
+sub find_unk_str {
+    # Returns ALL chars of an unknown string, given: 1. pointer to a
+    # "prepender" type func that takes string & returns string, 2.
+    # block size of the encryptor
+    my ($fp, $blocksize) = @_;
+    my $total_string = "";
+    while(my $c = find_char($fp, $blocksize, $total_string)){
+	$total_string .= $c;
+    }
+    return $total_string;
 }
 
 1;

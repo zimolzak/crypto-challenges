@@ -13,7 +13,7 @@ use Cryptopals qw(aes_ecb pad_text ceil encryption_oracle aes_cbc
     random_bytes);
 
 use Crypt::OpenSSL::AES;
-use BreakECB qw(find_ecb_blocksize find_char);
+use BreakECB;
 
 my $key;
 open(PW, "< unknown_key.txt") || die("Can't open password file: $!");
@@ -77,5 +77,7 @@ die unless encryption_oracle(prepend_cbc($pre)) eq "CBC";
 print "Next character is:\t\t** ", find_char(\&prepend_encrypt, $blocksize, "R"), " **\n";
 
 die unless find_char(\&prepend_encrypt, $blocksize, "") eq substr($unknown_string, 0, 1);
+
+print find_unk_str(\&prepend_encrypt, $blocksize), "\n";
 
 print "passed assertions (challenge 12).\n";
