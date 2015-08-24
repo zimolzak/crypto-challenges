@@ -17,8 +17,8 @@ our @ISA= qw( Exporter );
 our @EXPORT_OK = qw( find_scxor_decrypts printhash hex_xor_hex
     hex2ascii ascii2hex letterfreq sum proportion metric argmax
     key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending
-    ceil signature aes_ecb pad_text aes_cbc_block
-    aes_cbc);
+    ceil signature aes_ecb pad_text aes_cbc_block aes_cbc
+    encrypt_randomly);
 
 our @EXPORT = qw( find_scxor_decrypts printhash hex_xor_hex h2b
     signature hamming keys_ascending ceil find_generic_decrypts
@@ -362,13 +362,34 @@ sub aes_cbc {
     return $output;
 }
 
+sub random_bytes {
+    my ($n) = @_;
+    my $output;
+    for (1..$n) {
+	$output .= chr int(rand(256));
+    }
+    return $output;
+}
+
+sub rand_int {
+    my ($min, $max) = @_;
+    return int(rand($max - $min + 1) + $min);
+}
+
 sub encrypt_randomly {
     my ($input) = @_;
-    my $key;
-    for (1..16) {
-	$key .= chr int(rand(256));
+    my $key = random_bytes(16);
+    $input = random_bytes(rand_int(5,10)) . $input; #prepend
+    $input = $input . random_bytes(rand_int(5,10)); #append
+    my $target_len = ceil(length($input)) * 16;
+    $input = pad_text($input, $target_len);
+    if (rand > 0.5) {
+	return aes_ecb($key, $input, "enc");
     }
-    # code here
+    else {
+	my $iv = random_bytes(16);
+	return aes_cbc($key, $input, $iv, "enc");
+    }
 }
 
 1;

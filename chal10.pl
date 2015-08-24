@@ -11,7 +11,7 @@
 use strict;
 use MIME::Base64 qw(decode_base64);
 use Crypt::OpenSSL::AES;
-use Cryptopals qw(aes_cbc);
+use Cryptopals qw(aes_cbc encrypt_randomly ascii2hex);
 
 my $ciphertext;
 while(<>){
@@ -33,4 +33,11 @@ my $ciph = aes_cbc($key, $text, $iv, "enc");
 my $decrypt = aes_cbc($key, $ciph, $iv, "dec");
 die unless $text eq $decrypt;
 
-print "Passed assertion (challenge 10)\n";
+print "Passed assertions (challenge 10)\n";
+
+print ascii2hex(encrypt_randomly($text)), "\n";
+print ascii2hex(encrypt_randomly($text)), "\n";
+print ascii2hex(encrypt_randomly($text)), "\n";
+print ascii2hex(encrypt_randomly($text)), "\n";
+
+
