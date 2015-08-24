@@ -18,9 +18,9 @@ my $ciph = aes_cbc($key, $text, $iv, "enc"); # enc hasn't been tested til now
 my $decrypt = aes_cbc($key, $ciph, $iv, "dec");
 die unless $text eq $decrypt;
 
-for (1..40){
-    my $ciphertext = encrypt_randomly($text);
-    print encryption_oracle($ciphertext), " ";
+for (1..100){
+    my ($ciphertext, $chosen_mode) = encrypt_randomly($text);
+    die unless encryption_oracle($ciphertext) eq $chosen_mode;
 }
 print "\n";
 

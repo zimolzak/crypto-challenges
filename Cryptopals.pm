@@ -377,6 +377,7 @@ sub rand_int {
 }
 
 sub encrypt_randomly {
+    # returns ciphertext and chosen mode (in order to check oracle's accuracy)
     my ($input) = @_;
     my $key = random_bytes(16);
     $input = random_bytes(rand_int(5,10)) . $input; #prepend
@@ -384,11 +385,11 @@ sub encrypt_randomly {
     my $target_len = ceil(length($input)) * 16;
     $input = pad_text($input, $target_len);
     if (rand > 0.5) {
-	return aes_ecb($key, $input, "enc");
+	return (aes_ecb($key, $input, "enc"), "ECB");
     }
     else {
 	my $iv = random_bytes(16);
-	return aes_cbc($key, $input, $iv, "enc");
+	return (aes_cbc($key, $input, $iv, "enc"), "CBC");
     }
 }
 
@@ -421,9 +422,10 @@ sub encryption_oracle {
     # that never occur, and some that occur 0.06 of the time (or
     # more). Expected value for any given byte is 0.003; thus 0.06 is
     # much much too common. The range from min to max is around 0.05
-    # or greater for ECB. In CBC, by contrast, any given byte does
-    # occur around 0.003 of the time, with typical range [0.001,
-    # 0.008] or range = 0.007. 0.0368 kind of splits the difference.
+    # or greater for ECB. In CBC, by contrast, any given byte occurs
+    # around 0.003 of the time, as expected, with typical range of
+    # [0.001, 0.008]. In other words, range = 0.007. Therefore 0.0368
+    # kind of splits the difference.
 
 }
 
