@@ -13,6 +13,7 @@ use Cryptopals qw(aes_ecb pad_text ceil encryption_oracle aes_cbc
     random_bytes);
 
 use Crypt::OpenSSL::AES;
+use BreakECB qw(find_ecb_blocksize);
 
 my $key;
 open(PW, "< unknown_key.txt") || die("Can't open password file: $!");
@@ -54,8 +55,15 @@ sub prepend_cbc {
     return aes_cbc($key, $enc_me, $iv, "enc");
 }
 
+# 1. Discover the block size of the cipher.
+
+print "Algorithm block size is :\t** ",
+    find_ecb_blocksize(\&prepend_encrypt), " **\n";
+
+# 2. Detect that the function is using ECB
+
 my $pre = "Hello!" x 200;
-print 'I detect that prepend_encrypt() is using: ** ',
+print "Algorithm mode is:\t\t** ",
     encryption_oracle(prepend_encrypt($pre)), " **\n";
 die unless encryption_oracle(prepend_encrypt($pre)) eq "ECB";
 die unless encryption_oracle(prepend_cbc($pre)) eq "CBC";
