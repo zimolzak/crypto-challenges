@@ -13,7 +13,7 @@ use Cryptopals qw(aes_ecb pad_text ceil encryption_oracle aes_cbc
     random_bytes);
 
 use Crypt::OpenSSL::AES;
-use BreakECB qw(find_ecb_blocksize);
+use BreakECB qw(find_ecb_blocksize find_first_char);
 
 my $key;
 open(PW, "< unknown_key.txt") || die("Can't open password file: $!");
@@ -30,7 +30,6 @@ close PW || die("Can't close password file: $!");
 my $unknown_b64 = 'Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkgaGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBqdXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUgYnkK';
 
 my $unknown_string = decode_base64($unknown_b64);
-
 
 my $ciphertext = aes_ecb($key,
 			 pad_text(
@@ -57,8 +56,8 @@ sub prepend_cbc {
 
 # 1. Discover the block size of the cipher.
 
-print "Algorithm block size is :\t** ",
-    find_ecb_blocksize(\&prepend_encrypt), " **\n";
+my $blocksize = find_ecb_blocksize(\&prepend_encrypt);
+print "Algorithm block size is :\t** ", $blocksize, " **\n";
 
 # 2. Detect that the function is using ECB
 
@@ -67,5 +66,16 @@ print "Algorithm mode is:\t\t** ",
     encryption_oracle(prepend_encrypt($pre)), " **\n";
 die unless encryption_oracle(prepend_encrypt($pre)) eq "ECB";
 die unless encryption_oracle(prepend_cbc($pre)) eq "CBC";
+
+# 3. craft an input block that is exactly 1 byte short.
+
+# 4. Make a dictionary of every possible last byte.
+
+# 5. Match the output of the one-byte-short input to one of the
+# entries in your dictionary.
+
+print "First character is:\t\t** ", find_first_char(\&prepend_encrypt, $blocksize), " **\n";
+
+die unless find_first_char(\&prepend_encrypt, $blocksize) eq substr($unknown_string, 0, 1);
 
 print "passed assertions (challenge 12).\n";

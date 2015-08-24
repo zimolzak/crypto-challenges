@@ -14,9 +14,9 @@ our $VERSION = 1;
 
 our @ISA= qw( Exporter );
 
-our @EXPORT_OK = qw( find_ecb_blocksize );
+our @EXPORT_OK = qw( find_ecb_blocksize find_first_char);
 
-our @EXPORT = qw( find_ecb_blocksize );
+our @EXPORT = qw( find_ecb_blocksize find_first_char);
 
 sub find_ecb_blocksize {
     # Expects its arg to be pointer to a func that takes string &
@@ -37,5 +37,16 @@ sub find_ecb_blocksize {
     return $blocksize;
 }
 
+sub find_first_char {
+    # Expects its arg to be pointer to a "prepender" type func that
+    # takes string & returns string.
+    my ($fp, $blocksize) = @_;
+    my $output_of_short = substr(&$fp("A" x ($blocksize - 1)), 0, $blocksize);
+    for (0..255) {
+	my $str_to_feed = ("A" x ($blocksize - 1)) . (chr $_);
+	my $output_of_long = substr(&$fp($str_to_feed), 0, $blocksize);
+	return (chr $_) if $output_of_short eq $output_of_long;
+    }
+}
 
 1;

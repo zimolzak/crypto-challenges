@@ -23,7 +23,7 @@ our @EXPORT_OK = qw( find_scxor_decrypts printhash hex_xor_hex
 
 our @EXPORT = qw( find_scxor_decrypts printhash hex_xor_hex h2b
     signature hamming keys_ascending ceil find_generic_decrypts
-    key_xor_hex_to_text);
+    key_xor_hex_to_text ascii2hex);
 
 # construct table
 our @b64table;
