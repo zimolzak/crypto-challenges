@@ -335,10 +335,12 @@ sub aes_cbc_block {
     if ($mode eq "dec"){
 	my $intermediate = $aes->decrypt($block);
 	$output = hex2ascii(hex_xor_hex(ascii2hex($intermediate),
-					   ascii2hex($iv)));
+					ascii2hex($iv)));
     }
     elsif ($mode eq "enc") {
-	#code here
+	my $intermediate = hex2ascii(hex_xor_hex(ascii2hex($block),
+						 ascii2hex($iv)));
+	$output = $aes->encrypt($intermediate);
     }
     return $output;
 }
@@ -353,7 +355,8 @@ sub aes_cbc {
 	    $iv = $block;
 	}
 	elsif ($mode eq "enc") {
-	    # code here
+	    $iv = aes_cbc_block($key, $block, $iv, $mode);
+	    $output .= $iv;
 	}
     }
     return $output;

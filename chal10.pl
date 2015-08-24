@@ -27,4 +27,10 @@ print aes_cbc($key, $ciphertext, $iv, "dec");
 
 my @plaintextlines = split(/\n/, aes_cbc($key, $ciphertext, $iv, "dec"));
 die unless $plaintextlines[1] =~ /on the mike/;
-print "Passed assertion\n";
+
+my $text = "Got me a movie, I want you to k\n";
+my $ciph = aes_cbc($key, $text, $iv, "enc");
+my $decrypt = aes_cbc($key, $ciph, $iv, "dec");
+die unless $text eq $decrypt;
+
+print "Passed assertion (challenge 10)\n";
