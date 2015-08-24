@@ -14,9 +14,9 @@ our $VERSION = 1;
 
 our @ISA= qw( Exporter );
 
-our @EXPORT_OK = qw( find_ecb_blocksize find_first_char);
+our @EXPORT_OK = qw( find_ecb_blocksize find_char);
 
-our @EXPORT = qw( find_ecb_blocksize find_first_char);
+our @EXPORT = qw( find_ecb_blocksize find_char);
 
 sub find_ecb_blocksize {
     # Expects its arg to be pointer to a func that takes string &
@@ -37,14 +37,23 @@ sub find_ecb_blocksize {
     return $blocksize;
 }
 
-sub find_first_char {
-    # Expects its arg to be pointer to a "prepender" type func that
-    # takes string & returns string.
-    my ($fp, $blocksize) = @_;
-    my $output_of_short = substr(&$fp("A" x ($blocksize - 1)), 0, $blocksize);
+sub find_char {
+    # Returns NEXT char of an unknown string, given: 1. pointer to a
+    # "prepender" type func that takes string & returns string, 2.
+    # block size of the encryptor, 3. Currently known chars.
+    my ($fp, $blocksize, $known_text) = @_;
+
+    my $lkt = length($known_text);
+    my $blocks_to_take = ceil( ($lkt + 1) / $blocksize);
+    my $num_chars = ($blocksize * $blocks_to_take - 1 - $lkt) % $blocksize;
+
+    my $shortblock = ("A" x $num_chars );
+    my $output_of_short = substr(&$fp($shortblock), 0, $blocksize * $blocks_to_take);
+
     for (0..255) {
-	my $str_to_feed = ("A" x ($blocksize - 1)) . (chr $_);
-	my $output_of_long = substr(&$fp($str_to_feed), 0, $blocksize);
+	my $str_to_feed = ($shortblock . $known_text . (chr $_));
+	my $output_of_long = substr(&$fp($str_to_feed), 0, $blocksize * $blocks_to_take);
+	
 	return (chr $_) if $output_of_short eq $output_of_long;
     }
 }

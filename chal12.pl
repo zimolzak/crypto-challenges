@@ -13,7 +13,7 @@ use Cryptopals qw(aes_ecb pad_text ceil encryption_oracle aes_cbc
     random_bytes);
 
 use Crypt::OpenSSL::AES;
-use BreakECB qw(find_ecb_blocksize find_first_char);
+use BreakECB qw(find_ecb_blocksize find_char);
 
 my $key;
 open(PW, "< unknown_key.txt") || die("Can't open password file: $!");
@@ -74,8 +74,8 @@ die unless encryption_oracle(prepend_cbc($pre)) eq "CBC";
 # 5. Match the output of the one-byte-short input to one of the
 # entries in your dictionary.
 
-print "First character is:\t\t** ", find_first_char(\&prepend_encrypt, $blocksize), " **\n";
+print "Next character is:\t\t** ", find_char(\&prepend_encrypt, $blocksize, "R"), " **\n";
 
-die unless find_first_char(\&prepend_encrypt, $blocksize) eq substr($unknown_string, 0, 1);
+die unless find_char(\&prepend_encrypt, $blocksize, "") eq substr($unknown_string, 0, 1);
 
 print "passed assertions (challenge 12).\n";
