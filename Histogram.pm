@@ -22,6 +22,7 @@ our @EXPORT = qw( histogram print_histo print_sig);
 my $N = 128; # number of ascii chars
 
 sub histogram {
+    # only does characters 1 to $N.
     my ($text) = @_;
     my @count = (0) x $N;
     my @proportion = (0.0) x $N;
@@ -34,7 +35,7 @@ sub histogram {
 	    }
 	}
     }
-    return \@count;
+    return \@count; # what about proportion?
 }
 
 my $N_COL = 8; # how many columns in the layout

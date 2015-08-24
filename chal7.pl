@@ -11,7 +11,7 @@
 use strict;
 use MIME::Base64 qw(decode_base64);
 use Crypt::OpenSSL::AES;
-use Cryptopals qw(aes_ecb_decrypt);
+use Cryptopals qw(aes_ecb);
 
 my $ciphertext;
 while(<>){
@@ -22,8 +22,8 @@ while(<>){
 }
 
 my $key = "YELLOW SUBMARINE";
-print aes_ecb_decrypt($key, $ciphertext);
+print aes_ecb($key, $ciphertext, "dec");
 
-my @plaintextlines = split(/\n/, aes_ecb_decrypt($key, $ciphertext));
+my @plaintextlines = split(/\n/, aes_ecb($key, $ciphertext, "dec"));
 die unless $plaintextlines[0] =~ /back and I/;
 print "Passed assertion\n";
