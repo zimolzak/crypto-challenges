@@ -56,6 +56,7 @@ sub find_char {
 	
 	return (chr $_) if $output_of_short eq $output_of_long;
     }
+    return undef; # if fail
 }
 
 sub find_unk_str {
@@ -64,9 +65,10 @@ sub find_unk_str {
     # block size of the encryptor
     my ($fp, $blocksize) = @_;
     my $total_string = "";
-    while(my $c = find_char($fp, $blocksize, $total_string)){
+    while(defined(my $c = find_char($fp, $blocksize, $total_string))){
 	$total_string .= $c;
     }
+    $total_string =~ s/\x04+$//g;
     return $total_string;
 }
 

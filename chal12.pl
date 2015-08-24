@@ -79,8 +79,9 @@ print "Next character is:\t\t** ", find_char(\&prepend_encrypt, $blocksize, "R")
 die unless find_char(\&prepend_encrypt, $blocksize, "") eq substr($unknown_string, 0, 1);
 
 my $answer = find_unk_str(\&prepend_encrypt, $blocksize);
-print $answer, "\n";
+print $answer;
 
-die "Failed to decrypt whole thing" unless length($answer) == length($unknown_string);
+die "Failed to decrypt whole thing" unless length($unknown_string) == length($answer);
+die "Bad decrypt" unless $unknown_string eq $answer;
 
-print "passed assertions (challenge 12).\n";
+print "Passed assertions (challenge 12).\n";
