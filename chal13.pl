@@ -1,42 +1,64 @@
 #!/usr/bin/perl -w
 
-#     chal12.pl - ECB cut and paste (key-val parsing)
+#     chal13.pl - ECB cut and paste (Fake server returns encrypted
+#     unprivileged object; I craft new ciphertext that decrypts to a
+#     privileged object.)
 # 
 #     Copyright (C) 2015 Andrew J. Zimolzak <andyzimolzak@gmail.com>
 #     Full notice is found in the file 'LICENSE' in the same directory
 #     as this file.
 
+# usage to shut up STDERR: ./chal13.pl 2> /dev/null
+
 use strict;
-use Cryptopals qw(random_bytes printhash ascii2hex encryption_oracle hex2ascii);
+
+use Cryptopals qw(random_bytes printhash ascii2hex encryption_oracle
+    hex2ascii);
+
 use Crypt::OpenSSL::AES;
-use ProfileParsing qw( encrypted_profile_for decrypt_and_parse decrypt_and_cheat);
+use ProfileParsing;
 use BreakECB;
 
-# Give input
+## Give input
+
 my $bill = 'billg@microsoft.com';
 my $ciphertext_tame = encrypted_profile_for($bill);
 
-# Probe the encrypted_profile_for() function
+##
+
+print "Probe the encrypted_profile_for() function\n--------\n";
 my $blocksize = find_ecb_blocksize(\&encrypted_profile_for);
 print "Algorithm block size is :\t** ", $blocksize, " **\n";
 my $bigemail = ("hello." x 200) . '@yahoo.com';
 print "Algorithm mode is:\t\t** ",
-    encryption_oracle(encrypted_profile_for($bigemail)), " **\n\n";
+    encryption_oracle(encrypted_profile_for($bigemail)), " **\n";
+for my $input ('blah@myisp.com', 'blai@myisp.com') {
+    my $output = ascii2hex(encrypted_profile_for($input));
+    print "$input -> $output\n";
+}
+my $boring_part = 'befc6d0973b6862929c65a5c1a8e5447e1080646088382fd7672b6a2c67e17fe';
+my $tame = 'fcaeaa3fe7040c2f' . 'a5294821afe2c876';
+my $edit = 'fcaeaa3fe7040c2f' . 'a5294821afe2c877'; # Make your edits here!!
 
-my $answer = find_unk_str(\&encrypted_profile_for, $blocksize);
-print "I think secret string is (in hex): ", ascii2hex($answer), "\n";
-print "Actual string is (cheat): ", decrypt_and_cheat($ciphertext_tame), "\n\n";
+my $ciphertext_nasty = hex2ascii($boring_part . $edit);
 
-print "Benign ciphertext: ", ascii2hex($ciphertext_tame), "\n";
-my $ciphertext_nasty = hex2ascii('eaebcf8064c50ecc597f63eaea88e07d79401fa25c8ed53447574947bc5c58146d05eb5f3228e733ea3619fb8d102dff');
-print "Compromised string (cheat): ", decrypt_and_cheat($ciphertext_nasty), "\n\n";
+##
 
-# Display output
+print "\nDisplay the output\n--------\n";
 my %obj_tame = %{decrypt_and_parse($ciphertext_tame)}; #needed for tests
+my %obj_nasty = %{decrypt_and_parse($ciphertext_nasty)};
 print "Server creates the following tame record:\n";
 printhash(%obj_tame);
 print "And the following nasty record:\n";
-printhash(%{decrypt_and_parse($ciphertext_nasty)});
+printhash(%obj_nasty);
+
+print "\nFinal result\n--------\n";
+if ($obj_nasty{'role'} eq 'admin') {
+    print "YOU ARE ELLEET!!!!1!\n";
+}
+else {
+    print "YOU ARE NOT ELEET.\n";
+}
 print "DONE!\n\n";
 
 # test
