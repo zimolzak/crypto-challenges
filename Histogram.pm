@@ -68,7 +68,7 @@ sub print_sig {
 	}
 	else {
 	    my %h = %{signature($x)};
-	    for my $key qw (letters spaces misc unprintable){ # do it in order
+	    for my $key ('letters','spaces','misc','unprintable') { # do it in order
 		printf '%.3f ', $h{$key};
 	    }
 	    print "\n";

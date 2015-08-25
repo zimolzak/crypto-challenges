@@ -21,9 +21,12 @@ To do
 ----
 * Make better use real base64 library - use MIME::Base64;
 * ceil() from POSIX
+
 * I installed Crypt::OpenSSL::AES no problem, but Crypt::Mode::ECB
   failed because encode_base64url is not exported by the MIME::Base64
-  module. Seems like a version problem. Turns out I didn't need it.
+  module. Seems like a version problem. Turns out I didn't need
+  it. Also, OpenSSL::AES requires ssl headers, so sudo apt-get install
+  libssl-dev if necessary.
 
 Important conclusion
 --------
