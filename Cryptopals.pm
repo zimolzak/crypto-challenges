@@ -259,6 +259,10 @@ sub printhash {
 	    print "  $x -> " ;
 	}
 	else {
+	    if (length($x) <= 0){ # don't s/// undefined values
+		print "\n";
+		next;
+	    }
 	    $x =~ s/[\r\n\v]//g;
 	    if (length($x) > 70){
 		print substr($x, 0, 70), "\n";

@@ -8,8 +8,6 @@
 #     Full notice is found in the file 'LICENSE' in the same directory
 #     as this file.
 
-# usage to shut up STDERR: ./chal13.pl 2> /dev/null
-
 use strict;
 
 use Cryptopals qw(random_bytes printhash ascii2hex encryption_oracle
@@ -41,6 +39,7 @@ for my $s (0..31) {
     my $output = ascii2hex_blocks(encrypted_profile_for($input), $blocksize);
     print "$input", (' ' x (32 - $s)) ," -> $output\n";
 }
+
 my $boring_part = 'befc6d0973b6862929c65a5c1a8e5447e1080646088382fd7672b6a2c67e17fe';
 my $tame = 'fcaeaa3fe7040c2fa5294821afe2c876';
 my $edit = '17fe8473815bd34304df8525070f5e02'; # Make your edits here!!
@@ -58,7 +57,7 @@ print "And the following nasty record:\n";
 printhash(%obj_nasty);
 
 print "\nFinal result\n--------\n";
-if ($obj_nasty{'role'} eq 'admin') {
+if (exists $obj_nasty{'role'} && $obj_nasty{'role'} eq 'admin') {
     print "YOU ARE ELLEET!!!!1!\n";
 }
 else {
