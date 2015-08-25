@@ -14,11 +14,9 @@ use Cryptopals qw(aes_ecb pad_multiple);
 our $VERSION = 1;
 our @ISA= qw( Exporter );
 
-our @EXPORT_OK = qw( parse_cookie profile_for encrypted_profile_for
-    decrypt_and_parse);
+our @EXPORT_OK = qw( encrypted_profile_for decrypt_and_parse);
 
-our @EXPORT = qw( parse_cookie profile_for encrypted_profile_for
-    decrypt_and_parse);
+our @EXPORT = qw( encrypted_profile_for decrypt_and_parse);
 
 sub parse_cookie {
     #returns hashref

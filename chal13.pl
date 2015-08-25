@@ -12,7 +12,7 @@ use Crypt::OpenSSL::AES;
 use ProfileParsing;
 
 my $bill = 'billg@microsoft.com';
-print profile_for($bill), "\n";
+#print profile_for($bill), "\n";
 my $key = random_bytes(16);
 my $ciphertext = encrypted_profile_for($bill, $key);
 print ascii2hex($ciphertext), "\n";
