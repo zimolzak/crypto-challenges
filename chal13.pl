@@ -35,7 +35,7 @@ for my $input ('blah@myisp.com', 'blai@myisp.com') {
     print "$input                 -> $output\n";
 }
 for my $s (0..31) {
-    my $input = 'n@h.com' . ("m" x $s);
+    my $input = ("A" x $s) . "admin" . ("\x04" x 32);
     my $output = ascii2hex_blocks(encrypted_profile_for($input), $blocksize);
     print "$input", (' ' x (32 - $s)) ," -> $output\n";
 }
@@ -50,10 +50,16 @@ print ascii2hex_blocks(encrypted_profile_for($magic_email_role)
 
 my $boring_part = 'befc6d0973b6862929c65a5c1a8e5447e1080646088382fd7672b6a2c67e17fe';
 my $tame = 'fcaeaa3fe7040c2fa5294821afe2c876';
+my $flip_one = 'fcaeaa3fe7040c2fa5294821afe2c877';
 my $all_m = '17fe8473815bd34304df8525070f5e02';
-my $edit = '89d53a9b843bbbe3aa85f0caf17a5f01';
+my $space_space_role = '89d53a9b843bbbe3aa85f0caf17a5f01';
+my $user_pad = '6746f4c39e74956b7635f0b1bc1c2d5a';
+my $something_role_equals = 'dd18eca8bf9ea4da51552717796d4a42';
+my $admin_pad = 'c1465fe69b28abc8515790dab0c4ffbf';
 
-my $ciphertext_nasty = hex2ascii($boring_part . $edit);
+my $ciphertext_nasty = hex2ascii($boring_part
+				 . $something_role_equals
+				 . $admin_pad);
 
 ##
 
