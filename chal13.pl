@@ -10,14 +10,20 @@ use strict;
 use Cryptopals qw(random_bytes printhash ascii2hex);
 use Crypt::OpenSSL::AES;
 use ProfileParsing;
+use BreakECB;
 
+# Give input
 my $bill = 'billg@microsoft.com';
-print profile_for($bill), "\n";
-my $key = random_bytes(16);
-my $ciphertext = encrypted_profile_for($bill, $key);
-print ascii2hex($ciphertext), "\n";
-my %obj = %{decrypt_and_parse($ciphertext, $key)};
-printhash(%obj);
-die unless $obj{"role"} eq "user" and $obj{"email"} eq $bill;
+my $ciphertext = encrypted_profile_for($bill);
 
+# Probe the encrypted_profile_for() function
+my $blocksize = find_ecb_blocksize(\&encrypted_profile_for);
+print "Algorithm block size is :\t** ", $blocksize, " **\n";
+
+# Display output
+my %obj = %{decrypt_and_parse($ciphertext)};
+printhash(%obj);
+
+# test
+die unless $obj{"role"} eq "user" and $obj{"email"} eq $bill;
 warn "Passed assertions ($0).\n";

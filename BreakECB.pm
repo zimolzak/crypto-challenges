@@ -50,11 +50,10 @@ sub find_char {
     my $shortblock = ("A" x $num_chars );
     my $output_of_short = substr(&$fp($shortblock), 0, $blocksize * $blocks_to_take);
 
-    for (0..255) {
-	my $str_to_feed = ($shortblock . $known_text . (chr $_));
+    for my $charnum (0..255) {
+	my $str_to_feed = ($shortblock . $known_text . (chr $charnum));
 	my $output_of_long = substr(&$fp($str_to_feed), 0, $blocksize * $blocks_to_take);
-	
-	return (chr $_) if $output_of_short eq $output_of_long;
+	return (chr $charnum) if $output_of_short eq $output_of_long;
     }
     return undef; # if fail
 }
