@@ -27,15 +27,19 @@ be committed to this git repo.
 
 To do
 ----
-* Make better use real base64 library - use MIME::Base64;
+* Make better use of real base64 library - `use MIME::Base64;`
 * ceil() from POSIX
 
 * I installed Crypt::OpenSSL::AES no problem, but Crypt::Mode::ECB
   failed because encode_base64url is not exported by the MIME::Base64
-  module. Seems like a version problem. Turns out I didn't need
-  it. Also, OpenSSL::AES requires ssl headers, so sudo apt-get install
-  libssl-dev if necessary.
+  module. Seems like a version problem. Turns out I didn't need it.
+  Also, OpenSSL::AES requires ssl headers, so `sudo apt-get install
+  libssl-dev` if necessary.
 
 Important conclusion
 --------
 * Be more accurate about picking the best key size, and about the metric.
+
+* ECB cut-and-paste: had to figure out "user\x04\x04.." which allowed
+  finding "...role=". Then had to figure out "admin\x04\x04.."
+

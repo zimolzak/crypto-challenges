@@ -46,7 +46,7 @@ for my $s (0..11) {
     print "$input", (' ' x (11 - $s)) ," -> $output\n";
 }
 
-my $boring_part = 'befc6d0973b6862929c65a5c1a8e5447e1080646088382fd7672b6a2c67e17fe';
+my $boring_part = 'befc6d0973b6862929c65a5c1a8e5447e1080646088382fd7672b6a2c67e17fe'; # I think this goes 'email=blahblah&r'
 my $tame = 'fcaeaa3fe7040c2fa5294821afe2c876';
 my $flip_one = 'fcaeaa3fe7040c2fa5294821afe2c877';
 my $all_m = '17fe8473815bd34304df8525070f5e02';
