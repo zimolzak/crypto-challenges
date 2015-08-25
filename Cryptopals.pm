@@ -19,7 +19,7 @@ our @EXPORT_OK = qw( find_scxor_decrypts printhash hex_xor_hex
     key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending
     ceil signature aes_ecb pad_text aes_cbc_block aes_cbc
     encrypt_randomly distribution range encryption_oracle
-    print_float_ary random_bytes);
+    print_float_ary random_bytes pad_multiple);
 
 our @EXPORT = qw( find_scxor_decrypts printhash hex_xor_hex h2b
     signature hamming keys_ascending ceil find_generic_decrypts
@@ -438,5 +438,9 @@ sub print_float_ary {
     print "$str\n";
 }
 
+sub pad_multiple {
+    my ($text, $blocksize) = @_;
+    $text = pad_text($text, ceil(length($text)/$blocksize) * $blocksize);
+}
 
 1;
