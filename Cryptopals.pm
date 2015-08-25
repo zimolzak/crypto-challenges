@@ -253,25 +253,12 @@ sub find_generic_decrypts {
 
 sub printhash {
     # eats the real thing, not a pointer.
-    my $iskey = 1;
-    for my $x (@_) {
-	if ($iskey){
-	    print "  $x -> " ;
+    my (%h) = @_;
+    while (my ($k, $v) = each %h){
+	if (length($v) <= 0) {
+	    $v = '<<UNDEFINED>>';
 	}
-	else {
-	    if (length($x) <= 0){ # don't s/// undefined values
-		print "\n";
-		next;
-	    }
-	    $x =~ s/[\r\n\v]//g;
-	    if (length($x) > 70){
-		print substr($x, 0, 70), "\n";
-	    }
-	    else {
-		print "$x\n";
-	    }
-	}
-	$iskey ^= 1;
+	print "  $k -> $v\n";
     }
 }
 
