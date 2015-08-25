@@ -19,7 +19,7 @@ our @EXPORT_OK = qw( find_scxor_decrypts printhash hex_xor_hex
     key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending
     ceil signature aes_ecb pad_text aes_cbc_block aes_cbc
     encrypt_randomly distribution range encryption_oracle
-    print_float_ary random_bytes pad_multiple);
+    print_float_ary random_bytes pad_multiple ascii2hex_blocks);
 
 our @EXPORT = qw( find_scxor_decrypts printhash hex_xor_hex h2b
     signature hamming keys_ascending ceil find_generic_decrypts
@@ -253,21 +253,12 @@ sub find_generic_decrypts {
 
 sub printhash {
     # eats the real thing, not a pointer.
-    my $iskey = 1;
-    for my $x (@_) {
-	if ($iskey){
-	    print "  $x -> " ;
+    my (%h) = @_;
+    while (my ($k, $v) = each %h){
+	if (length($v) <= 0) {
+	    $v = '<<UNDEFINED>>';
 	}
-	else {
-	    $x =~ s/[\r\n\v]//g;
-	    if (length($x) > 70){
-		print substr($x, 0, 70), "\n";
-	    }
-	    else {
-		print "$x\n";
-	    }
-	}
-	$iskey ^= 1;
+	print "  $k -> $v\n";
     }
 }
 
@@ -441,6 +432,19 @@ sub print_float_ary {
 sub pad_multiple {
     my ($text, $blocksize) = @_;
     $text = pad_text($text, ceil(length($text)/$blocksize) * $blocksize);
+}
+
+sub ascii2hex_blocks {
+    my ($str, $blocksize) = @_; # blocksize in bytes
+    my $h = ascii2hex($str);
+    my $bytes = length($h) / 2;
+    my $blocks = ceil($bytes / $blocksize); #dimensionless integer
+    my $outputme;
+    for my $blocknum (0..$blocks) {
+	$outputme .= (substr($h, $blocknum * $blocksize * 2, $blocksize * 2)
+		      . " ");
+    }
+    return $outputme;
 }
 
 1;
