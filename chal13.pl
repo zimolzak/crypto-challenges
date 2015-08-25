@@ -13,7 +13,7 @@
 use strict;
 
 use Cryptopals qw(random_bytes printhash ascii2hex encryption_oracle
-    hex2ascii);
+    hex2ascii ascii2hex_blocks);
 
 use Crypt::OpenSSL::AES;
 use ProfileParsing;
@@ -33,12 +33,17 @@ my $bigemail = ("hello." x 200) . '@yahoo.com';
 print "Algorithm mode is:\t\t** ",
     encryption_oracle(encrypted_profile_for($bigemail)), " **\n";
 for my $input ('blah@myisp.com', 'blai@myisp.com') {
-    my $output = ascii2hex(encrypted_profile_for($input));
-    print "$input -> $output\n";
+    my $output = ascii2hex_blocks(encrypted_profile_for($input), $blocksize);
+    print "$input                 -> $output\n";
+}
+for my $s (0..31) {
+    my $input = 'n@h.com' . ("m" x $s);
+    my $output = ascii2hex_blocks(encrypted_profile_for($input), $blocksize);
+    print "$input", (' ' x (32 - $s)) ," -> $output\n";
 }
 my $boring_part = 'befc6d0973b6862929c65a5c1a8e5447e1080646088382fd7672b6a2c67e17fe';
-my $tame = 'fcaeaa3fe7040c2f' . 'a5294821afe2c876';
-my $edit = 'fcaeaa3fe7040c2f' . 'a5294821afe2c877'; # Make your edits here!!
+my $tame = 'fcaeaa3fe7040c2fa5294821afe2c876';
+my $edit = '17fe8473815bd34304df8525070f5e02'; # Make your edits here!!
 
 my $ciphertext_nasty = hex2ascii($boring_part . $edit);
 
