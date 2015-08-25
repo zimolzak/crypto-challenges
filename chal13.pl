@@ -12,15 +12,12 @@ use Crypt::OpenSSL::AES;
 use ProfileParsing;
 
 my $bill = 'billg@microsoft.com';
-
 print profile_for($bill), "\n";
-
 my $key = random_bytes(16);
-
 my $ciphertext = encrypted_profile_for($bill, $key);
-
 print ascii2hex($ciphertext), "\n";
-
-printhash(%{decrypt_and_parse($ciphertext, $key)});
+my %obj = %{decrypt_and_parse($ciphertext, $key)};
+printhash(%obj);
+die unless $obj{"role"} eq "user" and $obj{"email"} eq $bill;
 
 warn "Passed assertions ($0).\n";
