@@ -40,9 +40,18 @@ for my $s (0..31) {
     print "$input", (' ' x (32 - $s)) ," -> $output\n";
 }
 
+my $magic_email_M =    'n@h.commmmmmmmmmmmmmmmmmmm'; 
+my $magic_email_role = 'n@h.commmm            role'; #grab 2nd block of Ctxt.
+print ascii2hex_blocks(encrypted_profile_for($magic_email_role)
+		       , $blocksize), "\n";
+
+
+
+
 my $boring_part = 'befc6d0973b6862929c65a5c1a8e5447e1080646088382fd7672b6a2c67e17fe';
 my $tame = 'fcaeaa3fe7040c2fa5294821afe2c876';
-my $edit = '17fe8473815bd34304df8525070f5e02'; # Make your edits here!!
+my $all_m = '17fe8473815bd34304df8525070f5e02';
+my $edit = '89d53a9b843bbbe3aa85f0caf17a5f01';
 
 my $ciphertext_nasty = hex2ascii($boring_part . $edit);
 
