@@ -25,28 +25,26 @@ my $ciphertext_tame = encrypted_profile_for($bill);
 ##
 
 print "Probe the encrypted_profile_for() function\n--------\n";
-my $blocksize = find_ecb_blocksize(\&encrypted_profile_for);
+my $blocksize = find_ecb_blocksize(\&encrypted_profile_for); 
 print "Algorithm block size is :\t** ", $blocksize, " **\n";
+
+$blocksize = 16; # Force this because rarely it guesses wrong, but
+		 # attacker would have determinted it statistically
+		 # anyway.
+
 my $bigemail = ("hello." x 200) . '@yahoo.com';
 print "Algorithm mode is:\t\t** ",
     encryption_oracle(encrypted_profile_for($bigemail)), " **\n";
 for my $input ('blah@myisp.com', 'blai@myisp.com') {
     my $output = ascii2hex_blocks(encrypted_profile_for($input), $blocksize);
-    print "$input                 -> $output\n";
+    print "$input   -> $output\n";
 }
-for my $s (0..31) {
+
+for my $s (0..11) {
     my $input = ("A" x $s) . "admin" . ("\x04" x 32);
     my $output = ascii2hex_blocks(encrypted_profile_for($input), $blocksize);
-    print "$input", (' ' x (32 - $s)) ," -> $output\n";
+    print "$input", (' ' x (11 - $s)) ," -> $output\n";
 }
-
-my $magic_email_M =    'n@h.commmmmmmmmmmmmmmmmmmm'; 
-my $magic_email_role = 'n@h.commmm            role'; #grab 2nd block of Ctxt.
-print ascii2hex_blocks(encrypted_profile_for($magic_email_role)
-		       , $blocksize), "\n";
-
-
-
 
 my $boring_part = 'befc6d0973b6862929c65a5c1a8e5447e1080646088382fd7672b6a2c67e17fe';
 my $tame = 'fcaeaa3fe7040c2fa5294821afe2c876';
@@ -77,6 +75,7 @@ if (exists $obj_nasty{'role'} && $obj_nasty{'role'} eq 'admin') {
 }
 else {
     print "YOU ARE NOT ELEET.\n";
+    die;
 }
 print "DONE!\n\n";
 
