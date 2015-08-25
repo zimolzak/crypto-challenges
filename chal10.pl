@@ -26,5 +26,4 @@ print aes_cbc($key, $ciphertext, $iv, "dec");
 
 my @plaintextlines = split(/\n/, aes_cbc($key, $ciphertext, $iv, "dec"));
 die unless $plaintextlines[1] =~ /on the mike/;
-
-print "Passed assertions (challenge 10).\n";
+warn "Passed assertions ($0).\n";

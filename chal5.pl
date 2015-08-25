@@ -19,8 +19,6 @@ my $target = "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324
 
 die unless ascii2hex(key_xor_hex_to_text("ICE", ascii2hex($plaintext))) eq $target;
 
-print "Passed assertions.\n";
-
 #print key_xor_hex_to_text("A", "70");
 
 print "Encrypting 4 misc plaintexts.\n";
@@ -33,3 +31,6 @@ for my $plaintext ("Hello", "Testing this", "asdfsdfwef", "Bruce lee was a germa
     print $asub, "\t|\t";
     print ascii2hex($ascii), "\n";
 }
+
+warn "Passed assertions $0.\n";
+

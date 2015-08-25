@@ -42,4 +42,4 @@ print "Line ", $ax+1, " dist $normdistances[$ax], line ",
     $an+1, " dist $normdistances[$an]\n";
 
 die unless $repeat_blocks_per_row[132] == 6;
-print "Passed assertion\n";
+warn "Passed assertion $0\n";

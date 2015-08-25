@@ -25,5 +25,6 @@ my $key = "YELLOW SUBMARINE";
 print aes_ecb($key, $ciphertext, "dec");
 
 my @plaintextlines = split(/\n/, aes_ecb($key, $ciphertext, "dec"));
+
 die unless $plaintextlines[0] =~ /back and I/;
-print "Passed assertion\n";
+warn "Passed assertion $0\n";

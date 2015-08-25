@@ -27,4 +27,4 @@ while(<>){
 }
 
 die unless $found_expected_plaintext;
-print "Passed assertion\n";
+warn "Passed assertion $0\n";

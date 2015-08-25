@@ -21,4 +21,4 @@ printhash(%decrypts);
 
 my $plaintext = $decrypts{"X"};
 die unless $plaintext =~ /like a pound/;
-print "Passed assertion\n";
+warn "Passed assertion $0\n";

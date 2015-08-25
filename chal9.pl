@@ -14,4 +14,4 @@ print pad_text("YELLOW SUBMARINE", 20), "\n";
 die unless length(pad_text("YELLOW SUBMARINE", 20)) == 20;
 die unless pad_text("YELLOW SUBMARINE", 20)
     eq "YELLOW SUBMARINE\x04\x04\x04\x04";
-print "Passed assertions.\n";
+warn "Passed assertions $0.\n";

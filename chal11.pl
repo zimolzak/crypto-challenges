@@ -22,6 +22,4 @@ for (1..100){
     my ($ciphertext, $chosen_mode) = encrypt_randomly($text);
     die unless encryption_oracle($ciphertext) eq $chosen_mode;
 }
-print "\n";
-
-print "Passed assertions (challenge 11)\n";
+warn "Passed assertions ($0)\n";

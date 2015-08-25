@@ -46,5 +46,7 @@ print key_xor_hex_to_text($key, $cipher_hex);
 print "\n";
 
 my @plaintextlines = split(/\n/, key_xor_hex_to_text($key, $cipher_hex));
+
 die unless $plaintextlines[0] =~ /back and I/;
-print "Passed assertion\n";
+
+warn "Passed assertion $0\n";

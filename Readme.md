@@ -1,8 +1,11 @@
 The Matasano crypto challenges
 ========
 
-48 practical programming exercises using real-world cryptography. For
-more information, see http://cryptopals.com/
+48 practical programming exercises using real-world cryptography.
+
+A good way to test them all is `make > /dev/null`.
+
+For more information, see http://cryptopals.com/
 
 1. Convert hex to base64
 2. Fixed XOR
@@ -12,10 +15,15 @@ more information, see http://cryptopals.com/
 6. Break repeating-key XOR
 7. AES in ECB mode
 8. Detect AES in ECB mode
+9. Implement PKCS#7 padding
+10. Implement CBC mode
+11. An ECB/CBC detection oracle
+12. Byte-at-a-time ECB decryption (Simple) 
 
-The ones that use stdin so far: 4, 6, 7, 8. The others carry their
-inputs with them. Redirecting 4 to a file is definitely advisable. 6
-is "the big one." Takes about 40 sec to run.
+Some use stdin; others carry their inputs with them. 4 and 6 each take
+about 40 sec to run on my MacBook Pro (OS X, 2.7 GHz Intel Core i7),
+and a little longer on my iMac7,1 running Ubuntu. Not all inputs may
+be committed to this git repo.
 
 To do
 ----

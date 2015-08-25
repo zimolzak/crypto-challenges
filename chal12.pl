@@ -83,5 +83,4 @@ print $answer;
 
 die "Failed to decrypt whole thing" unless length($unknown_string) == length($answer);
 die "Bad decrypt" unless $unknown_string eq $answer;
-
-print "Passed assertions (challenge 12).\n";
+warn "Passed assertions ($0).\n";
