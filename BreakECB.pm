@@ -54,7 +54,6 @@ sub find_char {
 
     for my $charnum (0..255) {
 	my $str_to_feed = ($shortblock . $known_text . (chr $charnum));
-	# print "stf $str_to_feed \n";#dm
 	my $output_of_long = substr(&$fp($str_to_feed)
 				    , 0
 				    , $blocksize * $blocks_to_take);
@@ -80,17 +79,25 @@ sub magic_nums_of_infix {
     # Takes pointer to infix-type func, and blocksize. Returns how
     # many bytes of junk to feed it to get aligned on a block, plus
     # how many blocks at beginning to throw away.
+
+    # Method: Find the first iteration where there are 2 identical
+    # blocks in tandem. That means they are two 'AAAAAAAAAAAAAAAA'
+    # blocks. Thus the next blocks after that are part of the
+    # plaintext we are seeking.
+    
     my ($fp, $blocksize) = @_;
     my ($n, $i);
-    for $n ($blocksize..(3 * $blocksize)){ 
+    for $n ((2 * $blocksize)..(3 * $blocksize)){
 	my @blocks = split_bytes(&$fp("A" x $n), $blocksize);
 	for $i (0..($#blocks-1)) {
 	    if ($blocks[$i] eq $blocks[$i+1]){
-		return (($n - $blocksize), $i+2);
-		# Why i+2? See diagram:
-		# xxxAAAAA AAAAAAAA AAAAAAAA uuuuuuu
-		#             i        i+1
-		# where x is random, A is A, and u is unknown str.
+		return (($n - 2 * $blocksize), $i+1);
+		# i+1 is the NUMBER (not index) of blocks to
+		# remove. Why? See diagram.
+		# xxxxxxxx xxxAAAAA AAAAAAAA AAAAAAAA uuuuuuu
+		#     0        1       i=2     i+1=3
+		# ...where x is random txt, A is A, and u is target
+		# unknown str. Guaranteed minimum two blocks of A's.
 	    }
 	}
     }
@@ -103,17 +110,12 @@ sub find_str_infix {
     my ($fp, $blocksize) = @_;
     my ($bytes_of_junk, $blocks_to_trash) =
 	magic_nums_of_infix($fp, $blocksize);
-    print "I know $bytes_of_junk $blocks_to_trash \n";#dm
     my $pp = sub {
-	#print "I too know $bytes_of_junk $blocks_to_trash $fp \n";#dm
 	my ($known_plaintext) = @_;
 	my $long_ciphertext = &$fp(("A" x $bytes_of_junk) . $known_plaintext);
 	my @blocks = split_bytes($long_ciphertext, $blocksize);
-	#print ':', ascii2hex_blocks($long_ciphertext, 16), "\n";#dm
-	#print "len ", length($long_ciphertext), '=>', $#blocks, "\n";#dm
 	return join('', @blocks[($blocks_to_trash-1)..$#blocks]);
     };
-    print "fc -", find_char($pp, $blocksize, ""), "-\n";#dm
     return find_unk_str($pp, $blocksize);
 }
 
@@ -125,12 +127,10 @@ sub infix2prepend {
 	magic_nums_of_infix($fp, $blocksize);
     print "res $bytes_of_junk $blocks_to_trash \n";
     my $pp = sub {
-	#print "I too know $bytes_of_junk $blocks_to_trash $fp \n";#dm
+	# closure!
 	my ($known_plaintext) = @_;
 	my $long_ciphertext = &$fp(("F" x $bytes_of_junk) . $known_plaintext);
 	my @blocks = split_bytes($long_ciphertext, $blocksize);
-	#print ':', ascii2hex_blocks($long_ciphertext, 16), "\n";#dm
-	#print "len ", length($long_ciphertext), '=>', $#blocks, "\n";#dm
 	return join('', @blocks[($blocks_to_trash-1)..$#blocks]);
     };
     return $pp;

@@ -58,36 +58,8 @@ die unless encryption_oracle(insert_encrypt($pre)) eq "ECB";
 
 # real analysis
 
-#for my $n (16..48){
-#    print "$n: ", ascii2hex_blocks(insert_encrypt("A" x $n), $blocksize), "\n";
-#}
-
-print "\n----\n";
-my ($n, $i) = magic_nums_of_infix(\&insert_encrypt, $blocksize);
-print "w00t $n $i \n";
-
-print find_str_infix(\&insert_encrypt, $blocksize);
-
-sub ident {
-    my ($s) = @_;
-    return "junk" . $s . "secret";
-}
-
-my $pre_fp = infix2prepend(\&ident, 2);
-
-print &$pre_fp("hellohellohello"), "\n";
-
-
-# 42 is magic num, or 26. Add 26 bytes of junk and throw out first 3
-# blocks, and you have made a prepender-type function.
-
-# find the first iteration where there are 2 identical blocks in
-# tandem. That means they are two 'AAAAAAAAAAAAAAAA' blocks. And the
-# next blocks after that are part of the target. I elected to copy
-# paste in the hex rather than code this up.
-
-my $target_hex = 'ef9fed348fdd89f043f809a544d2a707364506842f21a5f8b19108ef689512c8eacd8c0cdddb6c289c74a6dc7886b9f10df86d02b3d4eff4361b56586781b6c08daad09af5f863040a0b8acedb40e1d0e30005843dbd7553ef9266dadff4c4be386060e6c655af9979743b65cf4b1fb9fb1ac2096e7e23f5b68d241792ca5955af5d52e71ddaee8808c06a985bbe83ec';
-
-
+my $answer = find_str_infix(\&insert_encrypt, $blocksize);
+print $answer;
+die unless $answer =~ /rag-top/;
 
 warn "Passed assertions ($0)\n";
