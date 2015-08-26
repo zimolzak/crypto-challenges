@@ -466,9 +466,15 @@ sub split_bytes {
 
 sub strip_valid_padding {
     my ($str) = @_;
-    die "Bad padding$!" if $str =~ /\x01/;
-    
-    #fix this
+    for my $badchar (split(//, $unprintable)) {
+	next if $badchar eq "\x04"; #the only good unprintable char
+	die "Bad padding (illegal char)$!" if $str =~ /$badchar/;
+    }
+    my $first04 = index($str, "\x04");
+    return $str if $first04 == -1; # no padding
+    my $tail = substr($str, $first04);
+    die "Bad padding (misplaced pad)$!" if $tail =~ /[^\x04]/;
+    $str =~ s/\x04//g;
     return $str;
 }
 

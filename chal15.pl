@@ -8,21 +8,47 @@
 
 use strict;
 use Cryptopals qw(strip_valid_padding);
-#use Error qw(:try);
-#use Exception::Class;
 use Try::Tiny;
 
-
 try {
-    print strip_valid_padding("hello\x01\n");
+    print strip_valid_padding("ICE ICE BABY\x04\x04\x04\x04"), "\n";
 }
 catch {
-    chomp;
     if (/Bad padding/) {
-	print $_, " Boo!\n" ;
+	chomp;
+	die "Error in GOOD string?! ($_)$!";
     }
     else {
-	print "some other error\n";
+	chomp;
+	die "unknown error $_ $!";
+    }
+};
+
+try {
+    print strip_valid_padding("ICE ICE BABY\x05\x05\x05\x05"), "\n";
+    die "Bad string 1 failed to throw exception$!";
+}
+catch {
+    if (/Bad padding/) {
+	print "Caught, as predicted.\n";
+    }
+    else {
+	chomp;
+	die "unknown error ($_)$!";
+    }
+};
+
+try {
+    print strip_valid_padding("ICE ICE BABY\x01\x02\x03\x04"), "\n";
+    die "Bad string 2 failed to throw exception$!";
+}
+catch {
+    if (/Bad padding/) {
+	print "Caught, as predicted.\n";
+    }
+    else {
+	chomp;
+	die "unknown error ($_)$!";
     }
 };
 
