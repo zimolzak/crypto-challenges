@@ -8,10 +8,7 @@
 
 use strict;
 use MIME::Base64 qw(decode_base64);
-
-use Cryptopals qw(aes_ecb pad_multiple encryption_oracle
-    random_bytes ascii2hex_blocks);
-
+use Cryptopals qw(aes_ecb pad_multiple encryption_oracle);
 use Crypt::OpenSSL::AES;
 use BreakECB;
 
@@ -58,6 +55,8 @@ die unless encryption_oracle(insert_encrypt($pre)) eq "ECB";
 
 # real analysis
 
-print ascii2hex_blocks(insert_encrypt("A" x 48), 16), "\n";
+my $answer = find_str_infix(\&insert_encrypt, $blocksize);
+print $answer;
+die unless $answer =~ /rag-top/;
 
 warn "Passed assertions ($0)\n";
