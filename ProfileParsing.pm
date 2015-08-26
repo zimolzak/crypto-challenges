@@ -108,6 +108,7 @@ sub cbc_str_with_comments {
 	. ';comment2=%20like%20a%20pound%20of%20bacon;';
     $plaintext = pad_multiple($plaintext, length($key));
     return aes_cbc($key, $plaintext, "0" x length($key), "enc");
+    # FIXME - Don't reuse IV of "0000..." with same key in real life!
 }
 
 sub cipher_is_admin {
