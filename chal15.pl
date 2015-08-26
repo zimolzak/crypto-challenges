@@ -7,7 +7,23 @@
 #     as this file.
 
 use strict;
+use Cryptopals qw(strip_valid_padding);
+#use Error qw(:try);
+#use Exception::Class;
+use Try::Tiny;
 
-# will use Error; throw Error::Simple "doh";
+
+try {
+    print strip_valid_padding("hello\x01\n");
+}
+catch {
+    chomp;
+    if (/Bad padding/) {
+	print $_, " Boo!\n" ;
+    }
+    else {
+	print "some other error\n";
+    }
+};
 
 warn "Passed assertions ($0)\n";

@@ -9,6 +9,7 @@ package Cryptopals;
 use strict;
 use warnings;
 use Exporter;
+use Error qw(:try);
 
 our $VERSION = 1;
 
@@ -19,7 +20,7 @@ our @EXPORT_OK = qw( find_scxor_decrypts printhash hex_xor_hex
     key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending
     ceil signature aes_ecb pad_text aes_cbc_block aes_cbc
     encrypt_randomly distribution range encryption_oracle
-    print_float_ary random_bytes pad_multiple ascii2hex_blocks split_bytes);
+    print_float_ary random_bytes pad_multiple ascii2hex_blocks split_bytes strip_valid_padding);
 
 our @EXPORT = qw( find_scxor_decrypts printhash hex_xor_hex h2b
     signature hamming keys_ascending ceil find_generic_decrypts
@@ -461,6 +462,14 @@ sub split_bytes {
 	}
     }
     return @blocks;
+}
+
+sub strip_valid_padding {
+    my ($str) = @_;
+    die "Bad padding$!" if $str =~ /\x01/;
+    
+    #fix this
+    return $str;
 }
 
 1;
