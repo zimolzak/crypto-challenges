@@ -10,6 +10,7 @@ use strict;
 use warnings;
 use Exporter;
 use Error qw(:try);
+use Crypt::OpenSSL::AES;
 
 our $VERSION = 1;
 
