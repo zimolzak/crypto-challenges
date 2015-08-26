@@ -14,9 +14,11 @@ our $VERSION = 1;
 
 our @ISA= qw( Exporter );
 
-our @EXPORT_OK = qw( find_ecb_blocksize find_char find_unk_str);
+our @EXPORT_OK = qw( find_ecb_blocksize find_char find_unk_str
+    magic_nums_of_infix find_str_infix);
 
-our @EXPORT = qw( find_ecb_blocksize find_char find_unk_str);
+our @EXPORT = qw( find_ecb_blocksize find_char find_unk_str
+    magic_nums_of_infix find_str_infix infix2prepend);
 
 sub find_ecb_blocksize {
     # Expects its arg to be pointer to a func that takes string &
@@ -52,7 +54,10 @@ sub find_char {
 
     for my $charnum (0..255) {
 	my $str_to_feed = ($shortblock . $known_text . (chr $charnum));
-	my $output_of_long = substr(&$fp($str_to_feed), 0, $blocksize * $blocks_to_take);
+	# print "stf $str_to_feed \n";#dm
+	my $output_of_long = substr(&$fp($str_to_feed)
+				    , 0
+				    , $blocksize * $blocks_to_take);
 	return (chr $charnum) if $output_of_short eq $output_of_long;
     }
     return undef; # if fail
@@ -69,6 +74,66 @@ sub find_unk_str {
     }
     $total_string =~ s/\x04+$//g;
     return $total_string;
+}
+
+sub magic_nums_of_infix {
+    # Takes pointer to infix-type func, and blocksize. Returns how
+    # many bytes of junk to feed it to get aligned on a block, plus
+    # how many blocks at beginning to throw away.
+    my ($fp, $blocksize) = @_;
+    my ($n, $i);
+    for $n ($blocksize..(3 * $blocksize)){ 
+	my @blocks = split_bytes(&$fp("A" x $n), $blocksize);
+	for $i (0..($#blocks-1)) {
+	    if ($blocks[$i] eq $blocks[$i+1]){
+		return (($n - $blocksize), $i+2);
+		# Why i+2? See diagram:
+		# xxxAAAAA AAAAAAAA AAAAAAAA uuuuuuu
+		#             i        i+1
+		# where x is random, A is A, and u is unknown str.
+	    }
+	}
+    }
+    # return nothing if fail
+}
+
+sub find_str_infix {
+    # Takes pointer to infix-type func, and blocksize. Turns it into a
+    # prepend-type func. Returns target string.
+    my ($fp, $blocksize) = @_;
+    my ($bytes_of_junk, $blocks_to_trash) =
+	magic_nums_of_infix($fp, $blocksize);
+    print "I know $bytes_of_junk $blocks_to_trash \n";#dm
+    my $pp = sub {
+	#print "I too know $bytes_of_junk $blocks_to_trash $fp \n";#dm
+	my ($known_plaintext) = @_;
+	my $long_ciphertext = &$fp(("A" x $bytes_of_junk) . $known_plaintext);
+	my @blocks = split_bytes($long_ciphertext, $blocksize);
+	#print ':', ascii2hex_blocks($long_ciphertext, 16), "\n";#dm
+	#print "len ", length($long_ciphertext), '=>', $#blocks, "\n";#dm
+	return join('', @blocks[($blocks_to_trash-1)..$#blocks]);
+    };
+    print "fc -", find_char($pp, $blocksize, ""), "-\n";#dm
+    return find_unk_str($pp, $blocksize);
+}
+
+sub infix2prepend {
+    # Takes pointer to infix-type func, and blocksize. Turns it into a
+    # prepend-type func. Returns pointer.
+    my ($fp, $blocksize) = @_;
+    my ($bytes_of_junk, $blocks_to_trash) =
+	magic_nums_of_infix($fp, $blocksize);
+    print "res $bytes_of_junk $blocks_to_trash \n";
+    my $pp = sub {
+	#print "I too know $bytes_of_junk $blocks_to_trash $fp \n";#dm
+	my ($known_plaintext) = @_;
+	my $long_ciphertext = &$fp(("F" x $bytes_of_junk) . $known_plaintext);
+	my @blocks = split_bytes($long_ciphertext, $blocksize);
+	#print ':', ascii2hex_blocks($long_ciphertext, 16), "\n";#dm
+	#print "len ", length($long_ciphertext), '=>', $#blocks, "\n";#dm
+	return join('', @blocks[($blocks_to_trash-1)..$#blocks]);
+    };
+    return $pp;
 }
 
 1;
