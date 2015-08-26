@@ -8,10 +8,7 @@
 
 use strict;
 use MIME::Base64 qw(decode_base64);
-
-use Cryptopals qw(aes_ecb pad_multiple encryption_oracle
-    random_bytes ascii2hex_blocks split_bytes);
-
+use Cryptopals qw(aes_ecb pad_multiple encryption_oracle);
 use Crypt::OpenSSL::AES;
 use BreakECB;
 

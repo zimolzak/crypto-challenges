@@ -18,7 +18,7 @@ our @EXPORT_OK = qw( find_ecb_blocksize find_char find_unk_str
     magic_nums_of_infix find_str_infix);
 
 our @EXPORT = qw( find_ecb_blocksize find_char find_unk_str
-    magic_nums_of_infix find_str_infix infix2prepend);
+    find_str_infix);
 
 sub find_ecb_blocksize {
     # Expects its arg to be pointer to a func that takes string &
@@ -111,29 +111,13 @@ sub find_str_infix {
     my ($bytes_of_junk, $blocks_to_trash) =
 	magic_nums_of_infix($fp, $blocksize);
     my $pp = sub {
+	# Closure!
 	my ($known_plaintext) = @_;
 	my $long_ciphertext = &$fp(("A" x $bytes_of_junk) . $known_plaintext);
 	my @blocks = split_bytes($long_ciphertext, $blocksize);
 	return join('', @blocks[($blocks_to_trash-1)..$#blocks]);
     };
     return find_unk_str($pp, $blocksize);
-}
-
-sub infix2prepend {
-    # Takes pointer to infix-type func, and blocksize. Turns it into a
-    # prepend-type func. Returns pointer.
-    my ($fp, $blocksize) = @_;
-    my ($bytes_of_junk, $blocks_to_trash) =
-	magic_nums_of_infix($fp, $blocksize);
-    print "res $bytes_of_junk $blocks_to_trash \n";
-    my $pp = sub {
-	# closure!
-	my ($known_plaintext) = @_;
-	my $long_ciphertext = &$fp(("F" x $bytes_of_junk) . $known_plaintext);
-	my @blocks = split_bytes($long_ciphertext, $blocksize);
-	return join('', @blocks[($blocks_to_trash-1)..$#blocks]);
-    };
-    return $pp;
 }
 
 1;
