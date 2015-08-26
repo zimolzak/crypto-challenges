@@ -10,6 +10,11 @@ use strict;
 use Cryptopals;
 use ProfileParsing;
 
-print ascii2hex_blocks(cbc_str_with_comments("hello"), 16), "\n";
+my $hello = cbc_str_with_comments("hello");
+my $nice_try = cbc_str_with_comments("x;admin=true");
+
+die unless cbc_cheat($hello) =~ /hello/;
+die if cipher_is_admin($hello);
+die if cipher_is_admin($nice_try); 
 
 warn "Passed assertions ($0)\n";
