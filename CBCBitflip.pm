@@ -17,7 +17,7 @@ our @ISA= qw( Exporter );
 
 our @EXPORT_OK = qw( flip_bit );
 
-our @EXPORT = qw( flip_bit magic_nums_cbc);
+our @EXPORT = qw( flip_bit magic_nums_cbc flip_mask);
 
 sub flip_bit {
     my ($str, $bit) = @_;
@@ -29,12 +29,25 @@ sub flip_bit {
     return $str;
 }
 
+sub flip_mask {
+    # Takes string (probably ciphertext), byte offset, and a mask (as
+    # actual char, not as int). Returns string with bits (plural)
+    # flipped appropriately.
+
+    my ($str, $offset, $mask_char) = @_;
+    die "Offset $offset is out of range$!" if $offset > length($str);
+    my $byte = substr($str,$offset,1);
+    substr($str,$offset,1) = $byte ^ $mask_char;
+    return $str;
+}
+
 sub magic_nums_cbc {
     # Takes pointer to infix-type func, and blocksize. Returns how
     # many bytes of junk to feed it to get aligned on a block, plus
     # how many blocks at beginning to throw away.
 
-    # Method: Find the first iteration where there is 1 STATIONARY block.
+    # Method: Find the first iteration where there is 1 STATIONARY
+    # block.
     
     my ($fp, $blocksize) = @_;
     my ($n, $i);
@@ -65,6 +78,5 @@ sub magic_nums_cbc {
     }
     # return nothing if fail
 }
-
 
 1;

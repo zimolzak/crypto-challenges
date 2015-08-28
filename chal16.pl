@@ -34,34 +34,23 @@ my ($junk, $throw) = magic_nums_cbc(\&cbc_str_with_comments, $blocksize);
 my $better_try = cbc_str_with_comments(("Q" x $junk) . "aadminatruea");
 #                                                       0.....6....11
 
-my @targ_bytes = (0,6,11);
-my $found = 0;
-for my $b0(0..8){
-    for my $b1(0..8){
-	for my $b2(0..8){
-	    my $i0 = (($throw-1) * $blocksize + $targ_bytes[0])*8 + $b0;
-	    my $i1 = (($throw-1) * $blocksize + $targ_bytes[1])*8 + $b1;
-	    my $i2 = (($throw-1) * $blocksize + $targ_bytes[2])*8 + $b2;
-	    my $ciph = flip_bit(flip_bit(flip_bit($better_try
-						  , $i0), $i1), $i2);
-	    print cbc_cheat($ciph), "\n"; #deleteme
-	    if (cipher_is_admin($ciph)) {
-		print "Broke CBC! with:\n";
-		print $ciph, "\n";
-		print ascii2hex($ciph);
-		print "Bits to flip: $i0 $i1 $i2\n";
-		$found = 1;
-		last;
-		# This fails because I am flipping only one bit per
-		# byte, not all bits per byte. Search space of 2^3
-		# instead of 2^24. But wait - brute force is silly
-		# because the plaintext I have to bitflip is already
-		# known! So just transmute a-->; and a-->=.
-	    }
-	}
-    }
+my @byte = (0,6,11);
+my @ini_char = qw(a a a);
+my @fin_char = qw(; = ;);
+
+for my $i (0..$#byte) {
+    $better_try = flip_mask($better_try, ($throw-1) * $blocksize + $byte[$i],
+			    $ini_char[$i] ^ $fin_char[$i]);
 }
 
-die unless $found;
+if (cipher_is_admin($better_try)){
+    print "\nBroke CBC! with:\n";
+    print "Plaintext: ", cbc_cheat($better_try), "\n";
+    print "Plaintext: ", ascii2hex_blocks(cbc_cheat($better_try), $blocksize)
+	, "\n";
+    print "Ciphertext: ", ascii2hex_blocks($better_try, $blocksize), "\n";
+}
+
+die unless cipher_is_admin($better_try);
 
 warn "Passed assertions ($0)\n";
