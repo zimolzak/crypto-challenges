@@ -9,14 +9,16 @@ package ProfileParsing;
 use strict;
 use warnings;
 use Exporter;
-use Cryptopals qw(aes_ecb pad_multiple);
+use Cryptopals qw(aes_ecb pad_multiple aes_cbc);
 
 our $VERSION = 1;
 our @ISA= qw( Exporter );
 
-our @EXPORT_OK = qw( encrypted_profile_for decrypt_and_parse decrypt_and_cheat);
+our @EXPORT_OK = qw( encrypted_profile_for decrypt_and_parse
+    decrypt_and_cheat);
 
-our @EXPORT = qw( encrypted_profile_for decrypt_and_parse);
+our @EXPORT = qw( encrypted_profile_for decrypt_and_parse
+    cbc_str_with_comments cipher_is_admin cbc_cheat);
 
 sub parse_cookie {
     #returns hashref
@@ -85,6 +87,51 @@ sub encrypted_profile_for {
     }
     close PW || die("Can't close password file: $!");
     return encrypted_profile_given_key($email, $key);
+}
+
+sub cbc_str_with_comments {
+    my ($userdata) = @_;
+
+    # setup key
+    my $key;
+    open(PW, "< unknown_key.txt") || die("Can't open password file: $!");
+    while(<PW>){
+	chomp;
+	$key = $_;
+    }
+    close PW || die("Can't close password file: $!");
+
+    # setup string to encrypt
+    $userdata =~ s/[;=]/./g; # Take that, hax0rs.
+    #                123456781234567_123456781234567_    #bytes
+    my $plaintext = 'comment1=cooking%20MCs;userdata='
+	. $userdata
+	. ';comment2=%20like%20a%20pound%20of%20bacon;';
+    $plaintext = pad_multiple($plaintext, length($key));
+    return aes_cbc($key, $plaintext, "0" x length($key), "enc");
+    # FIXME - Don't reuse IV of "0000..." with same key in real life!
+}
+
+sub cipher_is_admin {
+    my ($ciphertext) = @_;
+    my $plaintext = cbc_cheat($ciphertext);
+    return $plaintext =~ /;admin=true;/;
+}
+
+sub cbc_cheat {
+    my ($ciphertext) = @_;
+
+    # setup key
+    my $key;
+    open(PW, "< unknown_key.txt") || die("Can't open password file: $!");
+    while(<PW>){
+	chomp;
+	$key = $_;
+    }
+    close PW || die("Can't close password file: $!");
+
+    return aes_cbc($key, $ciphertext, "0" x length($key), "dec");
+
 }
 
 1;

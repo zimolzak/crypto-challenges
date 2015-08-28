@@ -2,7 +2,7 @@ test : 4.txt 6.txt quicktest
 	./chal4.pl 4.txt > /dev/null
 	./chal6.pl 6.txt
 
-quicktest : 7.txt 8.txt 10.txt rand_bytes.txt
+quicktest : 7.txt 8.txt 10.txt rand_bytes.txt unknown_key.txt
 	./chal1.pl
 	./chal2.pl
 	./chal3.pl
@@ -16,6 +16,7 @@ quicktest : 7.txt 8.txt 10.txt rand_bytes.txt
 	./chal13.pl
 	./chal14.pl
 	./chal15.pl
+	./chal16.pl
 
 4.txt :
 	curl -O 'http://cryptopals.com/static/challenge-data/4.txt'
