@@ -59,7 +59,7 @@ sub magic_nums_cbc {
 		# xxxxxxxx xxxAAAAA AAAAAAAA Auuuuuuu
 		#     0        1       i=2     i+1=3
 		# ...where x is random txt, A is A, and u is target
-		# unknown str. Guaranteed minimum two blocks of A's.
+		# unknown str.
 	    }
 	}
     }
