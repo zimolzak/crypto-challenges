@@ -29,47 +29,38 @@ print "Algorithm mode is:\t\t** ",
 
 ## break crypto
 
-
-print ascii2hex_blocks($nice_try, 16), "\n";
-print ascii2hex_blocks(flip_bit($nice_try, 10), 16), "\n";
-
-print cbc_cheat($nice_try), "\n";
-print cbc_cheat(flip_bit($nice_try, 20)), "\n";
-
-print "x\n";
-
 my ($junk, $throw) = magic_nums_cbc(\&cbc_str_with_comments, $blocksize);
-
 
 my $better_try = cbc_str_with_comments(("Q" x $junk) . "aadminatruea");
 #                                                       0.....6....11
-print cbc_cheat($better_try), "\n";
-
-print cbc_cheat(flip_bit($better_try,256)), "\n";
-
-print "$junk, $throw\n----\n\n";
-
-
-
-# comment1=cooking%20MCs;userdata=QQQQQQQQQQQQQQQQaadminatruea;comment2=%20like%20a%20pound%20of%20bacon;
 
 my @targ_bytes = (0,6,11);
+my $found = 0;
 for my $b0(0..8){
     for my $b1(0..8){
 	for my $b2(0..8){
 	    my $i0 = (($throw-1) * $blocksize + $targ_bytes[0])*8 + $b0;
 	    my $i1 = (($throw-1) * $blocksize + $targ_bytes[1])*8 + $b1;
 	    my $i2 = (($throw-1) * $blocksize + $targ_bytes[2])*8 + $b2;
-	    print "$i0 $i1 $i2 ";
-	    # my $s0 = flip_bit($better_try, $i0);
-	    # my $s1 = flip_bit($s0, $i1);
-	    # my $s2 = flip_bit($s1, $i2);
-	    print cbc_cheat(flip_bit(flip_bit(flip_bit($better_try, $i0), $i1), $i2)), "\n";
-	    # print "    ", cbc_cheat($s0), "\n";
-	    # print  "    ", cbc_cheat($s1), "\n";
-	    # print  "    ", cbc_cheat($s2), "\n";
+	    my $ciph = flip_bit(flip_bit(flip_bit($better_try
+						  , $i0), $i1), $i2);
+	    print cbc_cheat($ciph), "\n"; #deleteme
+	    if (cipher_is_admin($ciph)) {
+		print "Broke CBC! with:\n";
+		print $ciph, "\n";
+		print ascii2hex($ciph);
+		print "Bits to flip: $i0 $i1 $i2\n";
+		last;
+		# This fails because I am flipping only one bit per
+		# byte, not all bits per byte. Search space of 2^3
+		# instead of 2^24. But wait - brute force is silly
+		# because the plaintext I have to bitflip is already
+		# known! So just transmute a-->; and a-->=.
+	    }
 	}
     }
 }
+
+die unless $found;
 
 warn "Passed assertions ($0)\n";
