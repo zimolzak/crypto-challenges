@@ -50,6 +50,7 @@ for my $b0(0..8){
 		print $ciph, "\n";
 		print ascii2hex($ciph);
 		print "Bits to flip: $i0 $i1 $i2\n";
+		$found = 1;
 		last;
 		# This fails because I am flipping only one bit per
 		# byte, not all bits per byte. Search space of 2^3
