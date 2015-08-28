@@ -103,6 +103,7 @@ sub cbc_str_with_comments {
 
     # setup string to encrypt
     $userdata =~ s/[;=]/./g; # Take that, hax0rs.
+    #                123456781234567_123456781234567_    #bytes
     my $plaintext = 'comment1=cooking%20MCs;userdata='
 	. $userdata
 	. ';comment2=%20like%20a%20pound%20of%20bacon;';

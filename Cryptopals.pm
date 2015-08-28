@@ -21,11 +21,13 @@ our @EXPORT_OK = qw( find_scxor_decrypts printhash hex_xor_hex
     key_xor_hex_to_text hamming hex_bits b2h argmin keys_ascending
     ceil signature aes_ecb pad_text aes_cbc_block aes_cbc
     encrypt_randomly distribution range encryption_oracle
-    print_float_ary random_bytes pad_multiple ascii2hex_blocks split_bytes strip_valid_padding);
+    print_float_ary random_bytes pad_multiple ascii2hex_blocks
+    split_bytes strip_valid_padding);
 
 our @EXPORT = qw( find_scxor_decrypts printhash hex_xor_hex h2b
     signature hamming keys_ascending ceil find_generic_decrypts
-    key_xor_hex_to_text ascii2hex split_bytes ascii2hex_blocks);
+    key_xor_hex_to_text ascii2hex split_bytes ascii2hex_blocks
+    encryption_oracle);
 
 # construct table
 our @b64table;
