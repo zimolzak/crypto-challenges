@@ -12,14 +12,21 @@ import cryptopals
 print fakeserver.random_ciphertext_iv()
 
 try:
-    print cryptopals.strip_valid_padding("hello\x04")
+    print cryptopals.strip_padding("hello\x04")
 except cryptopals.BadPaddingChar:
     print "doh"
 
 try:
-    print cryptopals.strip_valid_padding("hello\x03")
+    print cryptopals.strip_padding("hello\x03")
 except cryptopals.BadPaddingChar as err:
     print "doh2: " + err.value
+
+try:
+    print cryptopals.strip_padding("hello\x04world")
+except cryptopals.BadPaddingChar as err:
+    print "doh2: " + err.value
+except cryptopals.MisplacedPaddingChar as err:
+    print "misplaced in: " + err.value
 
 ## tests ##
 assert(cryptopals.pad_multiple("YELLOW SUBMARIN",8) == "YELLOW SUBMARIN\x04")
