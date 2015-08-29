@@ -5,9 +5,13 @@
 #     Full notice is found in the file 'LICENSE' in the same directory
 #     as this file.
 
+from __future__ import print_function
 import math
+import sys
 
-#padding
+def warn(*objs):
+    """Easy and print-as-function way to output to STDERR."""
+    print(*objs, file=sys.stderr)
 
 def pad_multiple(text,blocksize):
     """Return a text, padded out to a multiple of blocksize."""
@@ -15,8 +19,5 @@ def pad_multiple(text,blocksize):
                   - len(text))
     return text + "\x04" * n_chars
 
-#cbc_enc
-
-
-
 #valid padding
+

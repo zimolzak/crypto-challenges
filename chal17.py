@@ -13,4 +13,4 @@ print fakeserver.random_ciphertext_iv()
 
 ## tests ##
 assert(cryptopals.pad_multiple("YELLOW SUBMARIN",8) == "YELLOW SUBMARIN\x04")
-#cryptopals.warn("Passed assertions (" + __file__ + ")")
+cryptopals.warn("Passed assertions (" + __file__ + ")")
