@@ -33,19 +33,15 @@ class MisplacedPaddingChar(Exception):
     
 def strip_padding(string):
     for charnum in (range(0,32) + [127] ):
+        # check for BAD padding chars in WHOLE string
         if chr(charnum) in ["\x04", "\t", "\n", "\r"]:
-            continue # Only four of this range are allowed.
+            continue
         elif chr(charnum) in string:
             raise BadPaddingChar(string)
-    first04 = string.find("\x04")
-    if first04 == -1: # no padding at all; 
-        return string
-    else:
-        tail = string[first04:]
-        for charnum in (range(128)):
-            if chr(charnum) in ["\x04"]:
-                continue # Only one of this range is allowed.
-            elif chr(charnum) in tail:
-                raise MisplacedPaddingChar(string)
-        return string.replace("\x04", "")
-    # fixme - check for bad \x04 padding and strip
+    for charnum in (range(128)):
+        # check for MISPLACED non-\x04 in END of string
+        if chr(charnum) in ["\x04"]:
+            continue
+        elif chr(charnum) in string[string.find("\x04"):]:
+            raise MisplacedPaddingChar(string)
+    return string.replace("\x04", "")
