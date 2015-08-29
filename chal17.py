@@ -9,7 +9,13 @@
 import fakeserver
 import cryptopals
 
-print fakeserver.random_ciphertext_iv()
+
+
+
+[ciph, iv] = fakeserver.random_ciphertext_iv() 
+#print ciph
+print fakeserver.padding_is_valid(ciph, iv) # FIXME - why is this sometimes false???
+
 
 
 ## tests ##
