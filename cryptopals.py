@@ -20,16 +20,18 @@ def pad_multiple(text,blocksize):
     return text + "\x04" * n_chars
 
 class BadPaddingChar(Exception):
-    def __init__(self, value):
-        self.value = value
+    def __init__(self, badchar, instr):
+        self.badchar = badchar
+        self.instr = instr
     def __str__(self):
-        return repr(self.value)
+        return "Bad " + repr(self.badchar) + repr(self.instr)
     
 class MisplacedPaddingChar(Exception):
-    def __init__(self, value):
-        self.value = value
+    def __init__(self, badchar, instr):
+        self.badchar = badchar
+        self.instr = instr
     def __str__(self):
-        return repr(self.value)
+        return "Misplaced " + repr(self.badchar) + repr(self.instr)
     
 def strip_padding(string):
     for charnum in (range(0,32) + [127] ):
@@ -37,13 +39,14 @@ def strip_padding(string):
         if chr(charnum) in ["\x04", "\t", "\n", "\r"]:
             continue
         elif chr(charnum) in string:
-            raise BadPaddingChar(string)
-    for charnum in (range(128)):
+            raise BadPaddingChar(chr(charnum), string)
+    if "\x04" in string:
         # check for MISPLACED non-\x04 in END of string
-        if chr(charnum) in ["\x04"]:
-            continue
-        elif chr(charnum) in string[string.find("\x04"):]:
-            raise MisplacedPaddingChar(string)
+        for charnum in (range(128)):
+            if chr(charnum) in ["\x04"]:
+                continue
+            elif chr(charnum) in string[string.find("\x04"):]:
+                raise MisplacedPaddingChar(chr(charnum), string)
     return string.replace("\x04", "")
 
 #### tests ####
@@ -58,3 +61,6 @@ for test_str in ["hello\x04", "hello\x03", "hello\x04world"]:
     except MisplacedPaddingChar as err:
         assert test_str == "hello\x04world"
 
+assert(pad_multiple("YELLOW SUBMARIN",8) == "YELLOW SUBMARIN\x04")
+
+warn("Passed assertions (" + __file__ + ")")
