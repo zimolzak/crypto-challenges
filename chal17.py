@@ -11,6 +11,16 @@ import cryptopals
 
 print fakeserver.random_ciphertext_iv()
 
+try:
+    print cryptopals.strip_valid_padding("hello\x04")
+except cryptopals.BadPaddingChar:
+    print "doh"
+
+try:
+    print cryptopals.strip_valid_padding("hello\x03")
+except cryptopals.BadPaddingChar as err:
+    print "doh2: " + err.value
+
 ## tests ##
 assert(cryptopals.pad_multiple("YELLOW SUBMARIN",8) == "YELLOW SUBMARIN\x04")
 cryptopals.warn("Passed assertions (" + __file__ + ")")

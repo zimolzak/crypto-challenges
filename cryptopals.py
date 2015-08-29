@@ -19,5 +19,17 @@ def pad_multiple(text,blocksize):
                   - len(text))
     return text + "\x04" * n_chars
 
-#valid padding
-
+class BadPaddingChar(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+    
+def strip_valid_padding(string):
+    for charnum in (range(0,32) + [127] ):
+        if chr(charnum) in ["\x04", "\t", "\n", "\r"]:
+            continue
+        elif chr(charnum) in string:
+            raise BadPaddingChar(string)
+    # fixme - check for bad \x04 padding and strip
+    return string
