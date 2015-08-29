@@ -13,11 +13,17 @@ def warn(*objs):
     """Easy and print-as-function way to output to STDERR."""
     print(*objs, file=sys.stderr)
 
-def pad_multiple(text,blocksize):
-    """Return a text, padded out to a multiple of blocksize."""
-    n_chars = int(math.ceil(float(len(text)) / blocksize) * blocksize
-                  - len(text))
-    return text + "\x04" * n_chars
+def pad_multiple(text,k):
+    """Return a text, padded out to a multiple of blocksize. Now uses
+    actual PKCS #7 padding (see RFC 2315 section 10.3, note 2). k is
+    the block size.
+    """
+    l = len(text)
+    n_chars = k - (l % k) # Will always add >= 1 char, which is what we want.
+    which_char = ["\x00"]
+    for charnum in (range(1,k+1)):
+        which_char.append(chr(charnum))
+    return text + (which_char[n_chars] * n_chars)
 
 class BadPaddingChar(Exception):
     def __init__(self, badchar, instr):
@@ -33,34 +39,31 @@ class MisplacedPaddingChar(Exception):
     def __str__(self):
         return "Misplaced " + repr(self.badchar) + repr(self.instr)
     
-def strip_padding(string):
-    for charnum in (range(0,32) + [127] ):
-        # check for BAD padding chars in WHOLE string
-        if chr(charnum) in ["\x04", "\t", "\n", "\r"]:
-            continue
-        elif chr(charnum) in string:
-            raise BadPaddingChar(chr(charnum), string)
-    if "\x04" in string:
-        # check for MISPLACED non-\x04 in END of string
-        for charnum in (range(128)):
-            if chr(charnum) in ["\x04"]:
-                continue
-            elif chr(charnum) in string[string.find("\x04"):]:
-                raise MisplacedPaddingChar(chr(charnum), string)
-    return string.replace("\x04", "")
+class BadPadding(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return "Bad padding: " + repr(self.value)
 
+def strip_padding(string):
+    n_chars = ord(string[-1])
+    supposed_padding = string[-n_chars:]
+    for char in supposed_padding:
+        if char != string[-1]:
+            raise BadPadding(string)
+    return string[0:len(string) - n_chars]
+    
 #### tests ####
 
-for test_str in ["hello\x04", "hello\x03", "hello\x04world"]:
+for test_str in ["hello\x04", "hello\x02\x02"]:
     try:
         x = (strip_padding(test_str))
-        assert test_str == "hello\x04"
+        assert test_str == "hello\x02\x02"
         assert x == "hello"
-    except BadPaddingChar as err:
-        assert test_str == "hello\x03"
-    except MisplacedPaddingChar as err:
-        assert test_str == "hello\x04world"
+    except BadPadding as err:
+        assert test_str == "hello\x04"
 
-assert(pad_multiple("YELLOW SUBMARIN",8) == "YELLOW SUBMARIN\x04")
+assert(pad_multiple("YELLOW SUBMARIN",8) == "YELLOW SUBMARIN\x01")
+assert(pad_multiple("YELLOW SUBMARINE",8) == "YELLOW SUBMARINE" + "\x08" * 8)
 
 warn("Passed assertions (" + __file__ + ")")

@@ -28,16 +28,14 @@ def padding_is_valid(ciphertext, iv):
     plaintext = cipher.decrypt(ciphertext)
     try:
         x = (strip_padding(plaintext))
-    except cryptopals.BadPaddingChar as err:
-        return False
-    except cryptopals.MisplacedPaddingChar as err:
+    except cryptopals.BadPadding as err:
         return False
     else:
         return True
 
 #### tests ####
 
-plaintext = "Hello world"
+plaintext = "YELLOW SUB"
 key = open('unknown_key.txt', 'r').read().splitlines()[0]
 plaintext = pad_multiple(plaintext, AES.block_size)
 iv = Random.new().read(AES.block_size)
@@ -46,9 +44,9 @@ ciphertext = cipher.encrypt(plaintext)
 
 assert(padding_is_valid(ciphertext, iv))
 
-plaintext = "Hello \x03 world"
+plaintext = "YELLOW SUBMAR\x04\x04\x04"
 key = open('unknown_key.txt', 'r').read().splitlines()[0]
-plaintext = pad_multiple(plaintext, AES.block_size)
+# Note that we skip the padding in order to give this plaintext bad padding.
 iv = Random.new().read(AES.block_size)
 cipher = AES.new(key, AES.MODE_CBC, iv)
 ciphertext = cipher.encrypt(plaintext)
