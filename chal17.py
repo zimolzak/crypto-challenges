@@ -9,15 +9,19 @@
 import fakeserver
 import cryptopals
 
+#from Crypto.Cipher import AES #deleteme
 
 
-
-[ciph, iv] = fakeserver.random_ciphertext_iv() 
-#print ciph
-print fakeserver.padding_is_valid(ciph, iv) # FIXME - why is this sometimes false???
 
 
 
 ## tests ##
-assert(cryptopals.pad_multiple("YELLOW SUBMARIN",8) == "YELLOW SUBMARIN\x04")
+for i in range(100):
+    [ciph, iv] = fakeserver.random_ciphertext_iv()
+    assert(fakeserver.padding_is_valid(ciph, iv))
+    #    key = open('unknown_key.txt', 'r').read().splitlines()[0]
+    #    cipher = AES.new(key, AES.MODE_CBC, iv)
+    #    print cipher.decrypt(ciph)
+
+
 cryptopals.warn("Passed assertions (" + __file__ + ")")

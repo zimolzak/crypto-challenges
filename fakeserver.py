@@ -29,14 +29,18 @@ def padding_is_valid(ciphertext, iv):
     try:
         x = (strip_padding(plaintext))
     except cryptopals.BadPaddingChar as err:
+        #print err
         return False
     except cryptopals.MisplacedPaddingChar as err:
+        #print err
         return False
     else:
+        #print "x " + x + " pt " + plaintext
         return True
 
-#### tests ####
 
+
+#### tests ####
 
 plaintext = "Hello world"
 key = open('unknown_key.txt', 'r').read().splitlines()[0]
@@ -55,3 +59,5 @@ cipher = AES.new(key, AES.MODE_CBC, iv)
 ciphertext = cipher.encrypt(plaintext)
 
 assert(not padding_is_valid(ciphertext, iv))
+
+cryptopals.warn("Passed assertions (" + __file__ + ")")
