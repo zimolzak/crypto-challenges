@@ -29,16 +29,11 @@ def padding_is_valid(ciphertext, iv):
     try:
         x = (strip_padding(plaintext))
     except cryptopals.BadPaddingChar as err:
-        #print err
         return False
     except cryptopals.MisplacedPaddingChar as err:
-        #print err
         return False
     else:
-        #print "x " + x + " pt " + plaintext
         return True
-
-
 
 #### tests ####
 
