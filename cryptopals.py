@@ -45,3 +45,16 @@ def strip_padding(string):
         elif chr(charnum) in string[string.find("\x04"):]:
             raise MisplacedPaddingChar(string)
     return string.replace("\x04", "")
+
+#### tests ####
+
+for test_str in ["hello\x04", "hello\x03", "hello\x04world"]:
+    try:
+        x = (strip_padding(test_str))
+        assert test_str == "hello\x04"
+        assert x == "hello"
+    except BadPaddingChar as err:
+        assert test_str == "hello\x03"
+    except MisplacedPaddingChar as err:
+        assert test_str == "hello\x04world"
+
