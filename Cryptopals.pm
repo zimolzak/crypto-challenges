@@ -1,5 +1,5 @@
 #     Cryptopals.pm - Assorted coversion and calculation functions for
-#     matasano crypto challenges (cryptopals.com).
+#     Matasano crypto challenges (cryptopals.com).
 # 
 #     Copyright (C) 2015 Andrew J. Zimolzak <andyzimolzak@gmail.com>
 #     Full notice is found in the file 'LICENSE' in the same directory
