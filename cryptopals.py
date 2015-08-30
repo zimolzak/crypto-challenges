@@ -51,7 +51,7 @@ def strip_padding(string):
     for char in supposed_padding:
         if char != string[-1]:
             raise BadPadding(string)
-    return string[0:len(string) - n_chars]
+    return string[:-n_chars]
     
 #### tests ####
 

@@ -43,25 +43,26 @@ for blocknum in range(1, len(ciph) / blocksize): # note start w/ 1.
 #    print [Ca] #dm
 #    print #dm
     Cb = ciph[blocksize*blocknum : blocksize*(blocknum+1)]
-    for bytenum in range(blocksize):
+    for n_bytes in range(1, blocksize+1): 
         guess = ""
 #        if bytenum > 1: #d
 #            break #d
         for charnum in range(1,256): # wp sez start at \x01
             guess = chr(charnum)
-            b = Ca[-(bytenum + 1):]
+            b = Ca[-(n_bytes):]
             g = guess + plaintext[blocknum] # p[b] will be incomplete
-            x = chr(bytenum + 1) * (bytenum + 1)
-            Cac = Ca[0:len(Ca)-(bytenum+1)] + xor(xor(b,g),x)
+            x = chr(n_bytes) * (n_bytes)
+            Cac = Ca[:-(n_bytes)] + xor(xor(b,g),x)
 #            print [b, g, x] #dm
 #            print [Cac] #dm
 #            if charnum > 55: #d
 #                break #d
             if fakeserver.padding_is_valid(Cac + Cb, iv):
+                # print fakeserver.cheat(Cac + Cb, iv) #dm
                 break
         plaintext[blocknum] = guess + plaintext[blocknum]
 
-print plaintext[1:-1]
+print plaintext
 
 #### tests ####
 

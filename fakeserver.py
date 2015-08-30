@@ -33,6 +33,11 @@ def padding_is_valid(ciphertext, iv):
     else:
         return True
 
+def cheat(ciphertext, iv):
+    key = open('unknown_key.txt', 'r').read().splitlines()[0]
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    return cipher.decrypt(ciphertext)
+
 #### tests ####
 
 plaintext = "YELLOW SUB"
