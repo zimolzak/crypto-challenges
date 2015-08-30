@@ -47,7 +47,7 @@ for blocknum in range(1, len(ciph) / blocksize): # note start w/ 1.
         guess = ""
 #        if bytenum > 1: #d
 #            break #d
-        for charnum in range(1,256): # wp sez start at \x01
+        for charnum in range(2,256): # Might be screwed if it is \x01
             guess = chr(charnum)
             b = Ca[-(n_bytes):]
             g = guess + plaintext[blocknum] # p[b] will be incomplete
@@ -62,7 +62,7 @@ for blocknum in range(1, len(ciph) / blocksize): # note start w/ 1.
                 break
         plaintext[blocknum] = guess + plaintext[blocknum]
 
-print plaintext
+print cryptopals.strip_padding(''.join(plaintext))
 
 #### tests ####
 
