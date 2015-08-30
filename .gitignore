@@ -6,3 +6,4 @@
 !10.txt
 !unknown_key.txt
 !rand_bytes.txt
+*.pyc
