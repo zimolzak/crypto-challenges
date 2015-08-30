@@ -35,10 +35,13 @@ assert xor('cb', 'cc') == "\x00\x01"
 
 blocksize = 16 # too lazy to determine this now
 plaintext = [""] * (len(ciph) / blocksize)
-for blocknum in range(1, len(ciph) / blocksize): # note start w/ 1.
+for blocknum in range(len(ciph) / blocksize):
 #    if blocknum > 2: #d
 #        break #d
-    Ca = ciph[blocksize*(blocknum-1) : blocksize*blocknum]
+    if blocknum == 0:
+        Ca = iv
+    else:
+        Ca = ciph[blocksize*(blocknum-1) : blocksize*blocknum]
 #    print len(Ca) #dm
 #    print [Ca] #dm
 #    print #dm
