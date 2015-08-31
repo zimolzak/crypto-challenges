@@ -52,8 +52,20 @@ def strip_padding(string):
         if char != string[-1]:
             raise BadPadding(string)
     return string[:-n_chars]
+
+def xor_str(a,b):
+    """Designed for two strings."""
+    assert(len(a)==len(b))
+    answer = ""
+    for i in range(len(a)):
+        answer = answer + chr((ord(a[i]) ^ ord(b[i])))
+    return answer
     
 #### tests ####
+
+assert xor_str('c', 'b') == "\x01"
+assert xor_str('c', 'c') == "\x00"
+assert xor_str('cb', 'cc') == "\x00\x01"
 
 for test_str in ["hello\x04", "hello\x02\x02"]:
     try:

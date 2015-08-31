@@ -11,18 +11,6 @@ import cryptopals
 
 [ciph, iv] = fakeserver.random_ciphertext_iv()
 
-def xor(a,b):
-    """Designed for two strings."""
-    assert(len(a)==len(b))
-    answer = ""
-    for i in range(len(a)):
-        answer = answer + chr((ord(a[i]) ^ ord(b[i])))
-    return answer
-
-assert xor('c', 'b') == "\x01"
-assert xor('c', 'c') == "\x00"
-assert xor('cb', 'cc') == "\x00\x01"
-
 # my Plaintext 
 # decrypt block C2 of ciphertext (up to N blocks):
 #     my GG
@@ -48,7 +36,8 @@ for blocknum in range(len(ciph) / blocksize):
             b = Ca[-(n_bytes):]
             g = guess + plaintext[blocknum] # p[b] will be incomplete
             x = chr(n_bytes) * (n_bytes)
-            Cac = Ca[:-(n_bytes)] + xor(xor(b,g),x)
+            Cac = Ca[:-(n_bytes)] + cryptopals.xor_str(
+                cryptopals.xor_str(b,g),x)
             if fakeserver.padding_is_valid(Cac + Cb, iv):
                 break
         plaintext[blocknum] = guess + plaintext[blocknum]
