@@ -7,7 +7,7 @@
 #     the file 'LICENSE' in the same directory as this file.
 
 import base64
-from cryptopals import xor_str, warn
+from cryptopals import xor_str, warn, add_str, int2str
 from math import ceil
 from Crypto.Cipher import AES
 
@@ -27,16 +27,20 @@ plaintext = ""
 keystream = ""
 assert len(key) == len(nonce)
 bs = len(key)
-for i in range(int(ceil(float(len(ciphertext)) / bs))):
-    # i is which block of keystream to gen
-    for j in range(bs):
-        # j is which byte to gen
-        print i >> j
-        keystream = keystream + chr(ord(nonce[j]) + (i >> (j * 8)))
+n_blocks = int(ceil(float(len(ciphertext)) / bs))
+
+for i in range(n_blocks):
+    counter = int2str(i, bs)
+    print([add_str(nonce,counter)]) # deleteme
+    keystream = keystream + cipher.encrypt(add_str(nonce, counter))
 
 for i in range(len(ciphertext)):
-#    print ' '.join([str(i), keystream[i], ciphertext[i]])
+    # need this loop otherwise maybe differing lengths
     plaintext = plaintext + xor_str(keystream[i], ciphertext[i])
+
+#x = int2str(65535 * 256,8)
+#print "i2s"
+#print [x]
 
 #print [keystream]
 print plaintext

@@ -60,6 +60,23 @@ def xor_str(a,b):
     for i in range(len(a)):
         answer = answer + chr((ord(a[i]) ^ ord(b[i])))
     return answer
+
+def add_str(a,b):
+    assert(len(a)==len(b))
+    answer = ""
+    for i in range(len(a)):
+        answer = answer + chr((ord(a[i]) + ord(b[i])))
+    return answer
+
+def int2str(x, nbytes):
+    string = ""
+    if x > 0:
+        assert (math.log(x)/math.log(256)) < nbytes
+    ra = range(nbytes)
+    ra.reverse()
+    for bytenum in ra:
+        string = string + chr( (x >> (8 * bytenum)) % 256)
+    return string
     
 #### tests ####
 
