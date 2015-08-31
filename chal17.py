@@ -2,9 +2,9 @@
 
 #     chal17.py - CBC padding oracle.
 # 
-#     Copyright (C) 2015 Andrew J. Zimolzak <andyzimolzak@gmail.com>
-#     Full notice is found in the file 'LICENSE' in the same directory
-#     as this file.
+#     Copyright (C) 2015 Andrew J. Zimolzak <andyzimolzak@gmail.com>,
+#     and licensed under GNU GPL version 3. Full notice is found in
+#     the file 'LICENSE' in the same directory as this file.
 
 import fakeserver
 import cryptopals
@@ -12,6 +12,7 @@ import cryptopals
 [ciph, iv] = fakeserver.random_ciphertext_iv()
 
 def xor(a,b):
+    """Designed for two strings."""
     assert(len(a)==len(b))
     answer = ""
     for i in range(len(a)):
@@ -36,7 +37,7 @@ blocksize = 16 # too lazy to determine this now
 plaintext = [""] * (len(ciph) / blocksize)
 for blocknum in range(len(ciph) / blocksize):
     if blocknum == 0:
-        Ca = iv
+        Ca = iv # There is smarter way, without the IF.
     else:
         Ca = ciph[blocksize*(blocknum-1) : blocksize*blocknum]
     Cb = ciph[blocksize*blocknum : blocksize*(blocknum+1)]
