@@ -17,7 +17,20 @@ for b64 in open('20.txt', 'r').read().splitlines():
     ciphertexts = ciphertexts + [ctr(base64.b64decode(b64),
                                     key, nonce, "little")]
 
-break_cipher_given_keysize([16], ciphertexts[0], xor_char_str)
+min = 9999
+for i in range(len(ciphertexts)):
+    if len(ciphertexts[i]) < min:
+        min = len(ciphertexts[i])
+
+concat = ""
+for i in range(len(ciphertexts)):
+    concat += ciphertexts[i][0:min]
+
+a = break_cipher_given_keysize([min], concat, xor_char_str)
+
+print
+print "Keystream:", a[0]
+print "First bit of plaintext", a[1]
 
 #### tests ####
 assert len(ciphertexts) == 60

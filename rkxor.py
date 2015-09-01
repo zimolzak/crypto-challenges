@@ -15,13 +15,15 @@ def break_cipher_given_keysize(keysize_list, ciphertext, func):
     that does the following: decryptor("J", "0105ffdcba01") -->
     "Hello." Where "J" is a single letter key that gets repeated.
     """
-
+    keynum = 0
+    master_key_list = [''] * len(keysize_list)
+    master_str_list = [''] * len(keysize_list)
     # 5. Break the ciphertext into blocks of KEYSIZE length.
 
-    print "Trying keys of size " + str(keysize_list)
+    print "Trying keys of size", str(keysize_list)
     for ks in keysize_list: # ks is in bytes
 	blocks = text2blocks(ciphertext, ks)
-	print "Key size " + str(ks) + " implies " + str(len(blocks)) + " blocks."
+	print "Key size", str(ks), "implies", str(len(blocks)), "blocks."
 
     # 6. Now transpose the blocks:
 
@@ -38,12 +40,20 @@ def break_cipher_given_keysize(keysize_list, ciphertext, func):
 
         key_ch_num = 0
         for t in transposed:
-	    print "ch " + str(key_ch_num) + " = "
+	    print "Char number", str(key_ch_num), "="
             decrypts = find_generic_decrypts(t, func)
+            try:
+                master_key_list[keynum] += decrypts.keys()[0] #add 1 char
+                master_str_list[keynum] += decrypts.values()[0][0]
+            except IndexError:
+                pass #FIXME
             print decrypts
-            print_sig(decrypts);
+            print_sig(decrypts)
             key_ch_num = key_ch_num+1
+        keynum += 1
+    return master_key_list, master_str_list
 
+            
 def print_sig(h):
     for k, v in h.iteritems():
         print k,
