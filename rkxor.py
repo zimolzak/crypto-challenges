@@ -7,6 +7,7 @@
 
 from math import ceil
 from cryptopals import warn
+import copy
 
 def break_cipher_given_keysize(keysize_list, ciphertext, func):
     """Works on a generic (abstract) cipher that uses a multi-character
@@ -73,8 +74,11 @@ def metric(text):
 	)
     return proportion(letters, text) * is_strict_decreasing
 
-def argmax():
-    return 1
+def argmax(x):
+    """operates on a list"""
+    sorted = copy.copy(x)
+    sorted.sort(reverse=True)
+    return x.index(sorted[0])
 
 letters = "abcdefghijklmnopqrstuvwxyz"
 spaces = "\r\n "
@@ -97,11 +101,9 @@ def proportion(charset, string):
 
 
 # tests
-
+assert argmax([3, 4, 5, 3, 8, 5, 7, 4, 34, 5, 3, 4, 6]) == 8
 assert proportion(letters, "Hello world") == 10.0 / 11.0
-
 assert metric("Hello world")  == 10.0 / 11.0
-
 assert metric("Hello,,,,,,,,,,,,,,world")  == 0
 
 warn("Passed assertions (" + __file__ + ")")
