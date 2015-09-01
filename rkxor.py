@@ -6,59 +6,6 @@
 #     as this file.
 
 from math import ceil
-from cryptopals import hamming
-
-def text2blocks(text, bytes):
-    blocks = []
-    m = int(ceil(len(text) / float(bytes))) # number of blocks
-    for i in range(m):
-        blocks = blocks + [text[bytes*i : bytes*(i+1)]]
-    return blocks
-
-assert text2blocks('abcdefg', 2) == ['ab','cd','ef','g']
-
-def find_keysize(ciphertext, max_key_len):
-    """Take a ciphertext presumed to be encrypted with repeating key XOR.
-    Parameters are what is max key size to try. Return the most likely
-    key sizes in order.
-    """
-    keysizelist = range(2, max_key_len+1)
-    normdistances = dict()
-    for keysize in keysizelist:
-	b = text2blocks(ciphertext, keysize)
-        n_samples = 3
-        if len(b) < 7:
-            n_samples = int(len(b) / 2.0) - 1
-        avg_dist = 0
-        for i in range(n_samples):
-            avg_dist = avg_dist + hamming(b[i*2], b[i*2+1])
-        avg_dist = avg_dist / n_samples
-	normdistances[keysize] = avg_dist / keysize
-    return sorted(normdistances, key=normdistances.get)
-
-def break_rk_xor(ciphertext, max_key_len):
-    keysizelist = range(2, max_key_len+1)
-    normdistances = dict()
-
-    # 3. For each KEYSIZE, take the first KEYSIZE worth of bytes, and
-    # the second KEYSIZE worth of bytes, and find the edit distance.
-    
-    for keysize in keysizelist:
-	b = text2blocks(ciphertext, keysize)
-	avg_dist = ( hamming(b[0],b[1]) +
-                     hamming(b[2],b[3]) +
-                     hamming(b[4],b[5]) ) / 3
-	normdistances[keysize] = avg_dist / keysize
-
-    # 4. The KEYSIZE with the smallest normalized edit distance is
-    # probably the right keysize.
-
-    N_top_keysizes = 5
-    best_key_sizes = sorted(normdistances, key=normdistances.get)
-    keysizes_to_try = best_key_sizes[0 : N_top_keysizes]
-    break_cipher_given_keysize(keysizes_to_try, ciphertext, xor_str)
-
-
 
 def break_cipher_given_keysize(keysize_list, ciphertext, func):
     """Works on a generic (abstract) cipher that uses a multi-character
@@ -118,4 +65,7 @@ def metric():
     return 1
 
 def argmax():
+    return 1
+
+def proportion():
     return 1

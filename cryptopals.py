@@ -77,19 +77,25 @@ def ctr(text, key, nonce, endian):
         output = output + xor_str(keystream[i], text[i])
     return output
 
-def hamming(a,b):
-    """Take two equal-length buffers (strings) and return bitwise edit
-    distance.
-    """
-    assert len(a)==len(b)
-    return bits_set(xor_str(a,b))
+def text2blocks(text, bytes):
+    blocks = []
+    m = int(math.ceil(len(text) / float(bytes))) # number of blocks
+    for i in range(m):
+        blocks = blocks + [text[bytes*i : bytes*(i+1)]]
+    return blocks
 
-def bits_set(string):
-    total = 0
-    for charnum in range(len(string)):
-        for bitnum in range(7):
-            total = total + ((ord(string[charnum]) >> bitnum) % 2)
-    return total
+def transpose(text, n):
+    m = int(math.ceil(len(text) / float(n)))
+    B = [""] * n
+    A = text2blocks(text, n)
+    for i in range(m):
+        for j in range(n):
+            try:
+                B[j] = B[j] + A[i][j]
+            except IndexError:
+                assert i == m-1 # only on last row of A
+    return B
+
 
 
 
@@ -97,9 +103,9 @@ def bits_set(string):
     
 #### tests ####
 
-assert hamming('hi','hi') == 0
-assert hamming('hj','hi') == 2
-assert hamming('hh','hi') == 1
+assert transpose('abcdefghijk', 4) == ['aei', 'bfj', 'cgk', 'dh']
+
+assert text2blocks('abcdefg', 2) == ['ab','cd','ef','g']
 
 assert xor_str('c', 'b') == "\x01"
 assert xor_str('c', 'c') == "\x00"
