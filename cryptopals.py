@@ -25,20 +25,6 @@ def pad_multiple(text,k):
         which_char.append(chr(charnum))
     return text + (which_char[n_chars] * n_chars)
 
-class BadPaddingChar(Exception):
-    def __init__(self, badchar, instr):
-        self.badchar = badchar
-        self.instr = instr
-    def __str__(self):
-        return "Bad " + repr(self.badchar) + repr(self.instr)
-    
-class MisplacedPaddingChar(Exception):
-    def __init__(self, badchar, instr):
-        self.badchar = badchar
-        self.instr = instr
-    def __str__(self):
-        return "Misplaced " + repr(self.badchar) + repr(self.instr)
-    
 class BadPadding(Exception):
     def __init__(self, value):
         self.value = value
@@ -59,13 +45,6 @@ def xor_str(a,b):
     answer = ""
     for i in range(len(a)):
         answer = answer + chr((ord(a[i]) ^ ord(b[i])))
-    return answer
-
-def add_str(a,b):
-    assert(len(a)==len(b))
-    answer = ""
-    for i in range(len(a)):
-        answer = answer + chr((ord(a[i]) + ord(b[i])))
     return answer
 
 def int2str(x, nbytes, endian):

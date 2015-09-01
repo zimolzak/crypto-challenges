@@ -26,8 +26,6 @@ n_blocks = int(ceil(float(len(ciphertext)) / bs))
 
 for i in range(n_blocks):
     counter = int2str(i, bs - len(nonce), "little") # 8 byte counter
-    # print([add_str(nonce,counter)]) # deleteme
-    # print ([nonce+counter])
     keystream = keystream + cipher.encrypt(nonce + counter)
 
 # do the encrypt or decrypt
