@@ -44,6 +44,14 @@ def break_cipher_given_keysize(keysize_list, ciphertext, func):
             print_sig(decrypts);
             key_ch_num = key_ch_num+1
 
+def print_sig(h):
+    for k, v in h.iteritems():
+        print k,
+        print proportion(letters,v),
+        print proportion(spaces,v),
+        print proportion(misc,v),
+        print proportion(unprintable,v)
+
 def xor_char_str(c,s):
     cc = c * len(s)
     return xor_str(cc, s)
