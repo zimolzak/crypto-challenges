@@ -8,6 +8,7 @@
 from __future__ import print_function
 import math
 import sys
+from Crypto.Cipher import AES
 
 def warn(*objs):
     """Easy and print-as-function way to output to STDERR."""
@@ -59,6 +60,27 @@ def int2str(x, nbytes, endian):
         elif endian=="big":
             string = chr( (x >> (8 * bytenum)) % 256) + string
     return string
+
+def ctr(text, key, nonce, endian):
+    cipher = AES.new(key, AES.MODE_ECB)
+    output = ""
+    # make keystream
+    keystream = ""
+    bs = len(key)
+    n_blocks = int(math.ceil(float(len(text)) / bs))
+    for i in range(n_blocks):
+        counter = int2str(i, bs - len(nonce), endian) # 8 byte counter
+        keystream = keystream + cipher.encrypt(nonce + counter)
+    # do the encrypt or decrypt
+    for i in range(len(text)):
+        # need this loop otherwise maybe differing lengths
+        output = output + xor_str(keystream[i], text[i])
+    return output
+
+
+
+
+    
     
 #### tests ####
 
