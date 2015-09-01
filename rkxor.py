@@ -6,7 +6,7 @@
 #     as this file.
 
 from math import ceil
-from cryptopals import warn
+from cryptopals import warn, text2blocks, xor_str
 import copy
 
 def break_cipher_given_keysize(keysize_list, ciphertext, func):
@@ -18,7 +18,7 @@ def break_cipher_given_keysize(keysize_list, ciphertext, func):
 
     # 5. Break the ciphertext into blocks of KEYSIZE length.
 
-    print "Trying keys of size " + ', '.join(keysize_list)
+    print "Trying keys of size " + str(keysize_list)
     for ks in keysize_list: # ks is in bytes
 	blocks = text2blocks(ciphertext, ks)
 	print "Key size " + str(ks) + " implies " + str(len(blocks)) + " blocks."
@@ -44,6 +44,10 @@ def break_cipher_given_keysize(keysize_list, ciphertext, func):
             print_sig(decrypts);
             key_ch_num = key_ch_num+1
 
+def xor_char_str(c,s):
+    cc = c * len(s)
+    return xor_str(cc, s)
+
 def find_generic_decrypts(ciphertext, decrypt_func):
     """Tries to break a *generic* cipher that uses a single-character
     key (not given). This function receives the ciphertext in hex
@@ -54,8 +58,8 @@ def find_generic_decrypts(ciphertext, decrypt_func):
     about how the decryptor function operates.
     """
     results = dict()
-    metrics = [0.0] * 255
-    for charval in range(256):
+    metrics = [0.0] * 256
+    for charval in range(len(metrics)):
 	plaintext = decrypt_func(chr(charval), ciphertext)
         metrics[charval] = metric(plaintext);
     for arg in argmax(metrics):
