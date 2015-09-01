@@ -18,6 +18,7 @@ quicktest : 7.txt 8.txt 10.txt rand_bytes.txt unknown_key.txt 17.txt
 	./chal15.pl
 	./chal16.pl
 	./chal17.py
+	./chal18.py
 
 4.txt :
 	curl -O 'http://cryptopals.com/static/challenge-data/4.txt'

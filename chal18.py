@@ -7,7 +7,7 @@
 #     the file 'LICENSE' in the same directory as this file.
 
 import base64
-from cryptopals import xor_str, warn, add_str, int2str
+from cryptopals import xor_str, warn, int2str
 from math import ceil
 from Crypto.Cipher import AES
 
