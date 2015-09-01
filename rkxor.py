@@ -62,8 +62,16 @@ def find_generic_decrypts(ciphertext, decrypt_func):
             results[chr(arg)] = decrypt_func(chr(arg), ciphertext)
     return results
 
-def metric():
-    return 1
+def metric(text):
+    """Higher metric means more likely to be English. Remember,
+    proportion() does its work in a case-insensitive manner already.
+    """
+    is_strict_decreasing = (
+	(proportion(letters,text) > proportion(spaces,text)) &
+	(proportion(spaces,text) >= proportion(misc,text)) &
+	(proportion(misc,text) >= proportion(unprintable,text))
+	)
+    return proportion(letters, text) * is_strict_decreasing
 
 def argmax():
     return 1
@@ -91,6 +99,10 @@ def proportion(charset, string):
 # tests
 
 assert proportion(letters, "Hello world") == 10.0 / 11.0
+
+assert metric("Hello world")  == 10.0 / 11.0
+
+assert metric("Hello,,,,,,,,,,,,,,world")  == 0
 
 warn("Passed assertions (" + __file__ + ")")
 
