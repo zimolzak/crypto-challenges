@@ -77,12 +77,22 @@ def ctr(text, key, nonce, endian):
         output = output + xor_str(keystream[i], text[i])
     return output
 
+def text2blocks(text, bytes):
+    blocks = []
+    m = int(math.ceil(len(text) / float(bytes))) # number of blocks
+    for i in range(m):
+        blocks = blocks + [text[bytes*i : bytes*(i+1)]]
+    return blocks
 
 
 
-    
+
+
+
     
 #### tests ####
+
+assert text2blocks('abcdefg', 2) == ['ab','cd','ef','g']
 
 assert xor_str('c', 'b') == "\x01"
 assert xor_str('c', 'c') == "\x00"
