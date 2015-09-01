@@ -6,6 +6,7 @@
 #     as this file.
 
 from math import ceil
+from cryptopals import warn
 
 def break_cipher_given_keysize(keysize_list, ciphertext, func):
     """Works on a generic (abstract) cipher that uses a multi-character
@@ -67,5 +68,29 @@ def metric():
 def argmax():
     return 1
 
-def proportion():
-    return 1
+letters = "abcdefghijklmnopqrstuvwxyz"
+spaces = "\r\n "
+unprintable = ""
+for i in range(0,10) + [11,12] + range(14,32) + [127]:
+    unprintable = unprintable + chr(i)
+misc=""
+for i in range(33,65) + range(91,97) + range(123,127):
+    misc = misc + chr(i)
+
+def proportion(charset, string):
+    charset = charset.upper()
+    string = string.upper()
+    found = 0
+    for s in string:
+        for c in charset:
+            if s==c:
+                found = found + 1
+    return float(found) / (len(string))
+
+
+# tests
+
+assert proportion(letters, "Hello world") == 10.0 / 11.0
+
+warn("Passed assertions (" + __file__ + ")")
+
