@@ -75,10 +75,16 @@ def metric(text):
     return proportion(letters, text) * is_strict_decreasing
 
 def argmax(x):
-    """operates on a list"""
+    """Operate on a list, return a list of all indices of the max
+    value.
+    """
     sorted = copy.copy(x)
     sorted.sort(reverse=True)
-    return x.index(sorted[0])
+    arg_list = []
+    for i in range(len(x)):
+        if x[i] == sorted[0]:
+            arg_list += [i]
+    return arg_list
 
 letters = "abcdefghijklmnopqrstuvwxyz"
 spaces = "\r\n "
@@ -99,9 +105,8 @@ def proportion(charset, string):
                 found = found + 1
     return float(found) / (len(string))
 
-
 # tests
-assert argmax([3, 4, 5, 3, 8, 5, 7, 4, 34, 5, 3, 4, 6]) == 8
+assert argmax([3, 4, 5, 3, 8, 5, 7, 4, 34, 5, 3, 4, 6]) == [8]
 assert proportion(letters, "Hello world") == 10.0 / 11.0
 assert metric("Hello world")  == 10.0 / 11.0
 assert metric("Hello,,,,,,,,,,,,,,world")  == 0
