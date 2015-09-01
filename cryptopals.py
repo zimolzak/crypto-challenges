@@ -84,6 +84,17 @@ def text2blocks(text, bytes):
         blocks = blocks + [text[bytes*i : bytes*(i+1)]]
     return blocks
 
+def transpose(text, n):
+    m = int(math.ceil(len(text) / float(n)))
+    B = [""] * n
+    A = text2blocks(text, n)
+    for i in range(m):
+        for j in range(n):
+            try:
+                B[j] = B[j] + A[i][j]
+            except IndexError:
+                assert i == m-1 # only on last row of A
+    return B
 
 
 
@@ -91,6 +102,8 @@ def text2blocks(text, bytes):
 
     
 #### tests ####
+
+assert transpose('abcdefghijk', 4) == ['aei', 'bfj', 'cgk', 'dh']
 
 assert text2blocks('abcdefg', 2) == ['ab','cd','ef','g']
 
