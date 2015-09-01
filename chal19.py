@@ -8,6 +8,7 @@
 
 import base64
 from cryptopals import warn, ctr
+from rkxor import find_keysize
 
 key = open('unknown_key.txt', 'r').read().splitlines()[0]
 nonce = "\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -17,6 +18,8 @@ for b64 in open('19.txt', 'r').read().splitlines():
                                     key, nonce, "little")]
 
 print len(ciphertexts)
+
+print find_keysize(ciphertexts[1], 7)
 
 
 

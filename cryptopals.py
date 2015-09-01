@@ -77,12 +77,29 @@ def ctr(text, key, nonce, endian):
         output = output + xor_str(keystream[i], text[i])
     return output
 
+def hamming(a,b):
+    """Take two equal-length buffers (strings) and return bitwise edit
+    distance.
+    """
+    assert len(a)==len(b)
+    return bits_set(xor_str(a,b))
+
+def bits_set(string):
+    total = 0
+    for charnum in range(len(string)):
+        for bitnum in range(7):
+            total = total + ((ord(string[charnum]) >> bitnum) % 2)
+    return total
 
 
 
-    
+
     
 #### tests ####
+
+assert hamming('hi','hi') == 0
+assert hamming('hj','hi') == 2
+assert hamming('hh','hi') == 1
 
 assert xor_str('c', 'b') == "\x01"
 assert xor_str('c', 'c') == "\x00"
