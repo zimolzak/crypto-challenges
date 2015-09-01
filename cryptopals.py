@@ -68,14 +68,17 @@ def add_str(a,b):
         answer = answer + chr((ord(a[i]) + ord(b[i])))
     return answer
 
-def int2str(x, nbytes):
+def int2str(x, nbytes, endian):
+    assert(endian=="little" or endian=="big")
+    # little means least significant BYTE first.
     string = ""
     if x > 0:
         assert (math.log(x)/math.log(256)) < nbytes
-    ra = range(nbytes)
-    ra.reverse()
-    for bytenum in ra:
-        string = string + chr( (x >> (8 * bytenum)) % 256)
+    for bytenum in range(nbytes):
+        if endian=="little":
+            string = string + chr( (x >> (8 * bytenum)) % 256)
+        elif endian=="big":
+            string = chr( (x >> (8 * bytenum)) % 256) + string
     return string
     
 #### tests ####
@@ -94,5 +97,7 @@ for test_str in ["hello\x04", "hello\x02\x02"]:
 
 assert(pad_multiple("YELLOW SUBMARIN",8) == "YELLOW SUBMARIN\x01")
 assert(pad_multiple("YELLOW SUBMARINE",8) == "YELLOW SUBMARINE" + "\x08" * 8)
+
+assert(int2str(65534 * 256 + 1,8,"big") == '\x00\x00\x00\x00\x00\xff\xfe\x01')
 
 warn("Passed assertions (" + __file__ + ")")
