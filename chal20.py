@@ -25,7 +25,7 @@ for i in range(len(ciphertexts)):
     if len(ciphertexts[i]) > maximum:
         maximum = len(ciphertexts[i])
 
-print "max", maximum
+#print "max", maximum
 
 keystream = ""
 for k in range(maximum):
@@ -44,6 +44,13 @@ for k in range(maximum):
 #keystream = a[0][0]
 
 keystream = "\xcf" + keystream # somehow it misses the 1st byte
+
+# first 95 bytes are ok
+
+print [keystream[96:]]
+keystream = keystream[0:95] + xor_str(xor_str(keystream[95],'j'), 'k') + keystream[96:]
+keystream = keystream[0:96] + xor_str(xor_str(keystream[96],'"'), 'n') + keystream[97:]
+
 
 for c in ciphertexts:
     print xor_uneq(c, keystream)
