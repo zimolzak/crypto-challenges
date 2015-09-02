@@ -48,6 +48,17 @@ def xor_str(a,b):
         answer = answer + chr((ord(a[i]) ^ ord(b[i])))
     return answer
 
+def xor_uneq(a,b):
+    """Designed for two strings of possibly unequal length."""
+    answer = ""
+    if len(a) <= len(b):
+        for i in range(len(a)):
+            answer = answer + chr((ord(a[i]) ^ ord(b[i])))
+    else:
+        for i in range(len(b)):
+            answer = answer + chr((ord(a[i]) ^ ord(b[i])))
+    return answer
+
 def int2str(x, nbytes, endian):
     assert(endian=="little" or endian=="big")
     # little means least significant BYTE first.
