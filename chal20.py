@@ -47,14 +47,26 @@ keystream = "\xcf" + keystream # somehow it misses the 1st byte
 
 # first 95 bytes are ok
 
-print [keystream[96:]]
-keystream = keystream[0:95] + xor_str(xor_str(keystream[95],'j'), 'k') + keystream[96:]
-keystream = keystream[0:96] + xor_str(xor_str(keystream[96],'"'), 'n') + keystream[97:]
-
+#print [keystream[96:]]
+#keystream = keystream[0:95] + xor_str(xor_str(keystream[95],'j'), 'k') + keystream[96:]
+#keystream = keystream[0:96] + xor_str(xor_str(keystream[96],'"'), 'n') + keystream[97:]
 
 for c in ciphertexts:
     print xor_uneq(c, keystream)
 
+longline46 = "I used to roll up, this is a hold up, ain't nuthin' funny / Stop smiling, be still, don't nuthin' move but the money"
+keystream = xor_uneq(ciphertexts[46], longline46)
+
+print
+print "After Google:"
+print
+
+plaintexts = []
+for c in ciphertexts:
+    print xor_uneq(c, keystream)
+    plaintexts += [xor_uneq(c, keystream)]
+
 #### tests ####
 assert len(ciphertexts) == 60
+assert plaintexts[59] == "And we outta here / Yo, what happened to peace? / Peace"
 warn("Passed assertions (" + __file__ + ")")
