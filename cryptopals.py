@@ -48,6 +48,17 @@ def xor_str(a,b):
         answer = answer + chr((ord(a[i]) ^ ord(b[i])))
     return answer
 
+def xor_uneq(a,b):
+    """Designed for two strings of possibly unequal length."""
+    answer = ""
+    if len(a) <= len(b):
+        for i in range(len(a)):
+            answer = answer + chr((ord(a[i]) ^ ord(b[i])))
+    else:
+        for i in range(len(b)):
+            answer = answer + chr((ord(a[i]) ^ ord(b[i])))
+    return answer
+
 def int2str(x, nbytes, endian):
     assert(endian=="little" or endian=="big")
     # little means least significant BYTE first.
@@ -84,6 +95,17 @@ def text2blocks(text, bytes):
         blocks = blocks + [text[bytes*i : bytes*(i+1)]]
     return blocks
 
+def transpose(text, n):
+    m = int(math.ceil(len(text) / float(n)))
+    B = [""] * n
+    A = text2blocks(text, n)
+    for i in range(m):
+        for j in range(n):
+            try:
+                B[j] = B[j] + A[i][j]
+            except IndexError:
+                assert i == m-1 # only on last row of A
+    return B
 
 
 
@@ -91,6 +113,8 @@ def text2blocks(text, bytes):
 
     
 #### tests ####
+
+assert transpose('abcdefghijk', 4) == ['aei', 'bfj', 'cgk', 'dh']
 
 assert text2blocks('abcdefg', 2) == ['ab','cd','ef','g']
 
