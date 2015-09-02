@@ -24,6 +24,13 @@ For more information, see http://cryptopals.com/
 15. PKCS#7 padding validation
 16. CBC bitflipping attacks
 17. CBC padding oracle
+18. Implement CTR
+19. Fixed-nonce CTR using substitutions
+20. Fixed-nonce CTR using statistics
+21. Implement MT19937
+22. Get MT19937 seed
+23. Clone a MT19937
+24. MT19937 stream cipher
 
 Challenge 1-8 are basics. Then 9-16, 17-24, and 25-32 deal mainly with
 block ciphers. After that it gets into number-theoretic methods.
@@ -39,6 +46,7 @@ exception of `8.txt` because it's big.
 
 4 and 6 each take about 40 sec to run on my MacBook Pro (OS X, 2.7 GHz
 Intel Core i7), and a little longer on my iMac7,1 running Ubuntu.
+Number 20 takes about 20 seconds.
 
 Important conclusions
 --------
