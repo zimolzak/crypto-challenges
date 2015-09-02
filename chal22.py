@@ -11,18 +11,21 @@ from myrand import MTRNG
 import time
 import random
 
-#time.sleep(random.randint(40,1000))
-#r = MTRNG(int(time.time()))
-#time.sleep(random.randint(40,1000))
-#print r.extract_number()
+time.sleep(random.randint(40,1000))
+r = MTRNG(int(time.time()))
+time.sleep(random.randint(40,1000))
+target_num = r.extract_number()
 
-target_num = 1324987356
-for s in range(1441204448, 1441205339):
+found_seed = 0
+print "Received target of:", target_num
+for s in range(1441224144, int(time.time()) + 60 ):
     m = MTRNG(s)
     if m.extract_number() == target_num:
+        found_seed = s
         print "Seed used was:", s
         print "In other words,", time.ctime(s)
         break
 
 #### tests, if any ####
-warn("No errors:", __file__)
+assert(found_seed > 1441224144)
+warn("Passed assertions:", __file__)

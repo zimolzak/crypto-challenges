@@ -13,6 +13,7 @@ n = 624         # degree of recurrence
 m = 397         # "middle word"
 r = 31          # bits in lower bit mask / sep point of 1 wd
 a = 0x9908B0DF  # "coefficients of the rational normal form twist matrix"
+
 u = 11          # mt tem bit shift
 d = 0xffffffff  # mt tem bitmask
 s = 7           # gfsr temper bit shift
@@ -20,6 +21,7 @@ b = 0x9D2C5680  # gfsr temper bitmask
 t = 15          # gfsr temper bit shift
 c = 0xEFC60000  # gfsr temper bitmask
 l = 18          # mt tem bit shift
+
 f = 1812433253
 
 def low_word(x):
@@ -40,11 +42,12 @@ class MTRNG():
     def extract_number(self):
         if self.index >= n:
             self.twist()
-        y = self.mt[self.index]
-        y = y ^ ((y >> u) & d)
+        y = self.mt[self.index] # retrieve from MT[]
+        # begin tempering
+        y = y ^ ((y >> u) & d)  # note d = 0xffffffff
         y = y ^ ((y << s) & b)
         y = y ^ ((y << t) & c)
-        y = y ^ (y >> 1)
+        y = y ^ (y >> l) # lowercase L, not numeral 1
         self.index += 1
         return low_word(y)
 
@@ -54,8 +57,19 @@ class MTRNG():
             xa = x >> 1
             if (x % 2) != 0:
                 xa = xa ^ a
-            self.mt[i] = self.mt[(i+m) % n] ^ xa
+            self.mt[i] = self.mt[(i+m) % n] ^ xa # store new into MT[]
         self.index = 0
+
+def temper(y):
+        y = y ^ ((y >> u) & d)
+        y = y ^ ((y << s) & b)
+        y = y ^ ((y << t) & c)
+        y = y ^ (y >> l)
+        return low_word(y)
+
+def untemper(y):
+    
+    return y
 
 #### tests, if any ####
 warn("No errors:", __file__)
