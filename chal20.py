@@ -27,17 +27,21 @@ for i in range(len(ciphertexts)):
 
 print "max", maximum
 
-concat = ""
-for i in range(len(ciphertexts)):
-    concat += ciphertexts[i][0:minimum]
+keystream = ""
+for k in range(maximum):
+    concat = ""
+    for c in ciphertexts:
+        try:
+            concat += c[k]
+        except IndexError:
+            pass
+    a = break_cipher_given_keysize([1], concat, xor_char_str)
+    keystream += a[0][0]
 
-a = break_cipher_given_keysize([minimum], concat, xor_char_str)
-
-print
-print "Keystream:", a[0]
-print "First", minimum, "bytes of plaintext", a[1]
-
-keystream = a[0][0]
+#print
+#print "Keystream:", a[0]
+#print "First", minimum, "bytes of plaintext", a[1]
+#keystream = a[0][0]
 
 keystream = "\xcf" + keystream # somehow it misses the 1st byte
 
