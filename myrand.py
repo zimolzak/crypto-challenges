@@ -32,12 +32,19 @@ upper_mask = low_word(lower_mask ^ 0xffffffff) # usually 0x80000000
 
 class MTRNG():
     def __init__(self, seed):
-        self.mt = [0] * n
-        self.index = n
-        self.mt[0] = seed
-        for i in range(1, n):
-            self.mt[i] = low_word(f * (self.mt[i-1]
-                                       ^ (self.mt[i-1] >> (w-2))) + i)
+        if type(seed) == type(1):
+            self.mt = [0] * n
+            self.index = n
+            self.mt[0] = seed
+            for i in range(1, n):
+                self.mt[i] = low_word(f * (self.mt[i-1]
+                                           ^ (self.mt[i-1] >> (w-2))) + i)
+        elif type(seed) == type(list()):
+            assert len(seed) == n
+            self.mt = seed
+            self.index = n
+        else:
+            assert 0
 
     def extract_number(self):
         if self.index >= n:
