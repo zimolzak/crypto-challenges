@@ -24,6 +24,7 @@ quicktest : 7.txt 8.txt 10.txt rand_bytes.txt unknown_key.txt 17.txt 19.txt 20.t
 	./chal20.py  # takes 15-20 sec
 	./chal21.py
 	./chal23.py
+	./chal24.py
 
 4.txt :
 	curl -O 'http://cryptopals.com/static/challenge-data/4.txt'
