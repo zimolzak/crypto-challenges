@@ -14,33 +14,33 @@ m = MTRNG(67812)
 
 def untemper(y4):
 
-    y3 = y4 ^ (y4 >> l)
+    y3 = y4
+    bits = l
+    while bits < 32:
+        y3 = y4 ^ (y3 >> l)
+        bits += l
 
-    y2 = y3 & (2**t - 1)     # 15 bit
-    y2_ls = y2 << t          # 30 bit
-    y2_ls_andc = y2_ls & c
-    y2 = y3 ^ y2_ls_andc
-    y2_ls = y2 << t          # 32 bit (45)
-    y2_ls_andc = y2_ls & c
-    y2 = y3 ^ y2_ls_andc
+    y2 = y3
+    bits = t
+    while bits < 32:
+        y2_ls = y2 << t
+        y2_ls_andc = y2_ls & c
+        y2 = y3 ^ y2_ls_andc
+        bits += t
 
-    y1 = y2 & (2**s - 1)     # 7 bit
-    y1_ls = y1 << s          # 14 bit
-    y1_ls_andb = y1_ls & b
-    y1 = y2 ^ y1_ls_andb
-    y1_ls = y1 << s          # 21 bit
-    y1_ls_andb = y1_ls & b
-    y1 = y2 ^ y1_ls_andb
-    y1_ls = y1 << s          # 28 bit
-    y1_ls_andb = y1_ls & b
-    y1 = y2 ^ y1_ls_andb
-    y1_ls = y1 << s          # 32 bit (35)
-    y1_ls_andb = y1_ls & b
-    y1 = y2 ^ y1_ls_andb
+    y1 = y2
+    bits = s
+    while bits < 32:
+        y1_ls = y1 << s
+        y1_ls_andb = y1_ls & b
+        y1 = y2 ^ y1_ls_andb
+        bits += s
 
-    y0 = y1                  # 11 bit (highest bits)
-    y0 = y1 ^ (y0 >> u)      # 22 bit
-    y0 = y1 ^ (y0 >> u)      # 32 bit (33)
+    y0 = y1
+    bits = u
+    while bits < 32:
+        y0 = y1 ^ (y0 >> u)
+        bits += u
 
     return y0
 
