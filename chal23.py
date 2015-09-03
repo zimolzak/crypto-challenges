@@ -7,35 +7,33 @@
 #     the file 'LICENSE' in the same directory as this file.
 
 from cryptopals import warn
-from myrand import MTRNG, c, b, u, s, t, l
+from myrand import MTRNG, c, b, u, s, t, l, n
 
-m = MTRNG(67812)
-#print m.extract_number()
-
-def untemper_right(input, k):
+def untemper_partial(input, k, mask):
     output = input
     bits = k
     while bits < 32:
-        output = input ^ (output >> k)
-        bits += k
-    return output
-
-def untemper_left(input, k, mask):
-    output = input
-    bits = k
-    while bits < 32:
-        output = input ^ ((output << k) & mask)
+        if mask == "right":
+            output = input ^ (output >> k)
+        else:
+            output = input ^ ((output << k) & mask)
         bits += k
     return output
 
 def untemper(y4):
-    y3 = untemper_right(y4, l)
-    y2 = untemper_left(y3, t, c)
-    y1 = untemper_left(y2, s, b)
-    return untemper_right(y1, u)
+    y3 = untemper_partial(y4, l, "right")
+    y2 = untemper_partial(y3, t, c)
+    y1 = untemper_partial(y2, s, b)
+    return untemper_partial(y1, u, "right")
 
 answer = untemper(0xe016575d)
 print hex(answer)
+print hex(untemper(answer)) # just curious
+
+rng = MTRNG(67812)
+state = [0] * n
+for i in range(n):
+    state[i] = untemper(rng.extract_number())
 
 #### tests, if any ####
 assert answer == 0xdeadbeef
