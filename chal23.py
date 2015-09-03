@@ -27,13 +27,22 @@ def untemper(y4):
     return untemper_partial(y1, u, "right")
 
 answer = untemper(0xe016575d)
-print hex(answer)
-print hex(untemper(answer)) # just curious
+print "Untemper result is:", hex(answer)
 
 rng = MTRNG(67812)
 state = [0] * n
 for i in range(n):
     state[i] = untemper(rng.extract_number())
+
+clone = MTRNG(state)
+
+print "Cloning results are:"
+
+for i in range(10):
+    x = clone.extract_number()
+    y = rng.extract_number()
+    print x, y
+    assert x == y
 
 #### tests, if any ####
 assert answer == 0xdeadbeef
