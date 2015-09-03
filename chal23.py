@@ -12,23 +12,21 @@ from myrand import MTRNG, c, b, u, s, t, l
 m = MTRNG(67812)
 #print m.extract_number()
 
-def untemper_right(y4, k):
-    y3 = y4
+def untemper_right(input, k):
+    output = input
     bits = k
     while bits < 32:
-        y3 = y4 ^ (y3 >> k)
+        output = input ^ (output >> k)
         bits += k
-    return y3
+    return output
 
-def untemper_left(y3, k, mask):
-    y2 = y3
+def untemper_left(input, k, mask):
+    output = input
     bits = k
     while bits < 32:
-        y2_ls = y2 << k
-        y2_ls_andc = y2_ls & mask
-        y2 = y3 ^ y2_ls_andc
+        output = input ^ ((output << k) & mask)
         bits += k
-    return y2
+    return output
 
 def untemper(y4):
     y3 = untemper_right(y4, l)
