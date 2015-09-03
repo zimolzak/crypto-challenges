@@ -13,23 +13,39 @@ m = MTRNG(67812)
 #print m.extract_number()
 
 y4 = 0xe016575d
+
+#### begin "untemper" ####
+
 y3 = y4 ^ (y4 >> 18)
 
-y2_r15 = y3 & (2**15 - 1)
-y2_ls_t = y2_r15 << 15    # first octet unknown
-y2_ls_andc = y2_ls_t & c  # first octet unknown
+y2 = y3 & (2**15 - 1)     # 15 bit
+y2_ls = y2 << 15          # 30 bit
+y2_ls_andc = y2_ls & c
+y2 = y3 ^ y2_ls_andc
+y2_ls = y2 << 15          # 32 bit (45)
+y2_ls_andc = y2_ls & c
 y2 = y3 ^ y2_ls_andc
 
-y1_r7 = y2 & (2**7 - 1)
-y1_ls_s = y1_r7 << 7      # first 9 octets unknown, 14 bit known
-y1_ls_andb = y1_ls_s & b  # first 9 octets unknown
+y1 = y2 & (2**7 - 1)      # 7 bit
+y1_ls = y1 << 7           # 14 bit
+y1_ls_andb = y1_ls & b
+y1 = y2 ^ y1_ls_andb
+y1_ls = y1 << 7           # 21 bit
+y1_ls_andb = y1_ls & b
+y1 = y2 ^ y1_ls_andb
+y1_ls = y1 << 7           # 28 bit
+y1_ls_andb = y1_ls & b
+y1 = y2 ^ y1_ls_andb
+y1_ls = y1 << 7           # 32 bit (35)
+y1_ls_andb = y1_ls & b
 y1 = y2 ^ y1_ls_andb
 
-y0 = y1 ^ (y1 >> 11)      # only 3 bit known! 
+y0 = y1                  # 11 bit (highest bits)
+y0 = y1 ^ (y0 >> 11)     # 22 bit
+y0 = y1 ^ (y0 >> 11)     # 32 bit (33)
 
-print hex(y0)
-
-
+print "y0", hex(y0)
 
 #### tests, if any ####
-warn("No errors:", __file__)
+assert y0 == 0xdeadbeef
+warn("Passed assertions:", __file__)
