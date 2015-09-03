@@ -20,29 +20,21 @@ def untemper_right(y4, k):
         bits += k
     return y3
 
-def untemper(y4):
-
-    y3 = untemper_right(y4, l)
-
+def untemper_left(y3, k, mask):
     y2 = y3
-    bits = t
+    bits = k
     while bits < 32:
-        y2_ls = y2 << t
-        y2_ls_andc = y2_ls & c
+        y2_ls = y2 << k
+        y2_ls_andc = y2_ls & mask
         y2 = y3 ^ y2_ls_andc
-        bits += t
+        bits += k
+    return y2
 
-    y1 = y2
-    bits = s
-    while bits < 32:
-        y1_ls = y1 << s
-        y1_ls_andb = y1_ls & b
-        y1 = y2 ^ y1_ls_andb
-        bits += s
-
-    y0 = untemper_right(y1, u)
-
-    return y0
+def untemper(y4):
+    y3 = untemper_right(y4, l)
+    y2 = untemper_left(y3, t, c)
+    y1 = untemper_left(y2, s, b)
+    return untemper_right(y1, u)
 
 answer = untemper(0xe016575d)
 print hex(answer)
