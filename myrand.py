@@ -86,7 +86,7 @@ def find_time_seed(target_num):
         m = MTRNG(s)
         if m.extract_number() == target_num:
             return s
-    raise NoTimeSeed
+    raise NoTimeSeed(target_num)
 
 #### tests, if any ####
 cryptopals.warn("No errors:", __file__)

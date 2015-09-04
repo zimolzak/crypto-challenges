@@ -7,7 +7,7 @@
 #     the file 'LICENSE' in the same directory as this file.
 
 from cryptopals import warn, xor_str
-from myrand import MTRNG
+import myrand
 import random
 import time
 
@@ -18,14 +18,14 @@ plaintext = ''
 for i in range(random.randint(1,20)):
     plaintext += random.choice(letters)
 plaintext += 'A' * 14
-print plaintext
+print "plaintext", plaintext
 
 #### Encrypt it and test decryption.
 
 def msc(text, seed):
     """Mersenne stream cipher"""
     assert seed < 2**16
-    rng = MTRNG(seed)
+    rng = myrand.MTRNG(seed)
     output = ""
     num = 0
     for text_char in text:
@@ -38,11 +38,11 @@ def msc(text, seed):
 
 key = random.randint(0,65535)
 
-key = 1 # Uncomment me if you want it to go fast but cheating.
+key = 2100 # Uncomment me if you want it to go fast but cheating.
 
 ciphertext = msc(plaintext, key)
 decipher = msc(ciphertext, key)
-print decipher
+print "test of decryption yields", decipher
 
 #### Brute-force the encryption 
 
@@ -58,18 +58,16 @@ for keytry in range(65536):
         break
 
 winning_decrypt = msc(ciphertext, winning_key)
-print winning_decrypt
+print "broken as", winning_decrypt
 
-# Next step: generate a random "password reset token" using MT19937
-# seeded from the current time. Write a function to check if any given
-# password token is actually the product of an MT19937 PRNG seeded
-# with the current time.
+#### Generate a random "password reset token" using MT19937 seeded
+#### from the current time.
 
 def hexchop(n):
     return hex(n)[2:]
 
-def get_token():
-    rng = MTRNG(int(time.time()))
+def get_token(seed):
+    rng = myrand.MTRNG(seed)
     numbers = []
     for i in range(4):
         # 4 bytes per iter * 4 iter = 16 byte token.
@@ -82,8 +80,32 @@ then paste it into your browser. If you did not request a password
 reset, contact the system administrator.
 """
 
-print "https://www.bozofarm.com/acct/pwrst?token=" + get_token()
+s = random.choice([int(time.time()), 4242])
+
+url = "https://www.bozofarm.com/acct/pwrst?token=" + get_token(s)
+
+print url
 print
+
+# check if any given password token is actually the product of an
+# MT19937 PRNG seeded with the current time.
+
+def url_is_time_seeded(url):
+    start = url.find('token=') + len('token=')
+    token_hex = url[start : start + 8] # 8 hex char = 32 bit
+    num = int(token_hex, base=16)
+    try:
+        s = myrand.find_time_seed(num)
+    except myrand.NoTimeSeed:
+        return False
+    else:
+        return s
+
+ts =  url_is_time_seeded(url)
+if ts:
+    print "Seed", ts, "found, meaning", time.ctime(ts)
+else:
+    print "Not time seeded"
 
 #### tests, if any ####
 assert decipher == plaintext

@@ -106,11 +106,6 @@ def transpose(text, n):
             except IndexError:
                 assert i == m-1 # only on last row of A
     return B
-
-
-
-
-
     
 #### tests ####
 
