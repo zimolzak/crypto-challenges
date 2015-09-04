@@ -6,7 +6,8 @@
 #     and licensed under GNU GPL version 3. Full notice is found in
 #     the file 'LICENSE' in the same directory as this file.
 
-from cryptopals import warn
+import cryptopals
+import time
 
 w = 32          # bit word
 n = 624         # degree of recurrence
@@ -73,16 +74,19 @@ class MTRNG():
             self.mt[i] = self.mt[(i+m) % n] ^ xa # store new into MT[]
         self.index = 0
 
-def temper(y):
-        y = y ^ ((y >> u) & d)
-        y = y ^ ((y << s) & b)
-        y = y ^ ((y << t) & c)
-        y = y ^ (y >> l)
-        return low_word(y)
+class NoTimeSeed(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return "Number may be from RNG not seeded with time" + repr(self.value)
 
-def untemper(y):
-    
-    return y
+def find_time_seed(target_num):
+    now = int(time.time())
+    for s in range(now - 60 * 35, now + 60 * 2):
+        m = MTRNG(s)
+        if m.extract_number() == target_num:
+            return s
+    raise NoTimeSeed
 
 #### tests, if any ####
-warn("No errors:", __file__)
+cryptopals.warn("No errors:", __file__)

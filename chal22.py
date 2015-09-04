@@ -7,24 +7,25 @@
 #     the file 'LICENSE' in the same directory as this file.
 
 from cryptopals import warn
-from myrand import MTRNG
+from myrand import MTRNG, find_time_seed
 import time
 import random
 
-time.sleep(random.randint(40,1000))
+#### Generate a number from RNG seeded with time
+
+time.sleep(random.randint(7,15)) # 40,1000 is more fun though
 r = MTRNG(int(time.time()))
-time.sleep(random.randint(40,1000))
+time.sleep(random.randint(7,15))
 target_num = r.extract_number()
 
-found_seed = 0
+#### Reverse engineer the seed
+
 print "Received target of:", target_num
-for s in range(1441224144, int(time.time()) + 60 ):
-    m = MTRNG(s)
-    if m.extract_number() == target_num:
-        found_seed = s
-        print "Seed used was:", s
-        print "In other words,", time.ctime(s)
-        break
+
+found_seed = find_time_seed(target_num)
+
+print "Seed used was:", found_seed
+print "In other words,", time.ctime(found_seed)
 
 #### tests, if any ####
 assert(found_seed > 1441224144)
