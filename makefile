@@ -1,7 +1,6 @@
 test : 4.txt 6.txt quicktest
 	./chal4.pl 4.txt > /dev/null
 	./chal6.pl 6.txt
-	./chal22.py     # takes random amount of time, 1 - 30 min.
 
 quicktest : 7.txt 8.txt 10.txt rand_bytes.txt unknown_key.txt 17.txt 19.txt 20.txt
 	./chal1.pl
@@ -25,6 +24,7 @@ quicktest : 7.txt 8.txt 10.txt rand_bytes.txt unknown_key.txt 17.txt 19.txt 20.t
 	./chal21.py
 	./chal23.py
 	./chal24.py
+	./chal22.py  # takes random amount of time, 15 - 30 sec
 
 4.txt :
 	curl -O 'http://cryptopals.com/static/challenge-data/4.txt'

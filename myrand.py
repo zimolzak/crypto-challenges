@@ -80,8 +80,7 @@ class NoTimeSeed(Exception):
     def __str__(self):
         return "Number may be from RNG not seeded with time" + repr(self.value)
 
-def find_time_seed(target_num):
-    now = int(time.time())
+def find_time_seed(target_num, now):
     for s in range(now - 60 * 35, now + 60 * 2):
         m = MTRNG(s)
         if m.extract_number() == target_num:

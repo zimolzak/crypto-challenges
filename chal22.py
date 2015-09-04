@@ -22,7 +22,7 @@ target_num = r.extract_number()
 
 print "Received target of:", target_num
 
-found_seed = find_time_seed(target_num)
+found_seed = find_time_seed(target_num, int(time.time()))
 
 print "Seed used was:", found_seed
 print "In other words,", time.ctime(found_seed)

@@ -9,7 +9,7 @@
 from cryptopals import warn, xor_str
 import myrand
 import random
-import time
+from time import time, ctime, strptime, mktime
 
 #### Construct a plaintext
 
@@ -80,7 +80,7 @@ then paste it into your browser. If you did not request a password
 reset, contact the system administrator.
 """
 
-s = random.choice([int(time.time()), 4242])
+s = random.choice([int(time()), 4242])
 
 url = "https://www.bozofarm.com/acct/pwrst?token=" + get_token(s)
 
@@ -90,22 +90,37 @@ print
 # check if any given password token is actually the product of an
 # MT19937 PRNG seeded with the current time.
 
-def url_is_time_seeded(url):
+def url_is_time_seeded(url, when):
     start = url.find('token=') + len('token=')
     token_hex = url[start : start + 8] # 8 hex char = 32 bit
     num = int(token_hex, base=16)
     try:
-        s = myrand.find_time_seed(num)
+        s = myrand.find_time_seed(num, when)
     except myrand.NoTimeSeed:
         return False
     else:
         return s
 
-ts =  url_is_time_seeded(url)
-if ts:
-    print "Seed", ts, "found, meaning", time.ctime(ts)
-else:
-    print "Not time seeded"
+urls = [url,
+        '?token=7d8bb0e5fbfc417aa7f9132a11182d82',
+        'token=f4c7765d7af043ae9ffa16d89357663f',
+        'token=dada53bc868a0308bf93',
+        'token=2364db032587e3473342',
+        'token=dbad1e77cbc961a31448']
+
+times = [int(time()),
+         int(mktime(strptime('Thu Jul 30 20:20:00 2015'))),
+         int(mktime(strptime('Thu Apr  2 19:17:00 2015'))),
+         int(mktime(strptime('Mon Feb 23 19:06:00 2015'))),
+         int(mktime(strptime('Mon Feb 19 13:08:00 2015'))),
+         int(mktime(strptime('Mon Feb  9 08:27:00 2015')))]
+
+for i in range(len(urls)):
+    ts =  url_is_time_seeded(urls[i], times[i])
+    if ts:
+        print "Seed", ts, "found, meaning", ctime(ts)
+    else:
+        print "Not time seeded"
 
 #### tests, if any ####
 assert decipher == plaintext
