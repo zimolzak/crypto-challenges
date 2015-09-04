@@ -30,6 +30,12 @@ def low_word(x):
 lower_mask = (1 << r) - 1                      # usually 0x7fffffff
 upper_mask = low_word(lower_mask ^ 0xffffffff) # usually 0x80000000
 
+class BadSeed(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return "Cannot seed RNG with this value: " + repr(self.value)
+
 class MTRNG():
     def __init__(self, seed):
         if type(seed) == type(1):
@@ -44,7 +50,7 @@ class MTRNG():
             self.mt = seed
             self.index = n
         else:
-            assert 0
+            raise BadSeed(seed)
 
     def extract_number(self):
         if self.index >= n:
