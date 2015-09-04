@@ -9,6 +9,7 @@
 from cryptopals import warn, xor_str
 from myrand import MTRNG
 import random
+import time
 
 #### Construct a plaintext
 
@@ -36,6 +37,9 @@ def msc(text, seed):
     return output
 
 key = random.randint(0,65535)
+
+key = 1 # Uncomment me if you want it to go fast but cheating.
+
 ciphertext = msc(plaintext, key)
 decipher = msc(ciphertext, key)
 print decipher
@@ -60,6 +64,26 @@ print winning_decrypt
 # seeded from the current time. Write a function to check if any given
 # password token is actually the product of an MT19937 PRNG seeded
 # with the current time.
+
+def hexchop(n):
+    return hex(n)[2:]
+
+def get_token():
+    rng = MTRNG(int(time.time()))
+    numbers = []
+    for i in range(4):
+        # 4 bytes per iter * 4 iter = 16 byte token.
+        numbers += [rng.extract_number()]
+    return ''.join(map(hexchop, numbers))
+
+print """
+Click here to reset your password. If you cannot click the link,
+then paste it into your browser. If you did not request a password
+reset, contact the system administrator.
+"""
+
+print "https://www.bozofarm.com/acct/pwrst?token=" + get_token()
+print
 
 #### tests, if any ####
 assert decipher == plaintext
