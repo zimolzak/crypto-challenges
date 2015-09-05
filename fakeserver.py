@@ -46,7 +46,11 @@ plain = AES.new("YELLOW SUBMARINE", AES.MODE_ECB).decrypt(ecb_encrypted)
 ctr_key = open('unknown_key.txt', 'r').read().splitlines()[0]
 ctr_nonce = ""
 for i in range(8):
+    # I believe this sets it upon import of this file, not for each
+    # encrypt/decrypt. Not the most secure, but in any case I don't
+    # use a nonce attack to "cheat" at CTR challenges.
     ctr_nonce += chr(random.randint(0,255))
+
 ctr_ciphertext = cryptopals.ctr(plain, ctr_key, ctr_nonce, "little")
 
 def edit(ciphertext, key, nonce, offset, newtext):
@@ -61,6 +65,19 @@ def edit_public(ciphertext, offset, newtext):
 
 def ctr_cheat(ciphertext):
     return cryptopals.ctr(ciphertext, ctr_key, ctr_nonce, "little")
+
+def site_profile_token(input_str):
+    input_str = input_str.replace(';', '.')
+    input_str = input_str.replace('=', '.')
+    plaintext = ('comment1=cooking%20MCs;userdata='
+                 + input_str
+                 + ';comment2=%20like%20a%20pound%20of%20bacon;')
+    # closure
+    return cryptopals.ctr(plaintext, ctr_key, ctr_nonce, "little")
+
+def profile_is_admin(token):
+    plaintext = cryptopals.ctr(token, ctr_key, ctr_nonce, "little")
+    return ';admin=true;' in plaintext
 
 #### tests, CTR ####
 
