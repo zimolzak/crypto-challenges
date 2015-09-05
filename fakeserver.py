@@ -1,5 +1,5 @@
 #     fakeserver.py - Simulate "friendly" server functions that can be
-#     analyzed using CBC padding.
+#     analyzed using CBC padding, or random access read/write CTR.
 # 
 #     Copyright (C) 2015 Andrew J. Zimolzak <andyzimolzak@gmail.com>,
 #     and licensed under GNU GPL version 3. Full notice is found in
@@ -38,24 +38,55 @@ def cheat(ciphertext, iv):
     cipher = AES.new(key, AES.MODE_CBC, iv)
     return cipher.decrypt(ciphertext)
 
+#### CTR
+
+ecb_encrypted = base64.b64decode(''.join(open('25.txt', 'r').
+                                         read().splitlines()))
+plain = AES.new("YELLOW SUBMARINE", AES.MODE_ECB).decrypt(ecb_encrypted)
+ctr_key = open('unknown_key.txt', 'r').read().splitlines()[0]
+ctr_nonce = ""
+for i in range(8):
+    ctr_nonce += chr(random.randint(0,255))
+ctr_ciphertext = cryptopals.ctr(plain, ctr_key, ctr_nonce, "little")
+
+def edit(ciphertext, key, nonce, offset, newtext):
+    plaintext = cryptopals.ctr(ciphertext, key, nonce, "little")
+    nchars = len(newtext)
+    plaintext = plaintext[0:offset] + newtext + plaintext[offset+nchars:]
+    return cryptopals.ctr(plaintext, key, nonce, "little")
+
+def edit_public(ciphertext, offset, newtext):
+    # closure
+    return edit(ciphertext, ctr_key, ctr_nonce, offset, newtext)
+
+def ctr_cheat(ciphertext):
+    return cryptopals.ctr(ciphertext, ctr_key, ctr_nonce, "little")
+
+#### tests, CTR ####
+
+assert len(ctr_nonce)==8
+assert len(ctr_ciphertext) == len(plain)
+assert plain.splitlines()[9] == "To just let it flow, let my concepts go "
+cryptopals.warn("Passed assertions:", __file__)
+
 #### tests ####
 
-plaintext = "YELLOW SUB"
-key = open('unknown_key.txt', 'r').read().splitlines()[0]
-plaintext = pad_multiple(plaintext, AES.block_size)
-iv = Random.new().read(AES.block_size)
-cipher = AES.new(key, AES.MODE_CBC, iv)
-ciphertext = cipher.encrypt(plaintext)
+_plaintext = "YELLOW SUB"
+_key = open('unknown_key.txt', 'r').read().splitlines()[0]
+_plaintext = pad_multiple(_plaintext, AES.block_size)
+_iv = Random.new().read(AES.block_size)
+_cipher = AES.new(_key, AES.MODE_CBC, _iv)
+_ciphertext = _cipher.encrypt(_plaintext)
 
-assert(padding_is_valid(ciphertext, iv))
+assert(padding_is_valid(_ciphertext, _iv))
 
-plaintext = "YELLOW SUBMAR\x04\x04\x04"
-key = open('unknown_key.txt', 'r').read().splitlines()[0]
-# Note that we skip the padding in order to give this plaintext bad padding.
-iv = Random.new().read(AES.block_size)
-cipher = AES.new(key, AES.MODE_CBC, iv)
-ciphertext = cipher.encrypt(plaintext)
+_plaintext = "YELLOW SUBMAR\x04\x04\x04"
+_key = open('unknown_key.txt', 'r').read().splitlines()[0]
+# Note that we skip the padding in order to give this _plaintext bad padding.
+_iv = Random.new().read(AES.block_size)
+_cipher = AES.new(_key, AES.MODE_CBC, _iv)
+_ciphertext = _cipher.encrypt(_plaintext)
 
-assert(not padding_is_valid(ciphertext, iv))
+assert(not padding_is_valid(_ciphertext, _iv))
 
 cryptopals.warn("Passed assertions (" + __file__ + ")")

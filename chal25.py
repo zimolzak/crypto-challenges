@@ -6,32 +6,13 @@
 #     and licensed under GNU GPL version 3. Full notice is found in
 #     the file 'LICENSE' in the same directory as this file.
 
-import base64
-from cryptopals import warn, ctr
-from Crypto.Cipher import AES
-import random
+from cryptopals import warn
+from fakeserver import ctr_ciphertext, edit_public, ctr_cheat
 
-ecb_encrypted = base64.b64decode(''.join(open('25.txt', 'r').
-                                         read().splitlines()))
-plain = AES.new("YELLOW SUBMARINE", AES.MODE_ECB).decrypt(ecb_encrypted)
-key = open('unknown_key.txt', 'r').read().splitlines()[0]
-nonce = ""
-for i in range(8):
-    nonce += chr(random.randint(0,255))
-ciphertext = ctr(plain, key, nonce, "little")
-
-def edit(ciphertext, key, nonce, offset, newtext):
-    plaintext = ctr(ciphertext, key, nonce, "little")
-    nchars = len(newtext)
-    plaintext = plaintext[0:offset] + newtext + plaintext[offset+nchars:]
-    return ctr(plaintext, key, nonce, "little")
-
-edited = edit(ciphertext, key, nonce, 4, 'COOL')
-
-print '\n'.join(ctr(edited, key, nonce, "little").splitlines()[0:4])
+edited = edit_public(ctr_ciphertext, 4, 'COOL')
+lines = ctr_cheat(edited).splitlines()[0:4]
+print '\n'.join(lines)
 
 #### tests, if any ####
-assert len(nonce)==8
-assert len(ciphertext) == len(plain)
-assert plain.splitlines()[9] == "To just let it flow, let my concepts go "
+assert lines[0] == "I'm COOL and I'm ringin' the bell "
 warn("Passed assertions:", __file__)
