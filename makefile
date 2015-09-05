@@ -2,7 +2,7 @@ test : 4.txt 6.txt quicktest
 	./chal4.pl 4.txt > /dev/null
 	./chal6.pl 6.txt
 
-quicktest : 7.txt 8.txt 10.txt rand_bytes.txt unknown_key.txt 17.txt 19.txt 20.txt
+quicktest : 7.txt 8.txt 10.txt rand_bytes.txt unknown_key.txt 17.txt 19.txt 20.txt 25.txt
 	./chal1.pl
 	./chal2.pl
 	./chal3.pl
@@ -22,9 +22,10 @@ quicktest : 7.txt 8.txt 10.txt rand_bytes.txt unknown_key.txt 17.txt 19.txt 20.t
 	./chal19.py
 	./chal20.py  # takes 15-20 sec
 	./chal21.py
+	./chal22.py  # takes random amount of time, 15 - 30 sec
 	./chal23.py
 	./chal24.py
-	./chal22.py  # takes random amount of time, 15 - 30 sec
+	./chal25.py
 
 4.txt :
 	curl -O 'http://cryptopals.com/static/challenge-data/4.txt'
@@ -40,3 +41,6 @@ rand_bytes.txt :
 	./rand_count_rand_bytes.pl > rand_bytes.txt
 20.txt :
 	curl -O 'http://cryptopals.com/static/challenge-data/20.txt'
+25.txt : 7.txt
+	cp 7.txt 25.txt
+	#curl -O 'http://cryptopals.com/static/challenge-data/25.txt'
