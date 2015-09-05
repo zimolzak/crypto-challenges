@@ -66,18 +66,46 @@ def edit_public(ciphertext, offset, newtext):
 def ctr_cheat(ciphertext):
     return cryptopals.ctr(ciphertext, ctr_key, ctr_nonce, "little")
 
+def profile_token_cheat(cipher_nonce_list):
+    ciphertext = cipher_nonce_list[0]
+    nonce = cipher_nonce_list[1]
+    return cryptopals.ctr(ciphertext, ctr_key, nonce, "little")
+
 def site_profile_token(input_str):
+    good_nonce = ""
+    for i in range(8):
+        good_nonce += chr(random.randint(0,255))
     input_str = input_str.replace(';', '.')
     input_str = input_str.replace('=', '.')
     plaintext = ('comment1=cooking%20MCs;userdata='
                  + input_str
                  + ';comment2=%20like%20a%20pound%20of%20bacon;')
-    # closure
-    return cryptopals.ctr(plaintext, ctr_key, ctr_nonce, "little")
+    return [cryptopals.ctr(plaintext, ctr_key, good_nonce, "little")
+            , good_nonce]
+    # closure on ctr_key
 
-def profile_is_admin(token):
-    plaintext = cryptopals.ctr(token, ctr_key, ctr_nonce, "little")
+def profile_is_admin(cipher_nonce_list):
+    token = cipher_nonce_list[0]
+    nonce = cipher_nonce_list[1]
+    plaintext = cryptopals.ctr(token, ctr_key, nonce, "little")
     return ';admin=true;' in plaintext
+
+def print_profile(profile):
+    """Expects PROFILE to be a list, where the first element is the
+    ciphertext we want to pretty-print. Proobably the 2nd element is
+    the nonce (discarded). Breaks ciphertext up into 32 bit words.
+    """
+    def hexord(x):
+        return hex(ord(x))[2:]
+    longstring = ''.join(map(hexord, profile[0]))
+    word = ""
+    for i in range(len(longstring)):
+        word += longstring[i]
+        if i % 8 == 7:
+            print word,
+            word = ''
+    print
+
 
 #### tests, CTR ####
 
