@@ -39,6 +39,11 @@ decrypted = strip_padding(cipher.decrypt(my_iv + ciphertext)[blocksize:])
 c0 = ciphertext[0:blocksize]
 c4_end = ciphertext[4 * blocksize : ]
 mod_ciphertext = c0 + ("\x00" * blocksize) + c0 + c4_end
+
+# Fixme. Technically not supposed to be able to do this next
+# line. Should get the plaintext from an exception raised by the
+# decrypt function.
+
 mod_decrypt = strip_padding(cipher.decrypt(my_iv + mod_ciphertext)[blocksize:])
 
 p0 = mod_decrypt[0:blocksize]
