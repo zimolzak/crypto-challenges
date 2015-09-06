@@ -38,6 +38,53 @@ def cheat(ciphertext, iv):
     cipher = AES.new(key, AES.MODE_CBC, iv)
     return cipher.decrypt(ciphertext)
 
+class BadCharacter(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return self.value
+
+def check_ciphertext(ciphertext):
+    key = open('unknown_key.txt', 'r').read().splitlines()[0]
+    my_iv = key
+    cipher = AES.new(key, AES.MODE_CBC, IV = my_iv)
+    blocksize = 16
+    plaintext = strip_padding(cipher.decrypt(my_iv + ciphertext)[blocksize:])
+    for character in plaintext:
+        if ord(character) > 127:
+            raise BadCharacter(plaintext)
+    if 'AUTHORIZED ADMIN' in plaintext:
+        print "Server thinks that:" + plaintext
+        return True
+    else:
+        print "Server thinks you are a normal user. Welcome!"
+        return False
+
+def get_keyiv_ciphertext():
+    key = open('unknown_key.txt', 'r').read().splitlines()[0]
+    my_iv = key
+    cipher = AES.new(key, AES.MODE_CBC, IV = my_iv)
+    blocksize = 16
+
+    message = """Don't call it a comeback
+I've been here for years
+I'm rocking my peers
+Puttin' suckers in fear
+Makin' the tears rain down like a monsoon
+Listen to the bass go boom
+Explosions, overpowerin'
+Over the competition I'm towerin'
+Wrecking shop when I write these lyrics
+That'll make you call the cops
+Don't you dare stare, you better move
+Don't ever compare
+Me to the rest that'll all get sliced and diced
+Competition's payin' the price
+"""
+
+    message = pad_multiple(message, blocksize)
+    return cipher.encrypt(message)
+
 #### CTR
 
 ecb_encrypted = base64.b64decode(''.join(open('25.txt', 'r').
