@@ -152,7 +152,46 @@ def sha1(message):
         w = map(str2int, words)
         for i in range(16, 80):
             w.append(leftrotate(w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16] , 1))
-    return w
+        a = h0
+        b = h1
+        c = h2
+        d = h3
+        e = h4
+        f = 0
+        k = 0
+        # main loop
+        for i in range(80):
+            if 0 <= i <= 19:
+                f = (b & c) | ((b ^ 0xffffffff) & d)
+                k = 0x5A827999
+            elif 20 <= i <= 39:
+                f = b ^ c ^ d
+                k = 0x6ED9EBA1
+            elif 40 <= i <= 59:
+                f = (b & c) | (b & d) | (c & d)
+                k = 0x8F1BBCDC
+            elif 60 <= i <= 79:
+                f = b ^ c ^ d
+                k = 0xCA62C1D6
+            try:
+                temp = leftrotate(a,5) + f + e + k + w[i]
+            except AssertionError:
+                print("err", i, a)
+            e = d
+            d = c
+            c = leftrotate(b,30)
+            b = a
+            a = temp
+        h0 = h0 + a
+        h1 = h1 + b
+        h2 = h2 + c
+        h3 = h3 + d
+        h4 = h4 + e
+    return (leftshift(h0, 128)
+          | leftshift(h1, 96)
+          | leftshift(h2, 64)
+          | leftshift(h3, 32)
+          | h4)
 
 def leftrotate(x, n):
     assert x <= 0xffffffff
