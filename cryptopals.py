@@ -72,6 +72,16 @@ def int2str(x, nbytes, endian):
             string = chr( (x >> (8 * bytenum)) % 256) + string
     return string
 
+def str2int(s):
+    # This function assumes big endian.
+    assert 0 < len(s) <= 4
+    total = 0
+    L = list(s)
+    L.reverse()
+    for i in range(len(L)):
+        total += ord(L[i]) << (i*8)
+    return total
+
 def ctr(text, key, nonce, endian):
     cipher = AES.new(key, AES.MODE_ECB)
     output = ""
@@ -106,8 +116,106 @@ def transpose(text, n):
             except IndexError:
                 assert i == m-1 # only on last row of A
     return B
+
+#### Challenge 28 (SHA-1)
+
+def sha1(message):
+    assert type(message) == type(str())
+    h0 = 0x67452301
+    h1 = 0xEFCDAB89
+    h2 = 0x98BADCFE
+    h3 = 0x10325476
+    h4 = 0xC3D2E1F0
+    ml = 8 * len(message) # ML is in bits
+
+    #### Pre-process
+    n_bytes_to_add = (448 - (ml % 512)) / 8
+    padding_string = ""
+    for i in range(n_bytes_to_add):
+        if i > 0:
+            padding_string += '\x00'
+        else:
+            padding_string += '\x80'
+    for i in range(8):
+        byte_val = ml >> (64 - 8 * (i + 1)) & 0xff
+        # Big endian means R shift by 56, 48, ... , 8, 0.
+        padding_string += chr(byte_val)
+    message += padding_string
+    assert len(message) % (512/8) == 0
+
+    #### Process
+    nchunks = int(math.ceil(len(message)/64.0)) # 64 by = 512 bi
+    chunks = [message[i*64 : (i+1)*64] for i in range(nchunks)]
+    for ch in chunks:
+        nwords = int(math.ceil(len(ch)/4.0)) # 4 by = 32 bi
+        words = [ch[i*4 : (i+1)*4] for i in range(nwords)]
+        w = map(str2int, words)
+        for i in range(16, 80):
+            w.append(leftrotate(w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16] , 1))
+        a = h0
+        b = h1
+        c = h2
+        d = h3
+        e = h4
+        f = 0
+        k = 0
+        # main loop
+        for i in range(80):
+            if 0 <= i <= 19:
+                f = (b & c) | ((b ^ 0xffffffff) & d)
+                k = 0x5A827999
+            elif 20 <= i <= 39:
+                f = b ^ c ^ d
+                k = 0x6ED9EBA1
+            elif 40 <= i <= 59:
+                f = (b & c) | (b & d) | (c & d)
+                k = 0x8F1BBCDC
+            elif 60 <= i <= 79:
+                f = b ^ c ^ d
+                k = 0xCA62C1D6
+            try:
+                temp = leftrotate(a,5) + f + e + k + w[i]
+            except AssertionError:
+                print("err", i, a)
+            e = d & 0xffffffff
+            d = c & 0xffffffff
+            c = leftrotate(b,30) & 0xffffffff
+            b = a & 0xffffffff
+            a = temp & 0xffffffff
+        h0 = h0 + a
+        h1 = h1 + b
+        h2 = h2 + c
+        h3 = h3 + d
+        h4 = h4 + e
+    return (  ((h0 & 0xffffffff) << 128)
+            | ((h1 & 0xffffffff) << 96)
+            | ((h2 & 0xffffffff) << 64)
+            | ((h3 & 0xffffffff) << 32)
+            | (h4 & 0xffffffff) )
+
+def leftrotate(x, n):
+    assert x <= 0xffffffff
+    assert x >= 0
+    assert n >= 0
+    y = x
+    for i in range(n):
+        hibit = y & 0x80000000
+        y = ((y << 1) + (hibit >> 31)) & 0xffffffff
+    return y
     
 #### tests ####
+
+assert  hex(sha1("")) == '0xda39a3ee5e6b4b0d3255bfef95601890afd80709L'
+
+assert str2int('~~~~') == 2122219134
+
+assert leftrotate(64,2) == 64 << 2
+assert leftrotate(128,1) == 128 << 1
+assert leftrotate(242,0) == 242
+assert leftrotate(0x80000007,1) == 0x0000000f
+assert leftrotate(0xff, 1) == 0x000001fe
+assert leftrotate(0xf000000f, 2) == 0xc000003f
+assert leftrotate(242, 32) == 242
 
 assert transpose('abcdefghijk', 4) == ['aei', 'bfj', 'cgk', 'dh']
 
