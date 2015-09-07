@@ -148,32 +148,32 @@ def sha1(message):
     chunks = [message[i*64 : (i+1)*64] for i in range(nchunks)]
     for ch in chunks:
         nwords = int(math.ceil(len(ch)/4.0)) # 4 by = 32 bi
-        w = [ch[i*4 : (i+1)*4] for i in range(nwords)]
-        # map strtoint
+        words = [ch[i*4 : (i+1)*4] for i in range(nwords)]
+        w = map(str2int, words)
         for i in range(16, 80):
-            #w.append(w[i-3] ^ ) # fixme
-            pass
-    return message + padding_string
+            w.append(leftrotate(w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16] , 1))
+    return w
 
 def leftrotate(x, n):
-    assert x < 256
+    assert x <= 0xffffffff
     assert x >= 0
     assert n >= 0
     y = x
     for i in range(n):
-        hibit = y & 0x80
-        y = ((y << 1) + (hibit >> 7)) & 0xff
+        hibit = y & 0x80000000
+        y = ((y << 1) + (hibit >> 31)) & 0xffffffff
     return y
     
 #### tests ####
 
 assert str2int('~~~~') == 2122219134
 
-assert leftrotate(64,2) == 1
-assert leftrotate(128,1) == 1
+assert leftrotate(64,2) == 64 << 2
+assert leftrotate(128,1) == 128 << 1
 assert leftrotate(242,0) == 242
-assert leftrotate(0x87,1) == 0x0f
-assert leftrotate(0xff, 20) == 0xff
+assert leftrotate(0x80000007,1) == 0x0000000f
+assert leftrotate(0xff, 1) == 0x000001fe
+assert leftrotate(0xf000000f, 2) == 0xc000003f
 assert leftrotate(242, 32) == 242
 
 assert transpose('abcdefghijk', 4) == ['aei', 'bfj', 'cgk', 'dh']

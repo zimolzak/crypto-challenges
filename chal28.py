@@ -11,14 +11,9 @@ from Crypto.Hash import SHA
 
 h = SHA.new()
 h.update('Vanilla')
-print h.hexdigest()
+print "builtin says", h.hexdigest()
 
-print [sha1('Vanilla')]
-
-print leftrotate(64,0)
-print leftrotate(0x87,1)
-
-print str2int("~~~~")
+print sha1('Vanilla')
 
 #### tests, if any ####
 warn("Passed assertions:", __file__)
