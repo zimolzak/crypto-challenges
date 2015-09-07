@@ -177,21 +177,17 @@ def sha1(message):
                 temp = leftrotate(a,5) + f + e + k + w[i]
             except AssertionError:
                 print("err", i, a)
-            e = d
-            d = c
-            c = leftrotate(b,30)
-            b = a
-            a = temp
+            e = d & 0xffffffff
+            d = c & 0xffffffff
+            c = leftrotate(b,30) & 0xffffffff
+            b = a & 0xffffffff
+            a = temp & 0xffffffff
         h0 = h0 + a
         h1 = h1 + b
         h2 = h2 + c
         h3 = h3 + d
         h4 = h4 + e
-    return (leftshift(h0, 128)
-          | leftshift(h1, 96)
-          | leftshift(h2, 64)
-          | leftshift(h3, 32)
-          | h4)
+    return ((h0 << 128) | (h1 << 96) | (h2 << 64) | (h3 << 32) | h4)
 
 def leftrotate(x, n):
     assert x <= 0xffffffff
@@ -204,6 +200,8 @@ def leftrotate(x, n):
     return y
     
 #### tests ####
+
+assert  hex(sha1(""))[0:9] == '0xda39a3e'
 
 assert str2int('~~~~') == 2122219134
 
