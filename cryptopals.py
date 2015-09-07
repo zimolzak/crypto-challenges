@@ -72,6 +72,16 @@ def int2str(x, nbytes, endian):
             string = chr( (x >> (8 * bytenum)) % 256) + string
     return string
 
+def str2int(s):
+    # This function assumes big endian.
+    assert 0 < len(s) <= 4
+    total = 0
+    L = list(s)
+    L.reverse()
+    for i in range(len(L)):
+        total += ord(L[i]) << (i*8)
+    return total
+
 def ctr(text, key, nonce, endian):
     cipher = AES.new(key, AES.MODE_ECB)
     output = ""
@@ -134,15 +144,37 @@ def sha1(message):
     assert len(message) % (512/8) == 0
 
     #### Process
-    
+    nchunks = int(math.ceil(len(message)/64.0)) # 64 by = 512 bi
+    chunks = [message[i*64 : (i+1)*64] for i in range(nchunks)]
+    for ch in chunks:
+        nwords = int(math.ceil(len(ch)/4.0)) # 4 by = 32 bi
+        w = [ch[i*4 : (i+1)*4] for i in range(nwords)]
+        # map strtoint
+        for i in range(16, 80):
+            #w.append(w[i-3] ^ ) # fixme
+            pass
     return message + padding_string
 
-    
-    
-    
-
+def leftrotate(x, n):
+    assert x < 256
+    assert x >= 0
+    assert n >= 0
+    y = x
+    for i in range(n):
+        hibit = y & 0x80
+        y = ((y << 1) + (hibit >> 7)) & 0xff
+    return y
     
 #### tests ####
+
+assert str2int('~~~~') == 2122219134
+
+assert leftrotate(64,2) == 1
+assert leftrotate(128,1) == 1
+assert leftrotate(242,0) == 242
+assert leftrotate(0x87,1) == 0x0f
+assert leftrotate(0xff, 20) == 0xff
+assert leftrotate(242, 32) == 242
 
 assert transpose('abcdefghijk', 4) == ['aei', 'bfj', 'cgk', 'dh']
 
