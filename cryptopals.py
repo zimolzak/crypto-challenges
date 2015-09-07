@@ -106,6 +106,41 @@ def transpose(text, n):
             except IndexError:
                 assert i == m-1 # only on last row of A
     return B
+
+#### Challenge 28 (SHA-1)
+
+def sha1(message):
+    assert type(message) == type(str())
+    h0 = 0x67452301
+    h1 = 0xEFCDAB89
+    h2 = 0x98BADCFE
+    h3 = 0x10325476
+    h4 = 0xC3D2E1F0
+    ml = 8 * len(message) # ML is in bits
+
+    #### Pre-process
+    n_bytes_to_add = (448 - (ml % 512)) / 8
+    padding_string = ""
+    for i in range(n_bytes_to_add):
+        if i > 0:
+            padding_string += '\x00'
+        else:
+            padding_string += '\x80'
+    for i in range(8):
+        byte_val = ml >> (64 - 8 * (i + 1)) & 0xff
+        # Big endian means R shift by 56, 48, ... , 8, 0.
+        padding_string += chr(byte_val)
+    message += padding_string
+    assert len(message) % (512/8) == 0
+
+    #### Process
+    
+    return message + padding_string
+
+    
+    
+    
+
     
 #### tests ####
 
