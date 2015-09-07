@@ -139,7 +139,7 @@ def profile_is_admin(cipher_nonce_list):
 
 def print_profile(profile):
     """Expects PROFILE to be a list, where the first element is the
-    ciphertext we want to pretty-print. Proobably the 2nd element is
+    ciphertext we want to pretty-print. Probably the 2nd element is
     the nonce (discarded). Breaks ciphertext up into 32 bit words.
     """
     def hexord(x):

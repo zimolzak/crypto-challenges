@@ -10,6 +10,8 @@ import math
 import sys
 from Crypto.Cipher import AES
 
+unknown_key = open('unknown_key.txt', 'r').read().splitlines()[0]
+
 def warn(*objs):
     """Easy and print-as-function way to output to STDERR."""
     print(*objs, file=sys.stderr)
