@@ -187,7 +187,11 @@ def sha1(message):
         h2 = h2 + c
         h3 = h3 + d
         h4 = h4 + e
-    return ((h0 << 128) | (h1 << 96) | (h2 << 64) | (h3 << 32) | h4)
+    return (  ((h0 & 0xffffffff) << 128)
+            | ((h1 & 0xffffffff) << 96)
+            | ((h2 & 0xffffffff) << 64)
+            | ((h3 & 0xffffffff) << 32)
+            | (h4 & 0xffffffff) )
 
 def leftrotate(x, n):
     assert x <= 0xffffffff
@@ -201,7 +205,7 @@ def leftrotate(x, n):
     
 #### tests ####
 
-assert  hex(sha1(""))[0:9] == '0xda39a3e'
+assert  hex(sha1("")) == '0xda39a3ee5e6b4b0d3255bfef95601890afd80709L'
 
 assert str2int('~~~~') == 2122219134
 
