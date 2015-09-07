@@ -6,18 +6,29 @@
 #     and licensed under GNU GPL version 3. Full notice is found in
 #     the file 'LICENSE' in the same directory as this file.
 
-from cryptopals import warn, sha1, leftrotate, str2int
-from Crypto.Hash import SHA
+from cryptopals import warn, sha1, leftrotate, str2int, unknown_key as k
 
-h = SHA.new()
-h.update('Vanilla')
-print "builtin says    ", h.hexdigest()
-print "mine says     ", hex(sha1('Vanilla'))
-print "builtin says    ", SHA.new("").hexdigest()
-print "mine says     ", hex(sha1(""))
+m = 'Vanilla'
 
-print "tqbf", hex(sha1("The quick brown fox jumps over the lazy dog"))
-print "       2fd4e1c67a2d28fced849ee1bb76e7391b93eb12"
+def secret_prefix_mac(message, key):
+    assert len(key) == 16
+    string = hex(sha1(key + message))
+    if string[-1] =="L":
+        return string[2:-1]
+    else:
+        return string[2:]
+
+print "Message\t\t\t", secret_prefix_mac(m, k)
+print "Tampered message\t", secret_prefix_mac('vanilla', k)
+print "Tampered message\t", secret_prefix_mac('Vanilla ', k)
+print "Tampered message\t", secret_prefix_mac('Vanilla\x00', k)
+print "Tampered message\t", secret_prefix_mac('Vanille', k)
+print "Lost key\t\t", secret_prefix_mac(m, 'YELLOW SUBMARINE')
+print "Lost key\t\t", secret_prefix_mac(m, 'abcdefghijklmnop')
+print "Lost key\t\t", secret_prefix_mac(m, '1234567890123456')
+print "Lost key\t\t", secret_prefix_mac(m, '                ')
+print "Lost key\t\t", secret_prefix_mac(m, '_______--_______')
+print "Lost key\t\t", secret_prefix_mac(m, '\x00' * 16)
 
 #### tests, if any ####
 warn("Passed assertions:", __file__)
