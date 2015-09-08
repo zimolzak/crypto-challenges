@@ -163,7 +163,6 @@ def sha_fixated(message, h0, h1, h2, h3, h4, extra_len):
         nwords = int(math.ceil(len(ch)/4.0)) # 4 byte = 32 bit
         words = [ch[i*4 : (i+1)*4] for i in range(nwords)]
         w = map(str2int, words)
-        # print (w) #deleteme
         for i in range(16, 80):
             w.append(leftrotate(w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16] , 1))
         a = h0
