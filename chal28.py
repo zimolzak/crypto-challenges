@@ -6,7 +6,7 @@
 #     and licensed under GNU GPL version 3. Full notice is found in
 #     the file 'LICENSE' in the same directory as this file.
 
-from cryptopals import warn, sha1, secret_prefix_mac, unknown_key as k_true
+from cryptopals import warn, secret_prefix_mac, unknown_key as k_true
 
 m_true = 'Vanilla'
 

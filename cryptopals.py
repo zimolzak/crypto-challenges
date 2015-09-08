@@ -119,18 +119,11 @@ def transpose(text, n):
                 assert i == m-1 # only on last row of A
     return B
 
-#### Challenge 28 (SHA-1)
+#### Challenge 28, 29 (SHA-1)
 
-def sha1(message):
+def sha_padding(message):
     assert type(message) == type(str())
-    h0 = 0x67452301
-    h1 = 0xEFCDAB89
-    h2 = 0x98BADCFE
-    h3 = 0x10325476
-    h4 = 0xC3D2E1F0
     ml = 8 * len(message) # ML is in bits
-
-    #### Pre-process
     n_bytes_to_add = (448 - (ml % 512)) / 8
     padding_string = ""
     for i in range(n_bytes_to_add):
@@ -143,6 +136,17 @@ def sha1(message):
         # Big endian means R shift by 56, 48, ... , 8, 0.
         padding_string += chr(byte_val)
     message += padding_string
+    assert len(message) % (512/8) == 0
+    return padding_string
+
+def sha1(message):
+    return sha_fixated(message, 0x67452301, 
+                       0xEFCDAB89, 0x98BADCFE,
+                       0x10325476, 0xC3D2E1F0)
+
+def sha_fixated(message, h0, h1, h2, h3, h4):
+    assert type(message) == type(str())
+    message += sha_padding(message)
     assert len(message) % (512/8) == 0
 
     #### Process
@@ -175,25 +179,23 @@ def sha1(message):
             elif 60 <= i <= 79:
                 f = b ^ c ^ d
                 k = 0xCA62C1D6
-            try:
-                temp = leftrotate(a,5) + f + e + k + w[i]
-            except AssertionError:
-                print("err", i, a)
+            temp = leftrotate(a,5) + f + e + k + w[i]
             e = d & 0xffffffff
             d = c & 0xffffffff
             c = leftrotate(b,30) & 0xffffffff
             b = a & 0xffffffff
             a = temp & 0xffffffff
-        h0 = h0 + a
-        h1 = h1 + b
-        h2 = h2 + c
-        h3 = h3 + d
-        h4 = h4 + e
+        h0 = (h0 + a) & 0xffffffff
+        h1 = (h1 + b) & 0xffffffff
+        h2 = (h2 + c) & 0xffffffff
+        h3 = (h3 + d) & 0xffffffff
+        h4 = (h4 + e) & 0xffffffff
     return (  ((h0 & 0xffffffff) << 128)
             | ((h1 & 0xffffffff) << 96)
             | ((h2 & 0xffffffff) << 64)
             | ((h3 & 0xffffffff) << 32)
             | (h4 & 0xffffffff) )
+
 
 def leftrotate(x, n):
     assert x <= 0xffffffff
@@ -206,7 +208,6 @@ def leftrotate(x, n):
     return y
 
 def secret_prefix_mac(message, key):
-    assert len(key) == 16
     string = hex(sha1(key + message))
     if string[-1] =="L":
         return string[2:-1]
