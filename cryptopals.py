@@ -179,20 +179,17 @@ def sha_fixated(message, h0, h1, h2, h3, h4):
             elif 60 <= i <= 79:
                 f = b ^ c ^ d
                 k = 0xCA62C1D6
-            try:
-                temp = leftrotate(a,5) + f + e + k + w[i]
-            except AssertionError:
-                print("err", i, a)
+            temp = leftrotate(a,5) + f + e + k + w[i]
             e = d & 0xffffffff
             d = c & 0xffffffff
             c = leftrotate(b,30) & 0xffffffff
             b = a & 0xffffffff
             a = temp & 0xffffffff
-        h0 = h0 + a
-        h1 = h1 + b
-        h2 = h2 + c
-        h3 = h3 + d
-        h4 = h4 + e
+        h0 = (h0 + a) & 0xffffffff
+        h1 = (h1 + b) & 0xffffffff
+        h2 = (h2 + c) & 0xffffffff
+        h3 = (h3 + d) & 0xffffffff
+        h4 = (h4 + e) & 0xffffffff
     return (  ((h0 & 0xffffffff) << 128)
             | ((h1 & 0xffffffff) << 96)
             | ((h2 & 0xffffffff) << 64)
@@ -211,7 +208,6 @@ def leftrotate(x, n):
     return y
 
 def secret_prefix_mac(message, key):
-    assert len(key) == 16
     string = hex(sha1(key + message))
     if string[-1] =="L":
         return string[2:-1]
