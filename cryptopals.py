@@ -204,6 +204,14 @@ def leftrotate(x, n):
         hibit = y & 0x80000000
         y = ((y << 1) + (hibit >> 31)) & 0xffffffff
     return y
+
+def secret_prefix_mac(message, key):
+    assert len(key) == 16
+    string = hex(sha1(key + message))
+    if string[-1] =="L":
+        return string[2:-1]
+    else:
+        return string[2:]
     
 #### tests ####
 
