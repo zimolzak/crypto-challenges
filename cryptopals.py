@@ -119,18 +119,11 @@ def transpose(text, n):
                 assert i == m-1 # only on last row of A
     return B
 
-#### Challenge 28 (SHA-1)
+#### Challenge 28, 29 (SHA-1)
 
-def sha1(message):
+def sha_padding(message):
     assert type(message) == type(str())
-    h0 = 0x67452301
-    h1 = 0xEFCDAB89
-    h2 = 0x98BADCFE
-    h3 = 0x10325476
-    h4 = 0xC3D2E1F0
     ml = 8 * len(message) # ML is in bits
-
-    #### Pre-process
     n_bytes_to_add = (448 - (ml % 512)) / 8
     padding_string = ""
     for i in range(n_bytes_to_add):
@@ -143,6 +136,17 @@ def sha1(message):
         # Big endian means R shift by 56, 48, ... , 8, 0.
         padding_string += chr(byte_val)
     message += padding_string
+    assert len(message) % (512/8) == 0
+    return padding_string
+
+def sha1(message):
+    return sha_fixated(message, 0x67452301, 
+                       0xEFCDAB89, 0x98BADCFE,
+                       0x10325476, 0xC3D2E1F0)
+
+def sha_fixated(message, h0, h1, h2, h3, h4):
+    assert type(message) == type(str())
+    message += sha_padding(message)
     assert len(message) % (512/8) == 0
 
     #### Process
@@ -194,6 +198,7 @@ def sha1(message):
             | ((h2 & 0xffffffff) << 64)
             | ((h3 & 0xffffffff) << 32)
             | (h4 & 0xffffffff) )
+
 
 def leftrotate(x, n):
     assert x <= 0xffffffff
