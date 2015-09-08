@@ -121,7 +121,10 @@ def transpose(text, n):
 
 #### Challenge 28, 29 (SHA-1)
 
-def sha_padding(message):
+def sha_padding(message, extra_len):
+    """Extra_Len is in bytes. ONLY for the purposes of adding to the
+    64-bit big-endian integer at the end of the padding.
+    """
     assert type(message) == type(str())
     ml = 8 * len(message) # ML is in bits
     n_bytes_to_add = (448 - (ml % 512)) / 8
@@ -133,31 +136,34 @@ def sha_padding(message):
             padding_string += '\x00'
         else:
             padding_string += '\x80'
+    newml = 8 * (len(message) + extra_len) # NEWML is in bits
     for i in range(8):
-        byte_val = ml >> (64 - 8 * (i + 1)) & 0xff
+        byte_val = newml >> (64 - 8 * (i + 1)) & 0xff
         # Big endian means R shift by 56, 48, ... , 8, 0.
         padding_string += chr(byte_val)
-    message += padding_string
+    message += padding_string # only for testing, not for return.
     assert len(message) % (512/8) == 0
     return padding_string
 
 def sha1(message):
     return sha_fixated(message, 0x67452301, 
                        0xEFCDAB89, 0x98BADCFE,
-                       0x10325476, 0xC3D2E1F0)
+                       0x10325476, 0xC3D2E1F0,
+                       0)
 
-def sha_fixated(message, h0, h1, h2, h3, h4):
+def sha_fixated(message, h0, h1, h2, h3, h4, extra_len):
     assert type(message) == type(str())
-    message += sha_padding(message)
+    message += sha_padding(message, extra_len)
     assert len(message) % (512/8) == 0
 
     #### Process
-    nchunks = int(math.ceil(len(message)/64.0)) # 64 by = 512 bi
+    nchunks = int(math.ceil(len(message)/64.0)) # 64 byte = 512 bit
     chunks = [message[i*64 : (i+1)*64] for i in range(nchunks)]
     for ch in chunks:
-        nwords = int(math.ceil(len(ch)/4.0)) # 4 by = 32 bi
+        nwords = int(math.ceil(len(ch)/4.0)) # 4 byte = 32 bit
         words = [ch[i*4 : (i+1)*4] for i in range(nwords)]
         w = map(str2int, words)
+        # print (w) #deleteme
         for i in range(16, 80):
             w.append(leftrotate(w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16] , 1))
         a = h0

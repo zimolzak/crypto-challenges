@@ -9,6 +9,7 @@
 from cryptopals import (warn, secret_prefix_mac, sha1, sha_padding,
                         unknown_key as k_true)
 from sha_analysis import restart_sha
+import math
 
 def i2h(n):
     string = hex(n)
@@ -27,17 +28,25 @@ print
 #### Mallory starts here
 
 adm = ";admin=true"
-nm = m + sha_padding(("A" * 16) +  m) + adm
-nac = i2h(restart_sha(auth_code, adm))
+keylen = 16 #just a guess
+KOG_len = int(math.ceil((keylen + len(m)) / 64.0)) * 64
+  # Len of key+original+glue
+print "kog len", KOG_len
+glue = sha_padding(("A" * keylen) +  m, 0)
+nm = m + glue + adm
+#extra_len = len(m + glue)
+nac = restart_sha(auth_code, adm, KOG_len)
 print "New Message", [nm]
-print "Guess auth code for NM:", nac
-print "Story checks out?      ", nac == sha1(k_true + nm)
+print "Guess auth code for NM:", i2h(nac)
+i_am_a_winner = (nac == sha1(k_true + nm))
+print "Story checks out?      ", i_am_a_winner
 print
 
-print "Cheat                  ", [sha_padding(k_true + m)]
+print "Cheat                  ", [sha_padding(k_true + m, 0)]
 print "Cheat                  ", i2h(sha1(k_true + nm))
-nmcheat = m + sha_padding(k_true + m) + adm
+nmcheat = m + sha_padding(k_true + m, 0) + adm
 print "Are we guessing glue padding right?", nmcheat == nm
 
 #### tests, if any ####
+assert i_am_a_winner
 warn("Passed assertions:", __file__)
