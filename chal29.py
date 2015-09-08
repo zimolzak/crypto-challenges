@@ -9,11 +9,14 @@
 from cryptopals import (warn, secret_prefix_mac, sha1, sha_padding,
                         unknown_key as k_true)
 
-m_true = 'Vanilla'
-authentic = secret_prefix_mac(m_true, k_true)
+m = "comment1=cooking%20MCs;userdata=foo;comment2=%20like%20a%20pound%20of%20bacon"
+
+authentic = secret_prefix_mac(m, k_true)
 print "Message\t\t\t", authentic
-print [sha_padding(m_true)]
-print "s1", sha1("Hello, world")
+print "Padding:"
+print [sha_padding(m)]
+print "Unkeyed", hex(sha1(m))
+print "Unkeyed  ", secret_prefix_mac(m, "")
 
 
 #### tests, if any ####
