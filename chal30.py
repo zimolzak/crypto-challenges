@@ -7,7 +7,7 @@
 #     the file 'LICENSE' in the same directory as this file.
 
 from cryptopals import (warn, i2h, unknown_key as key)
-from py_md4.md4 import md4
+from py_md4.md4 import md4, md4_padding
 import math
 
 message = "comment1=cooking%20MCs;userdata=foo;comment2=%20like%20a%20pound%20of%20bacon"
@@ -17,23 +17,26 @@ print "Auth code for Message:           ", auth_code_str
 print "Story checks out?                ", auth_code_str == md4(key + message)
 print
 
-quit()
-
 # wish list: md4_padding, restart_md4
 
 #### Mallory starts here
 
 # Construct a new message.
 keylen_guess = 16 # Need perfect guess to get perfect glue.
-glue_guess = sha_padding(("A" * keylen_guess) +  message, 0)
+fake_byte_array = [ord(c) for c in ("A" * keylen_guess) + message]
+glue_guess_array = md4_padding(fake_byte_array, 0)
+glue_guess = ""
+for n in glue_guess_array:
+    glue_guess += chr(n)
 adm = ";admin=true"
 new_message = message + glue_guess + adm
-print "New message                       ", new_message
+print "New message                      ", new_message
 
 # Construct the MAC for that message.
 KOG_len_guess = int(math.ceil((keylen_guess + len(message)) / 64.0)) * 64
   # Len of key+original+glue
-print "Key + original + glue length =    ", KOG_len_guess
+print "Key + original + glue length =   ", KOG_len_guess
+quit() # deleteme
 new_auth_code = restart_sha(auth_code, adm, KOG_len_guess)
 print "Guessed auth code for new message ", i2h(new_auth_code)
 
