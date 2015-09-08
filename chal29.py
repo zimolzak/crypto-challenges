@@ -6,17 +6,9 @@
 #     and licensed under GNU GPL version 3. Full notice is found in
 #     the file 'LICENSE' in the same directory as this file.
 
-from cryptopals import (warn, secret_prefix_mac, sha1, sha_padding,
-                        unknown_key as key)
+from cryptopals import (warn, sha1, sha_padding, i2h, unknown_key as key)
 from sha_analysis import restart_sha
 import math
-
-def i2h(n):
-    string = hex(n)
-    if string[-1] =="L":
-        return string[2:-1]
-    else:
-        return string[2:]
 
 message = "comment1=cooking%20MCs;userdata=foo;comment2=%20like%20a%20pound%20of%20bacon"
 auth_code = sha1(key + message)

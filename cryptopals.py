@@ -220,6 +220,13 @@ def secret_prefix_mac(message, key):
         return string[2:-1]
     else:
         return string[2:]
+
+def i2h(n):
+    string = hex(n)
+    if string[-1] =="L":
+        return string[2:-1]
+    else:
+        return string[2:]
     
 #### tests ####
 
