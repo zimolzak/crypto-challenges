@@ -125,6 +125,8 @@ def sha_padding(message):
     assert type(message) == type(str())
     ml = 8 * len(message) # ML is in bits
     n_bytes_to_add = (448 - (ml % 512)) / 8
+    if n_bytes_to_add < 0:
+        n_bytes_to_add += 64
     padding_string = ""
     for i in range(n_bytes_to_add):
         if i > 0:
