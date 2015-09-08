@@ -42,13 +42,13 @@ print
 KOG_len_guess = int(math.ceil((keylen_guess + len(message)) / 64.0)) * 64
   # Len of key+original+glue
 print "Key + original + glue length =   ", KOG_len_guess
-auth_code = int(auth_code_str, 16)
-new_auth_code = restart_md4(auth_code, adm, KOG_len_guess, debug=True)
-print "Guessed auth code for new message", new_auth_code
+auth_code = int(auth_code_str, 16) # deleteme eventually
+new_auth_code_str = restart_md4(auth_code_str, adm, KOG_len_guess, debug=True)
+print "Guessed auth code for new message", new_auth_code_str
 print "cheat                            ", md4(key + new_message, debug=True) #deleteme
 
 # Check the constructed MAC.
-i_am_a_winner = (new_auth_code == md4(key + new_message))
+i_am_a_winner = (new_auth_code_str == md4(key + new_message))
 print "Story checks out?                ", i_am_a_winner
 print
 print "New Message (with unprintables)", [new_message]
