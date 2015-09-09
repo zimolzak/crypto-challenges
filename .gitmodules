@@ -1,0 +1,3 @@
+[submodule "py_md4"]
+	path = py_md4
+	url = https://github.com/zimolzak/py-md4.git
