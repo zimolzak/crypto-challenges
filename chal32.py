@@ -14,13 +14,19 @@ base_url = 'http://0.0.0.0:8080/test?file=xfiles&signature='
 T = 4.7 # Milliseconds that constitute significant delay.
 replicates = 10
 
+#ac = "98777ae85b1044e762d0057ee53e2d20d2c65cc"
+ac = "98777"
 for i in range(replicates):
     answer = None
     try:
-        answer = find_mac_url_by_timing(base_url, T, debug=False, all_chars="98")
+        answer = find_mac_url_by_timing(base_url, T, debug=False, all_chars=ac)
         break
     except NoIncrement as partial_url:
         print partial_url, "    ??"
+        candidate_str = str(partial_url).replace(base_url, '')
+        candidate_str = candidate_str[:-2] # Conservative. Neg 1 prob OK.
+        if len(candidate_str) > len(ac):
+            ac = candidate_str
 
 if answer:
     print
