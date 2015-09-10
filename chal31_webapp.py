@@ -30,7 +30,7 @@ def insecure_compare(a,b):
         i += 1
         try:
             still_equal = (a[i] == b[i])
-            time.sleep(0.020)  #### A VERY IMPORTANT NUMBER!
+            time.sleep(0.005)  #### A VERY IMPORTANT NUMBER!
         except IndexError:
             if len(a) == len(b):
                 return True
