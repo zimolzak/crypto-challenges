@@ -35,7 +35,13 @@ class SuccessfulBreak(Exception):
     def __str__(self):
         return self.value
 
-def next_char(urlstub, known_chars, tail, threshold):
+class NoIncrement(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return self.value
+
+def next_char(urlstub, known_chars, tail, threshold, debug=False):
     """Given a base URL and 0 or more known characters of a value in the
     URL, return probable next character of that value.
 
@@ -57,61 +63,69 @@ def next_char(urlstub, known_chars, tail, threshold):
         t1 = time_url(attempt)
         if t0 == None:
             # We have no comparison so postpone.
-            print t1, "....", attempt, "(p)"
+            if debug: print t1, "....", attempt, "(p)"
             t0 = t1
         elif t1 - t0 > threshold:
             # Found.
-            print t1, (t1 - t0), attempt, "*", hc
+            if debug: print t1, (t1 - t0), attempt, "*", hc
             return hc
         elif t0 - t1 > threshold:
             # Found after postponement (note reversed subtraction).
-            print t1, (t1 - t0), attempt, "^"
+            if debug: print t1, (t1 - t0), attempt, "^"
             return hex(int(hc, 16) - 1)[2] 
         else:
             # Not found.
-            print t1, (t1 - t0), attempt
+            if debug: print t1, (t1 - t0), attempt
             t0 = t1
 
-def next_char_or_success(urlstub, known_chars, threshold):
+def next_char_or_success(urlstub, known_chars, threshold, debug=False):
     """Given a base URL and known characters, return probable next
     character, and if none is found, try to guess complete correct
     URL. If indeed it guesses the correct URL, it presumably returns
     nothing and an exception gets passed upwards.
     """
-    nc = next_char(urlstub, known_chars, 'z', threshold)
+    nc = next_char(urlstub, known_chars, 'z', threshold, debug)
     if nc:
         return nc
     else:
         pass
     # Assume that the next statement (without "tail" padding) will
     # find the correct URL and thus throw an exception.
+    if debug:
+        print "    ** Last time! **"
     nc = next_char(urlstub, known_chars, '', threshold)
-    assert 0 # Failed to find char that significantly increments server delay.
+    raise NoIncrement(urlstub + known_chars)
 
-def find_mac_url_by_timing(base_url, T):
+def find_mac_url_by_timing(base_url, T, debug=False):
     all_chars = ""
     while(1):
-        assert len(all_chars) < 130 # I doubt your sig is this long
+        assert len(all_chars) < 130 # Sig long! Increase T.
         try:
-            all_chars += next_char_or_success(base_url, all_chars, T)
+            all_chars += next_char_or_success(base_url, all_chars, T, debug)
         except SuccessfulBreak as url_result:
             return str(url_result)
 
 #### Main loop
     
-base_url = 'http://0.0.0.0:8080/test?file=terminator&signature='
-T = 20 # Milliseconds that constitute significant delay.
-answer = find_mac_url_by_timing(base_url, T)
+base_url = 'http://0.0.0.0:8080/test?file=confidential&signature='
+T = 6 # Milliseconds that constitute significant delay.
 
-print
-print "Hooray!", answer
-print "Page contents:"
-response_obj = urllib2.urlopen(answer)
+answer = None
 n_wins = 0
-for line in response_obj.read().splitlines():
-    n_wins += 'winner' in line
-    print "    " + line
+try:
+    answer = find_mac_url_by_timing(base_url, T, debug=True)
+except NoIncrement as partial_url:
+    print "oh well", partial_url
 
-#### tests, if any ####
+if answer:
+    print
+    print "Hooray!", answer
+    print "Page contents:"
+    response_obj = urllib2.urlopen(answer)
+    n_wins = 0
+    for line in response_obj.read().splitlines():
+        n_wins += 'winner' in line
+        print "    " + line
+
 assert n_wins > 0
 warn("Passed assertions:", __file__)
