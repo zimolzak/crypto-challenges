@@ -15,27 +15,49 @@ import web
 import hmac
 from hashlib import sha1
 from cryptopals import unknown_key
+import time
         
 urls = (
     '/(.*)', 'hello'
 )
 app = web.application(urls, globals())
 
+def insecure_compare(a,b):
+    assert type(a) == type(str()) or type(a) == type(unicode())
+    assert type(b) == type(str()) or type(b) == type(unicode())
+    i = -1
+    while(1):
+        i += 1
+        try:
+            still_equal = (a[i] == b[i])
+            time.sleep(0.050)
+        except IndexError:
+            if len(a) == len(b):
+                return True
+            else:
+                return False
+        if not still_equal:
+            return False
+
 class hello:        
     def GET(self, name):
         if not name: 
             name = 'World'
         params = web.input()
-        self.hasher = hmac.new(unknown_key, params.file, sha1)
-        secret_hash = self.hasher.hexdigest()
-        if params.signature == secret_hash:
-            return('You are winner, ' + name + '!\n' + params.file
-                   + '\n' + params.signature)
-        else:
-            return('GIT STUFFED!1!' '!\nYou want ' + params.file
-                   + ', but your ' + params.signature + ' sux!\nHint: try '
-                   + secret_hash)
+        if 'file' in params.keys() and 'signature' in params.keys():
+            self.hasher = hmac.new(unknown_key, params.file, sha1)
+            secret_hash = str(self.hasher.hexdigest())
+            if insecure_compare(params.signature, secret_hash):
+                return('You are winner, ' + name + '!\n' + params.file
+                       + '\n' + params.signature)
+            else:
+                #app.internalerror()
+                return('GIT STUFFED!1!' '!\nYou want ' + params.file
+                       + ', but your ' + params.signature + ' sux!\nHint: try '
+                       + secret_hash)
             #FIXME - Obviously eventually it shouldn't cheat for you.:)
+        else:
+            return 'Hello, ' + name + '!'
 
 if __name__ == "__main__":
     app.run()
