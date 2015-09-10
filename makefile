@@ -1,9 +1,10 @@
 test : 4.txt 6.txt quicktest 20.txt
-	./chal4.pl 4.txt > /dev/null
-	./chal6.pl 6.txt
-	./chal20.py  # takes 15-20 sec
-	./chal22.py  # takes random amount of time, 15 - 30 sec
-	./chal24.py  # 15 sec
+	./chal4.pl 4.txt > /dev/null  # 30 - 40 sec
+	./chal6.pl 6.txt              # 40 sec
+	./chal20.py                   # 15-20 sec
+	./chal22.py                   # random, 15 - 30 sec
+	./chal24.py                   # 15 sec
+	./chal31_test.sh              # 7-8 min
 
 quicktest : 7.txt 8.txt 10.txt rand_bytes.txt unknown_key.txt 17.txt 19.txt 25.txt
 	./chal1.pl
