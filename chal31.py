@@ -11,31 +11,42 @@ import urllib2
 import time
 from cryptopals import warn
 
-stubs = ['bad&signature=605414df80961f70aff091df8e38d4cac526df98',
-         'bad&signature=605414df80961f70aff091df8e38d4cac526df99',
-         'bad&signature=derp',
-         'bad&signature=derp',
-         'bad&signature=derp',
-         'bad&signature=605414df80961f70aff091df8e38d4cac526df98',
-         'bad&signature=605414df80961f70aff091df8e38d4cac526df99',
-         'bad&signature=605414df80961f70aff091df8e38d4cac526df9z',
-         'bad&signature=605414df80961f70aff091df8e38d4cac526dfzz',
-         'bad&signature=605414df80961f70aff091df8e38d4cac526dzzz',
-         'bad&signature=605414df80961f70aff091df8e38d4cac526zzzz',
-         'bad&signature=605414df80961f70aff091df8e38d4cac52zzzzz',
+stubs = ['bad&signature=605414df80961f70aff091df8e38d4cac526df99',
+         'bad&signature=',
+         'bad&signature=6',
+         'bad&signature=b',
+         'bad&signature=a0',
+         'bad&signature=60',
+         'bad&signature=b0',
 ]
 
-for s in stubs:
+def time_stub(s):
     url = 'http://0.0.0.0:8080/test?file=' + s
     start = time.time()
     try:
         response_obj = urllib2.urlopen(url)
     except urllib2.HTTPError as err:
         n = time.time()
-        print "Error after", round(1000 * (n - start), 1), "ms"
+        return round(1000 * (n - start), 1)
     else:
-        n = time.time()
-        print "Success after", round(1000 * (n - start), 1), "ms"
+        return s
+
+for x in stubs:
+    print time_stub(x)
+
+hexchars = ['0', '1', '2', '3', '4', '5', '6', '7',
+            '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
+
+ltime = 9999
+for hc in hexchars:
+    stub = 'bad&signature=' + hc + '0'
+    ntime = time_stub(stub)
+    if ntime - ltime > 20:
+        print ntime, stub
+        break
+    else:
+        print ntime, stub
+        ltime = ntime
 
 #### tests, if any ####
 warn("Passed assertions:", __file__)
