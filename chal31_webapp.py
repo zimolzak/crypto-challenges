@@ -40,15 +40,20 @@ def insecure_compare(a,b):
             return False
 
 def internalerror():
-    return web.internalerror("Bad, bad server. No donut for you.")
+    params = web.input()
+    filename = str(params.file)
+    sig = str(params.signature)
+    hasher = hmac.new(unknown_key, params.file, sha1)
+    hint = str(hasher.hexdigest())
+    return web.internalerror('<pre>GIT STUFFED!1!!\nYou want ' + filename
+                             + ', but your ' + sig + ' sux!\nHint: try '
+                             + hint + '</pre>')
+    #FIXME - Obviously eventually it shouldn't cheat for you.:)
 
 app.internalerror = internalerror
 
 class hello:        
     def GET(self, name):
-        print app #deleteme
-        #app.internalerror() #deleteme
-        raise web.internalerror()
         if not name: 
             name = 'World'
         params = web.input()
@@ -56,14 +61,11 @@ class hello:
             self.hasher = hmac.new(unknown_key, params.file, sha1)
             secret_hash = str(self.hasher.hexdigest())
             if insecure_compare(params.signature, secret_hash):
-                return('You are winner, ' + name + '!\n' + params.file
-                       + '\n' + params.signature)
+                return('You are winner, ' + name
+                       + '!\nYou get the file called: ' + params.file
+                       + '\nBecause of your excellent ' + params.signature)
             else:
-                #app.internalerror()
-                return('GIT STUFFED!1!' '!\nYou want ' + params.file
-                       + ', but your ' + params.signature + ' sux!\nHint: try '
-                       + secret_hash)
-            #FIXME - Obviously eventually it shouldn't cheat for you.:)
+                raise web.internalerror()
         else:
             return 'Hello, ' + name + '!'
 
