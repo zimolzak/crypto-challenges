@@ -22,6 +22,7 @@ def time_url(url):
     start = time.time()
     try:
         dummy_response = urllib2.urlopen(url)
+        # Note I am not using the "cheating" text - just throwing away.
     except urllib2.HTTPError:
         n = time.time()
         return round(1000 * (n - start), 1)
@@ -74,7 +75,8 @@ def next_char(urlstub, known_chars, tail, threshold):
 def next_char_or_success(urlstub, known_chars, threshold):
     """Given a base URL and known characters, return probable next
     character, and if none is found, try to guess complete correct
-    URL.
+    URL. If indeed it guesses the correct URL, it presumably returns
+    nothing and an exception gets passed upwards.
     """
     nc = next_char(urlstub, known_chars, 'z', threshold)
     if nc:
@@ -84,11 +86,12 @@ def next_char_or_success(urlstub, known_chars, threshold):
     # Assume that the next statement (without "tail" padding) will
     # find the correct URL and thus throw an exception.
     nc = next_char(urlstub, known_chars, '', threshold)
-    assert 0
+    assert 0 # Failed to find char that significantly increments server delay.
 
 def find_mac_url_by_timing(base_url, T):
     all_chars = ""
     while(1):
+        assert len(all_chars) < 130 # I doubt your sig is this long
         try:
             all_chars += next_char_or_success(base_url, all_chars, T)
         except SuccessfulBreak as url_result:

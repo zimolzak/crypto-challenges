@@ -48,7 +48,6 @@ def internalerror():
     return web.internalerror('<pre>GIT STUFFED!1!!\nYou want ' + filename
                              + ', but your ' + sig + ' sux!\nHint: try '
                              + hint + '</pre>')
-    #FIXME - Obviously eventually it shouldn't cheat for you.:)
 
 app.internalerror = internalerror
 
