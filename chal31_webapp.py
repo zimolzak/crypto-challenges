@@ -39,8 +39,16 @@ def insecure_compare(a,b):
         if not still_equal:
             return False
 
+def internalerror():
+    return web.internalerror("Bad, bad server. No donut for you.")
+
+app.internalerror = internalerror
+
 class hello:        
     def GET(self, name):
+        print app #deleteme
+        #app.internalerror() #deleteme
+        raise web.internalerror()
         if not name: 
             name = 'World'
         params = web.input()
