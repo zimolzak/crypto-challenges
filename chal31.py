@@ -11,13 +11,14 @@ import urllib2
 import time
 from cryptopals import warn
 
-stubs = ['bad&signature=605414df80961f70aff091df8e38d4cac526df99',
-         'bad&signature=',
+# 'bad&signature=605414df80961f70aff091df8e38d4cac526df99',
+
+stubs = ['bad&signature=',
          'bad&signature=6',
          'bad&signature=b',
          'bad&signature=a0',
          'bad&signature=60',
-         'bad&signature=b0',
+         'bad&signature=b0'
 ]
 
 def time_stub(s):
@@ -41,16 +42,34 @@ class SuccessfulBreak(Exception):
     def __init__(self, value):
         self.value = value
     def __str__(self):
-        return "Successful break: " + repr(self.value)
+        return self.value
 
-def next_char(found_chars):
+def next_char(urlstub, found_chars):
     ltime = None
     for hc in hexchars:
         if found_chars == "":
             stub = 'bad&signature=' + found_chars + hc + 'z'
         else:
             stub = 'bad&signature=' + found_chars + hc + 'z'
-            #stub = 'bad&signature=' + found_chars + hc
+        ntime = time_stub(stub)
+        if type(ntime) == type(str()):
+            raise SuccessfulBreak(ntime)
+        elif ltime == None:
+            print ntime, stub, "(p)"
+            ltime = ntime
+        elif ntime - ltime > 20:
+            print ntime, stub, "*", hc
+            return hc
+        elif ntime - ltime < -20:
+            print ntime, stub, "^"
+            return hex(int(hc, 16)-1)[2]
+        else:
+            print ntime, (ntime-ltime), stub
+            ltime = ntime
+    # only reaches here if all look equal. Try without 'z'
+    ltime = None
+    for hc in hexchars:
+        stub = 'bad&signature=' + found_chars + hc
         ntime = time_stub(stub)
         if type(ntime) == type(str()):
             raise SuccessfulBreak(ntime)
@@ -68,8 +87,24 @@ def next_char(found_chars):
             ltime = ntime
 
 all_chars = ""
+final = ""
 while(1):
-    all_chars += next_char(all_chars)
+    try:
+        all_chars += next_char('http://0.0.0.0:8080/test?file=bad&signature=',
+                               all_chars)
+    except SuccessfulBreak as b:
+        print "Hooray!", b
+        final = str(b)
+        break
+
+url = 'http://0.0.0.0:8080/test?file=' + final
+print url
+response_obj = urllib2.urlopen(url)
+winner = 0
+for line in response_obj.read().splitlines():
+    winner += 'winner' in line
+    print "    " + line
 
 #### tests, if any ####
+assert winner
 warn("Passed assertions:", __file__)
