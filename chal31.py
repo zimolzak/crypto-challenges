@@ -37,16 +37,39 @@ for x in stubs:
 hexchars = ['0', '1', '2', '3', '4', '5', '6', '7',
             '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
 
-ltime = 9999
-for hc in hexchars:
-    stub = 'bad&signature=' + hc + '0'
-    ntime = time_stub(stub)
-    if ntime - ltime > 20:
-        print ntime, stub
-        break
-    else:
-        print ntime, stub
-        ltime = ntime
+class SuccessfulBreak(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return "Successful break: " + repr(self.value)
+
+def next_char(found_chars):
+    ltime = None
+    for hc in hexchars:
+        if found_chars == "":
+            stub = 'bad&signature=' + found_chars + hc + 'z'
+        else:
+            stub = 'bad&signature=' + found_chars + hc + 'z'
+            #stub = 'bad&signature=' + found_chars + hc
+        ntime = time_stub(stub)
+        if type(ntime) == type(str()):
+            raise SuccessfulBreak(ntime)
+        elif ltime == None:
+            print ntime, stub, "(p)"
+            ltime = ntime
+        elif ntime - ltime > 20:
+            print ntime, stub, "*", hc
+            return hc
+        elif ntime - ltime < -20:
+            print ntime, stub, "^"
+            return hex(int(hc, 16)-1)[2]
+        else:
+            print ntime, (ntime-ltime), stub
+            ltime = ntime
+
+all_chars = ""
+while(1):
+    all_chars += next_char(all_chars)
 
 #### tests, if any ####
 warn("Passed assertions:", __file__)
