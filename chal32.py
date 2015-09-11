@@ -10,12 +10,16 @@
 from timing_leak import find_mac_url_by_timing, NoIncrement
 import urllib2
 
-base_url = 'http://0.0.0.0:8080/test?file=xfiles&signature='
+base_url = 'http://0.0.0.0:8080/test?file=hidden&signature='
 T = 3.7 # Milliseconds that constitute significant delay.
 replicates = 20
 
-#ac = "98777ae85b1044e762d0057ee53e2d20d2c65cc"
-ac = "98777"
+ac = ""
+
+# typed in by hand from prior run
+ac = "fe91b373"
+# actual answer fe91b373264cd8db30f3cf66e486bd8ed44a09ef
+
 for i in range(replicates):
     answer = None
     try:
@@ -23,7 +27,7 @@ for i in range(replicates):
         break
     except NoIncrement as partial_url:
         candidate_str = str(partial_url).replace(base_url, '')
-        candidate_str = candidate_str[:-2] # Conservative. Neg 1 prob OK.
+        candidate_str = candidate_str[:-2] # Critical num: how far to back up
         if len(candidate_str) > len(ac):
             ac = candidate_str
             print partial_url, "    ?!"
