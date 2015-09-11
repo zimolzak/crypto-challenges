@@ -52,11 +52,11 @@ was cut and pasted from http://cryptopals.com/sets/3/challenges/17 . I
 decided to commit *most* of the input files to this repo, with the
 exception of `8.txt` because it's big.
 
-4 and 6 each take about 40 sec to run on my MacBook Pro (OS X, 2.7 GHz
-Intel Core i7), and a little longer on my iMac7,1 running Ubuntu.
-Number 20 takes about 20 seconds.
+Times noted in makefile are from MacBook Pro (8,1 early 2001, OS X,
+2.7 GHz Intel Core i7), or iMac7,1 (Intel Core 2 Duo, 2.0-2.4 GHz
+circa 2007) running Ubuntu.
 
-Important conclusions
+Conclusions / insights
 --------
 
 * When analyzing repeating-key XOR, be more accurate about picking the
@@ -81,3 +81,30 @@ Important conclusions
   last-block guesses. Instead skip to \x02; it's very unlikely
   (1/65,536) to see a real block ending in \x02\x02 even in line-noise
   type plaintext. Less likely still in a natural language.
+
+* Chosen plaintext attacks are everywhere.
+
+* Don't seed a RNG off of the current UNIX time in seconds.
+
+* Don't use the key as the IV; IV is trivially recoverable.
+
+* So what are CBC and CTR good for?
+
+* Wow, web.py makes it *really* easy to roll a tiny app, even for
+  someone who has never done any web programming.
+
+* 8 milliseconds per character in a string-compare is breakable. 7 ms
+  is breakable with manual help. Specifically, set T to 6 and fill in
+  some text from some replicates. This all feels a *lot* like DNA
+  sequencing. 6 ms similarly; set T to 5 ms, fill in my hand. I can
+  break 4ms by an automoated try-try-again and tracking the longest
+  guess on record. 3.7 ms is a good threshold for that. Probably will
+  require some sort of voting, graphics, and/or statistics to get
+  lower than that. Signal to noise is going to decrease toward the end
+  of the string. Averaging seems to allow me to bring down T and the
+  back-up parameter. Also this results in thousands and thousands of
+  server requests: something like 100 per character of the hash. It is
+  somewhat cheating to know in advance what is the server's delay. I
+  can break 3.5 ms with no help, with T=3.0, backup=1, and N=10
+  replicates of each timing measurement! Probably helps to have the
+  server as quiet as possible in terms of CPU.
