@@ -100,4 +100,11 @@ Conclusions / insights
   break 4ms by an automoated try-try-again and tracking the longest
   guess on record. 3.7 ms is a good threshold for that. Probably will
   require some sort of voting, graphics, and/or statistics to get
-  lower than that.
+  lower than that. Signal to noise is going to decrease toward the end
+  of the string. Averaging seems to allow me to bring down T and the
+  back-up parameter. Also this results in thousands and thousands of
+  server requests: something like 100 per character of the hash. It is
+  somewhat cheating to know in advance what is the server's delay. I
+  can break 3.5 ms with no help, with T=3.0, backup=1, and N=10
+  replicates of each timing measurement! Probably helps to have the
+  server as quiet as possible in terms of CPU.

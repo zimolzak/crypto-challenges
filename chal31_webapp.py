@@ -22,6 +22,8 @@ urls = (
 )
 app = web.application(urls, globals())
 
+delay = 0.0035   #### A VERY IMPORTANT NUMBER!
+
 def insecure_compare(a,b):
     assert type(a) == type(str()) or type(a) == type(unicode())
     assert type(b) == type(str()) or type(b) == type(unicode())
@@ -30,7 +32,7 @@ def insecure_compare(a,b):
         i += 1
         try:
             still_equal = (a[i] == b[i])
-            time.sleep(0.004)  #### A VERY IMPORTANT NUMBER!
+            time.sleep(delay)
         except IndexError:
             if len(a) == len(b):
                 return True
@@ -69,4 +71,5 @@ class hello:
             return 'Hello, ' + name + '!'
 
 if __name__ == "__main__":
+    print "Delay is", delay*1000, "ms."
     app.run()
