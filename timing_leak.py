@@ -62,7 +62,7 @@ def next_char(urlstub, known_chars, tail, threshold, debug=False):
             # Found.
             if debug: print t1, (t1 - t0), attempt, "*", hc
             return hc
-        elif t0 - t1 > threshold:
+        elif t0 - t1 > threshold and hc == '1':
             # Found after postponement (note reversed subtraction).
             if debug: print t1, (t1 - t0), attempt, "^"
             return hex(int(hc, 16) - 1)[2] 
