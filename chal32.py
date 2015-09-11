@@ -8,10 +8,10 @@
 #     the file 'LICENSE' in the same directory as this file.
 
 from timing_leak import find_mac_url_by_timing, NoIncrement
+from cryptopals import warn
 import urllib2
 
 base_url = 'http://0.0.0.0:8080/test?file=topsecret&signature='
-# 5d692a0ec84dc4638f03c16d0dcfa0031688403a
 
 T = 3.0 # Milliseconds that constitute significant delay.
 
@@ -33,6 +33,7 @@ N_time_meas = 10
 #         T=3.0, max_failures=20, backtrack=1, and N=10 will beat 3.5ms delay.
 
 ac = ""
+#ac = "5d692a0ec84dc4638f03c16d0dcfa0031688403"
 # If the algorithm gives up early (after max_failures loops), you can
 # manually set this to your guess for the beginning of the target
 # string. Note that if it dies early, it might mean it was guessing
@@ -57,5 +58,11 @@ if answer:
     print "Hooray!", answer
     print "Page contents:"
     response_obj = urllib2.urlopen(answer)
+    n_wins = 0
     for line in response_obj.read().splitlines():
+        n_wins += 'winner' in line
         print "    " + line
+
+#### tests
+assert n_wins > 0
+warn("Passed assertions:", __file__)
