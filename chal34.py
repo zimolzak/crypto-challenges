@@ -26,10 +26,12 @@ def int2str(x):
     return output
 
 class Persona:
-    def __init__(self, modulus=p0, base=g0, evil=False):
+    def __init__(self, sucker=None, modulus=p0, base=g0, evil=False):
         self.p = modulus
         self.g = base
         self.new_keypair()
+        self.sucker = sucker # only relevant for evil MITM
+        self.evil = evil
     def new_keypair(self):
         keypair = get_pubkey_exp(self.p, self.g)
         self.public = keypair[0]
@@ -44,11 +46,17 @@ class Persona:
     def take_my_key(self, p, g, A):
         self.p = p # should overwrite the init.
         self.g = g
-        self.new_keypair()
         self.foreign_public = A
+        self.new_keypair()
         self.calc_session_key()
+        if self.evil:
+            self.sucker.take_my_key(p, g, p)
     def send_your_key(self):
-        return self.public
+        if not self.evil:
+            return self.public
+        else:
+            self.sucker_public = self.sucker.send_your_key()
+            return self.p
     #### methods for messaging
     def talk_to(self, robot):
         message = "Only you can make all this world seem right.    " #len48
@@ -62,20 +70,33 @@ class Persona:
         decrypt = decryptor.decrypt(received) # maybe
         print decrypt
     def take_message(self, ct, iv):
-        aeskey = sha1(self.s).digest()[0:16] # maybe
-        decryptor = AES.new(aeskey, AES.MODE_CBC, iv)
-        self.robo_decrypt = decryptor.decrypt(ct)
+        if not self.evil:
+            aeskey = sha1(self.s).digest()[0:16] # maybe
+            decryptor = AES.new(aeskey, AES.MODE_CBC, iv)
+            self.robo_decrypt = decryptor.decrypt(ct)
+        else:
+            print "SNOOP", ct
+            self.sucker.take_message(ct, iv)
     def send_your_message(self):
-        aeskey = sha1(self.s).digest()[0:16] # maybe
-        iv = Random.new().read(16) # maybe
-        encryptor = AES.new(aeskey, AES.MODE_CBC, iv)
-        return [encryptor.encrypt(self.robo_decrypt), iv] # maybe
+        if not self.evil:
+            aeskey = sha1(self.s).digest()[0:16] # maybe
+            iv = Random.new().read(16) # maybe
+            encryptor = AES.new(aeskey, AES.MODE_CBC, iv)
+            return [encryptor.encrypt(self.robo_decrypt), iv] # maybe
+        else:
+            [ct, iv] = self.sucker.send_your_message()
+            print "SNOOP", ct
+            return [ct, iv]
         
 alice = Persona()
 bob = Persona()
+mallory = Persona(evil=True, sucker=bob)
 
 alice.handshake_with(bob)
 alice.talk_to(bob)
+
+alice.handshake_with(mallory)
+alice.talk_to(mallory)
 
 #### tests
 warn("Passed assertions:", __file__)
