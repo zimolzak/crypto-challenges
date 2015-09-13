@@ -39,12 +39,13 @@ def int2str(x):
     return output
 
 class Persona:
-    def __init__(self, sucker=None, modulus=p, base=g, evil=False):
-        self.p = modulus
+    def __init__(self, sucker=None, mo=p, base=g, evil=False, mode=0):
+        self.p = mo
         self.g = base
         self.new_keypair()
         self.sucker = sucker # only relevant for evil MITM
         self.evil = evil
+        self.playwithg = mode # only relevant for evil MITM
     def new_keypair(self):
         keypair = get_pubkey_exp(self.p, self.g)
         self.public = keypair[0]
@@ -62,14 +63,19 @@ class Persona:
         self.foreign_public = A
         self.new_keypair()
         self.calc_session_key()
-        if self.evil:
+        if self.evil and self.playwithg == 0:
             self.sucker.take_my_key(p, g, p)
+        elif self.evil and self.playwithg == 1:
+            self.sucker.take_my_key(p, 1, 1)
     def send_your_key(self):
         if not self.evil:
             return self.public
-        else:
+        elif self.playwithg == 0:
             self.sucker_public = self.sucker.send_your_key()
             return self.p
+        elif self.playwithg == 1:
+            self.sucker_public = self.sucker.send_your_key()
+            return self.sucker_public
     #### methods for messaging
     def talk_to(self, robot):
         message = "Only you can make all this world seem right.    "
@@ -83,14 +89,19 @@ class Persona:
         decryptor = AES.new(aeskey, AES.MODE_CBC, iv2)
         decrypt = decryptor.decrypt(received)
         print "My friend says:", decrypt
-        assert message == decrypt
+        if message != decrypt:
+            print "My friend is acting weird."
     def take_message(self, ct, iv):
         if not self.evil:
             aeskey = sha1(self.s).digest()[0:16]
             decryptor = AES.new(aeskey, AES.MODE_CBC, iv)
             self.robo_decrypt = decryptor.decrypt(ct)
+            print "I am a robot who echoes:", self.robo_decrypt
         else:
-            aeskey = sha1('').digest()[0:16]
+            if self.playwithg == 0:
+                aeskey = sha1('').digest()[0:16]
+            elif self.playwithg == 1:
+                aeskey = sha1('\x01').digest()[0:16]
             decryptor = AES.new(aeskey, AES.MODE_CBC, iv)
             self.atob = decryptor.decrypt(ct)
             print "SNOOP A to B:", self.atob
@@ -102,12 +113,15 @@ class Persona:
             encryptor = AES.new(aeskey, AES.MODE_CBC, iv)
             return [encryptor.encrypt(self.robo_decrypt), iv]
         else:
-            aeskey = sha1('').digest()[0:16]
+            if self.playwithg == 0:
+                aeskey = sha1('').digest()[0:16]
+            elif self.playwithg == 1:
+                aeskey = sha1('\x01').digest()[0:16]
             [ct, iv] = self.sucker.send_your_message()
             decryptor = AES.new(aeskey, AES.MODE_CBC, iv)
             btoa = decryptor.decrypt(ct)
             print "SNOOP B to A:", btoa
-            assert btoa == self.atob
+            # assert btoa == self.atob
             return [ct, iv]
         
 #### tests
