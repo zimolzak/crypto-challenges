@@ -66,14 +66,18 @@ class Persona:
         if self.evil and self.playwithg == 0:
             self.sucker.take_my_key(p, g, p)
         elif self.evil and self.playwithg == 1:
-            self.sucker.take_my_key(p, 1, 1)
+            self.sucker.take_my_key(p, 1, 1) # B=1 s=1
+        elif self.evil and self.playwithg == 2:
+            self.sucker.take_my_key(p, p, 0) # B=0 s=0
+        elif self.evil and self.playwithg == 3:
+            self.sucker.take_my_key(p, p - 1, 1) # B = 1 or p-1 ?
     def send_your_key(self):
         if not self.evil:
             return self.public
         elif self.playwithg == 0:
             self.sucker_public = self.sucker.send_your_key()
             return self.p
-        elif self.playwithg == 1:
+        elif self.playwithg == 1 or self.playwithg == 2 or self.playwithg == 3:
             self.sucker_public = self.sucker.send_your_key()
             return self.sucker_public
     #### methods for messaging
@@ -98,9 +102,9 @@ class Persona:
             self.robo_decrypt = decryptor.decrypt(ct)
             print "I am a robot who echoes:", self.robo_decrypt
         else:
-            if self.playwithg == 0:
+            if self.playwithg == 0 or self.playwithg == 2:
                 aeskey = sha1('').digest()[0:16]
-            elif self.playwithg == 1:
+            elif self.playwithg == 1 or self.playwithg == 3:
                 aeskey = sha1('\x01').digest()[0:16]
             decryptor = AES.new(aeskey, AES.MODE_CBC, iv)
             self.atob = decryptor.decrypt(ct)
@@ -113,9 +117,9 @@ class Persona:
             encryptor = AES.new(aeskey, AES.MODE_CBC, iv)
             return [encryptor.encrypt(self.robo_decrypt), iv]
         else:
-            if self.playwithg == 0:
+            if self.playwithg == 0 or self.playwithg == 2:
                 aeskey = sha1('').digest()[0:16]
-            elif self.playwithg == 1:
+            elif self.playwithg == 1 or self.playwithg == 3:
                 aeskey = sha1('\x01').digest()[0:16]
             [ct, iv] = self.sucker.send_your_message()
             decryptor = AES.new(aeskey, AES.MODE_CBC, iv)

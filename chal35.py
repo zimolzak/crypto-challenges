@@ -11,16 +11,18 @@ from diffie_hellman import Persona
 
 alice = Persona()
 bob = Persona()
-mallory = Persona(evil=True, sucker=bob, mode=1)
+
+M = [Persona(evil=True, sucker=bob, mode=x) for x in range(1,4)]
 
 print "Innocent conversation:"
 alice.handshake_with(bob)
 alice.talk_to(bob)
-print
 
-print "Overheard conversation:"
-alice.handshake_with(mallory)
-alice.talk_to(mallory)
+for i in range(len(M)):
+    print
+    print "Overheard", i, ":"
+    alice.handshake_with(M[i])
+    alice.talk_to(M[i])
 
 #### tests
 warn("Passed assertions:", __file__)
