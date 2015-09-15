@@ -33,10 +33,10 @@ class Server(SRPEntity):
         self.B = self.k * self.v + modexp(self.g, self.b, self.N) # public
         self.uH = sha256(str(self.A) + str(self.B)).hexdigest() #throw
         self.u = int('0x' + self.uH, 16)                             # throw
-        # S = modexp(self.A * self.v ** u,
-        #            self.b,
-        #            self.N)
-        # self.K = sha256(S).hexdigest()
+        S = modexp(self.A * modexp(self.v, self.u, self.N),
+                   self.b,
+                   self.N)
+        self.K = sha256(str(S)).hexdigest()
         return self.salt, self.B
 
 class Client(SRPEntity):
@@ -50,10 +50,10 @@ class Client(SRPEntity):
         self.u = int('0x' + self.uH, 16)                                   #t
         self.xH = sha256(str(self.salt) + self.password).hexdigest()  #t
         self.x = int('0x' + self.xH, 16)                                   #t
-        # S = modexp(self.B - self.k * self.g ** x,
-        #            self.a + u * x,
-        #            self.N)
-        # self.K = sha256(S).hexdigest()
+        S = modexp(self.B - self.k * modexp(self.g, self.x, self.N),
+                   self.a + self.u * self.x,
+                   self.N)
+        self.K = sha256(str(S)).hexdigest()
         
 
 me = Client(nist_prime, 2, 3, 'billg@ms.com', 'PASSW0RD1')
