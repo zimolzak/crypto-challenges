@@ -28,6 +28,7 @@ class Server(SRPEntity):
         S = modexp(self.A * modexp(self.v, u, self.N),
                    self.b,
                    self.N)
+        # If A is congruent to 0 (mod N), then S = 0!!
         self.K = sha256(str(S)).hexdigest()
         return self.salt, self.B
     def validate_hash(self, unknown_mac):
@@ -38,10 +39,14 @@ class Server(SRPEntity):
             return "YOU LOSE. GET OFF MY PROPERTY."
 
 class Client(SRPEntity):
-    def __init__(self, N, g, k, I, P):
+    def __init__(self, N, g, k, I, P, ntimes=None):
         SRPEntity.__init__(self, N, g, k, I, P)
         self.a = random.randint(0, self.N - 1) # private
-        self.A = modexp(g, self.a, self.N)     # public
+        self.ntimes = ntimes
+        if ntimes == None:
+            self.A = modexp(g, self.a, self.N) # public (normal)
+        else:
+            self.A = self.N * ntimes          # evil zero key
     def logon_to(self, robot):
         [self.salt, self.B] = robot.take_logon(self.email, self.A)
         uH = sha256(str(self.A) + str(self.B)).hexdigest()
@@ -51,6 +56,9 @@ class Client(SRPEntity):
         S = modexp(self.B - self.k * modexp(self.g, x, self.N),
                    self.a + u * x,
                    self.N)
-        self.K = sha256(str(S)).hexdigest()
+        if self.ntimes == None:
+            self.K = sha256(str(S)).hexdigest()
+        else:
+            self.K = sha256(str(0)).hexdigest()
         mac = hmac.new(self.K, str(self.salt), sha256).hexdigest()
         print "Server says:", robot.validate_hash(mac)
