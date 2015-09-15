@@ -31,6 +31,12 @@ class Server(SRPEntity):
         self.A = A
         self.b = random.randint(0, self.N - 1)                    # private
         self.B = self.k * self.v + modexp(self.g, self.b, self.N) # public
+        self.uH = sha256(str(self.A) + str(self.B)).hexdigest() #throw
+        self.u = int('0x' + self.uH, 16)                             # throw
+        # S = modexp(self.A * self.v ** u,
+        #            self.b,
+        #            self.N)
+        # self.K = sha256(S).hexdigest()
         return self.salt, self.B
 
 class Client(SRPEntity):
@@ -40,6 +46,14 @@ class Client(SRPEntity):
         self.A = modexp(g, self.a, self.N)     # public
     def logon_to(self, robot):
         [self.salt, self.B] = robot.take_logon(self.email, self.A)
+        self.uH = sha256(str(self.A) + str(self.B)).hexdigest()       #t
+        self.u = int('0x' + self.uH, 16)                                   #t
+        self.xH = sha256(str(self.salt) + self.password).hexdigest()  #t
+        self.x = int('0x' + self.xH, 16)                                   #t
+        # S = modexp(self.B - self.k * self.g ** x,
+        #            self.a + u * x,
+        #            self.N)
+        # self.K = sha256(S).hexdigest()
         
 
 me = Client(nist_prime, 2, 3, 'billg@ms.com', 'PASSW0RD1')
