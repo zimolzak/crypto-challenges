@@ -28,7 +28,7 @@ class Server(SRPEntity):
         x = int('0x' + xH, 16)
         self.v = modexp(g, x, N)
     def take_logon(self, email, A):
-        self.I = email # not really used. Would be a lookup.
+        self.I = email # I / email is not really used by server
         self.A = A
         self.b = random.randint(0, self.N - 1)                    # private
         self.B = self.k * self.v + modexp(self.g, self.b, self.N) # public
@@ -39,6 +39,12 @@ class Server(SRPEntity):
                    self.N)
         self.K = sha256(str(S)).hexdigest()
         return self.salt, self.B
+    def validate_hash(self, unknown_mac):
+        true_mac = hmac.new(self.K, str(self.salt), sha256).hexdigest()
+        if true_mac == unknown_mac:
+            return "OK"
+        else:
+            return "YOU LOSE. GET OFF MY PROPERTY."
 
 class Client(SRPEntity):
     def __init__(self, N, g, k, I, P):
@@ -55,14 +61,15 @@ class Client(SRPEntity):
                    self.a + u * x,
                    self.N)
         self.K = sha256(str(S)).hexdigest()
+        mac = hmac.new(self.K, str(self.salt), sha256).hexdigest()
+        print "Server says:", robot.validate_hash(mac)
 
 me = Client(nist_prime, 2, 3, 'billg@ms.com', 'PASSW0RD1')
 you = Server(nist_prime, 2, 3, 'billg@ms.com', 'PASSW0RD1')
 
 me.logon_to(you)
 
-print me.K
-print you.K
-
 #### tests
+assert me.K == you.K
+assert me.salt == you.salt
 warn("Passed assertions:", __file__)
