@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#     chal36.py - Implement secure remote password
+#     chal37.py - Break SRP with zero key.
 #
 #     Copyright (C) 2015 Andrew J. Zimolzak <andyzimolzak@gmail.com>,
 #     and licensed under GNU GPL version 3. Full notice is found in
