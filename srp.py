@@ -45,22 +45,22 @@ class Server(SRPEntity):
     def validate_hash(self, unknown_mac):
         true_mac = hmac.new(self.K, str(self.salt), sha256).hexdigest()
         if self.mitm:
-            guess = "PASSW0RD1"
-            xH = sha256(str(self.salt) + guess).hexdigest()
-            x = int('0x' + xH, 16)
-            v = modexp(self.g, x, self.N) # not to confuse with self.v
-            S = modexp(self.A * modexp(v, self.u, self.N),
-                       self.b,
-                       self.N)
-            K = sha256(str(S)).hexdigest()
-            guess_mac = hmac.new(K, str(self.salt), sha256).hexdigest()
-            if guess_mac == unknown_mac:
-                print "Pwned. Result is", guess, ". Logging on..."
-                pwner = Client(self.N, self.g, self.k,
-                               'a@b.com', guess, simple=True)
-                pwner.logon_to(self.mitm)
-            else:
-                print "Not pwned."
+            for guess in open('passwords.txt', 'r').read().splitlines():
+                xH = sha256(str(self.salt) + guess).hexdigest()
+                x = int('0x' + xH, 16)
+                v = modexp(self.g, x, self.N) # not to confuse with self.v
+                S = modexp(self.A * modexp(v, self.u, self.N),
+                           self.b,
+                           self.N)
+                K = sha256(str(S)).hexdigest()
+                guess_mac = hmac.new(K, str(self.salt), sha256).hexdigest()
+                if guess_mac == unknown_mac:
+                    print "Pwned. Result is", guess, ". Logging on..."
+                    pwner = Client(self.N, self.g, self.k,
+                                   'a@b.com', guess, simple=True)
+                    pwner.logon_to(self.mitm)
+                    return "OK"
+            print "Not pwned."
             return "OK"
         if true_mac == unknown_mac:
             return "OK"

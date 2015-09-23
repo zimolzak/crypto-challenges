@@ -11,8 +11,8 @@ from srp import Client, Server
 from diffie_hellman import p as nist_prime
 import random
 
-me = Client(nist_prime, 2, 3, 'billg@ms.com', 'PASSW0RD1', simple=True)
-you = Server(nist_prime, 2, 3, 'billg@ms.com', 'PASSW0RD1', simple=True)
+me = Client(nist_prime, 2, 3, 'billg@ms.com', 'bozo', simple=True)
+you = Server(nist_prime, 2, 3, 'billg@ms.com', 'bozo', simple=True)
 print "For benign,",
 me.logon_to(you)
 assert me.K == you.K
