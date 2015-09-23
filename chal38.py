@@ -23,4 +23,8 @@ print "For built to fail,",
 failure.logon_to(you)
 assert failure.K != you.K
 
+mallory = Server(nist_prime, 2, 3, 'billg@ms.com', 'nopasswd', mitm=you)
+print "\nFor MITM:"
+me.logon_to(mallory)
+
 warn("Passed assertions:", __file__)
