@@ -2,6 +2,7 @@ from diffie_hellman import modexp
 import random
 from hashlib import sha256
 import hmac
+import time
 
 class SRPEntity:
     def __init__(self, N, g, k, I, P):
@@ -45,22 +46,32 @@ class Server(SRPEntity):
     def validate_hash(self, unknown_mac):
         true_mac = hmac.new(self.K, str(self.salt), sha256).hexdigest()
         if self.mitm:
-            for guess in open('passwords.txt', 'r').read().splitlines():
+            start = time.time()
+            for i, guess in enumerate(open('passwords.txt',
+                                           'r').read().splitlines()):
                 xH = sha256(str(self.salt) + guess).hexdigest()
                 x = int('0x' + xH, 16)
-                v = modexp(self.g, x, self.N) # not to confuse with self.v
-                S = modexp(self.A * modexp(v, self.u, self.N),
+                v = pow(self.g, x, self.N) # not to confuse with self.v
+                S = pow(self.A * pow(v, self.u, self.N),
                            self.b,
                            self.N)
                 K = sha256(str(S)).hexdigest()
                 guess_mac = hmac.new(K, str(self.salt), sha256).hexdigest()
                 if guess_mac == unknown_mac:
-                    print "Pwned. Result is", guess, ". Logging on..."
+                    n = time.time()
+                    print "Pwned. Result is", guess
+                    print "Computed", i, "hashes in", int(n-start), "sec."
+                    print "Throughput", i / (n-start), "guesses / sec."
+                    print "Logging on..."
                     pwner = Client(self.N, self.g, self.k,
                                    'a@b.com', guess, simple=True)
                     pwner.logon_to(self.mitm)
                     return "OK"
+            n = time.time()
             print "Not pwned."
+            print "Computed", i, "hashes in", int(n-start), "sec."
+            print "Throughput", i / (n-start), "guesses / sec."
+            assert 0
             return "OK"
         if true_mac == unknown_mac:
             return "OK"
