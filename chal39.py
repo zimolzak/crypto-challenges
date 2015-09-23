@@ -24,9 +24,34 @@ def gen_primes():
             del D[q]
         q += 1
 
+def extended_gcd(a, b):
+    s = 0;    old_s = 1
+    t = 1;    old_t = 0
+    r = b;    old_r = a
+    while r != 0:
+        quotient = old_r / r
+        (old_r, r) = (r, old_r - quotient * r)
+        (old_s, s) = (s, old_s - quotient * s)
+        (old_t, t) = (t, old_t - quotient * t)
+    return {"B":[old_s, old_t], "G":old_r, "Q":[t, s]}
+
+def invmod(a, m):
+    D = extended_gcd(a,m)
+    if D['G'] != 1:
+        raise Exception("a and m are not coprime.")
+    ans = D['B'][0]
+    if ans < 0:
+        ans += m
+    return ans
+
+print invmod(17, 3120)
+
 for i in gen_primes():
     if i > 1000:
         print i
         break
 
+#### tests ####
+
+assert invmod(17, 3120) == 2753
 warn("Passed assertions:", __file__)
