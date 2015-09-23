@@ -5,7 +5,7 @@ test : 4.txt 6.txt quicktest 20.txt
 	./chal22.py                   # random, 15 - 30 sec
 	./chal24.py                   # 15 sec
 
-quicktest : 7.txt 8.txt 10.txt rand_bytes.txt unknown_key.txt 17.txt 19.txt 25.txt
+quicktest : 7.txt 8.txt 10.txt rand_bytes.txt unknown_key.txt 17.txt 19.txt 25.txt passwords.txt
 	./chal1.pl
 	./chal2.pl
 	./chal3.pl
@@ -56,3 +56,5 @@ rand_bytes.txt :
 25.txt : 7.txt
 	cp 7.txt 25.txt
 #curl -O 'http://cryptopals.com/static/challenge-data/25.txt'
+passwords.txt :
+	./parse_pwd.pl ~/Downloads/10-million-combos.txt | sort | uniq -c | sort -nr | head -n 25000 | perl -pe 's/.* //' > passwords.txt
