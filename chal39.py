@@ -8,22 +8,8 @@
 
 from cryptopals import warn
 import random
-
-def gen_primes():
-    """ Generate an infinite sequence of prime numbers.
-    by David Eppstein, UC Irvine, 28 Feb 2002
-    """
-    D = {}
-    q = 2
-    while True:
-        if q not in D:
-            yield q
-            D[q * q] = [q]
-        else:
-            for p in D[q]:
-                D.setdefault(p + q, []).append(p)
-            del D[q]
-        q += 1
+import gensafeprime
+from math import log, ceil
 
 def extended_gcd(a, b):
     s = 0;    old_s = 1
@@ -46,21 +32,12 @@ def invmod(a, m):
         ans += m
     return ans
 
-def prime_greater(x):
-    for i in gen_primes():
-        if i > x:
-            return i
-
-def keypair(maximum):
-    p = prime_greater(random.randint(2,maximum))
-    q = prime_greater(random.randint(2,maximum))
+def keypair(bits):
+    p = gensafeprime.generate(bits)
+    q = gensafeprime.generate(bits)
     n = p * q
     et = (p-1) * (q-1)
-    for test in gen_primes():
-        E = extended_gcd(test, et)
-        if E['G'] == 1:
-            e = test # I really think e can't always be 3.
-            break
+    e = 3
     d = invmod(e, et)
     Public = [e, n]
     Private = [d, n]
@@ -85,35 +62,33 @@ def i2s(integer):
     f.reverse()
     return ''.join(f)
 
-hello = 'Hiya'
-integer = s2i(hello)
-print integer
-string = i2s(integer)
-print string
+hello = 'Hello, world! This is a message from me to you! I am typing this on a certain type of computer, and I wonder how many bits I will need.'
 
-U, R = keypair(10 ** 5)
+integer = s2i(hello)
+bits = len(hello) * 8 / 2
+print bits
+U, R = keypair(bits)
 ciphertext = crypt(integer, U)
-print ciphertext
-decrypt = crypt(ciphertext, R)
-print decrypt
-print "The answer is", i2s(decrypt)
-assert hello == i2s(decrypt)
+decrypt = i2s(crypt(ciphertext, R))
+print "Decrypted this message:", decrypt
+assert hello == decrypt
 
 #### tests ####
-for i in range(20):
-    U, R = keypair(10 ** 5)
+h = 'Hiya'
+assert i2s(s2i(h)) == h
+
+for i in range(10):
+    U, R = keypair(64)
     msg = random.randint(1,10000)
     ciphertext = crypt(msg, U)
     decrypt = crypt(ciphertext, R)
-    print "The answer is", decrypt
     assert msg == decrypt
 
-for i in range(20):
-    a = prime_greater(random.randint(2,100000))
-    m = prime_greater(random.randint(2,100000))
+for i in range(10):
+    a = gensafeprime.generate(64)
+    m = gensafeprime.generate(64)
     x = invmod(a, m)
     assert (a*x) % m == 1
 
-assert prime_greater(1000) == 1009
 assert invmod(17, 3120) == 2753
 warn("Passed assertions:", __file__)
