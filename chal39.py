@@ -32,20 +32,11 @@ def invmod(a, m):
         ans += m
     return ans
 
-def prime_greater(x):
-    bits = int(ceil(log(x) / log(2)))
-    return gensafeprime.generate(bits)
-
-def keypair(maximum):
-    p = prime_greater(maximum)
-    q = prime_greater(maximum) # apparently q can be unrelated
+def keypair(bits):
+    p = gensafeprime.generate(bits)
+    q = gensafeprime.generate(bits)
     n = p * q
     et = (p-1) * (q-1)
-#    for test in gen_primes():
-#        E = extended_gcd(test, et)
-#        if E['G'] == 1:
-#            e = test # I really think e can't always be 3.
-#            break
     e = 3
     d = invmod(e, et)
     Public = [e, n]
@@ -71,9 +62,12 @@ def i2s(integer):
     f.reverse()
     return ''.join(f)
 
-hello = 'Hiya'
+hello = 'Hello, world! This is a message from me to you! I am typing this on a certain type of computer, and I wonder how many bits I will need.'
+
 integer = s2i(hello)
-U, R = keypair(10 ** 10)
+bits = len(hello) * 8 / 2
+print bits
+U, R = keypair(bits)
 ciphertext = crypt(integer, U)
 decrypt = i2s(crypt(ciphertext, R))
 print "Decrypted this message:", decrypt
@@ -84,15 +78,15 @@ h = 'Hiya'
 assert i2s(s2i(h)) == h
 
 for i in range(10):
-    U, R = keypair(10 ** 10)
+    U, R = keypair(64)
     msg = random.randint(1,10000)
     ciphertext = crypt(msg, U)
     decrypt = crypt(ciphertext, R)
     assert msg == decrypt
 
 for i in range(10):
-    a = prime_greater(10 ** 10)
-    m = prime_greater(10 ** 10)
+    a = gensafeprime.generate(64)
+    m = gensafeprime.generate(64)
     x = invmod(a, m)
     assert (a*x) % m == 1
 
