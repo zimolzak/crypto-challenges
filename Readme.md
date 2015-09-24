@@ -39,6 +39,14 @@ For more information, see http://cryptopals.com/
 30. Break an MD4 keyed MAC using length extension
 31. Implement and break HMAC-SHA1 with an artificial timing leak
 32. Break HMAC-SHA1 with a slightly less artificial timing leak
+33. Implement Diffie-Hellman
+34. Implement MITM key-fixing attack on D-H with parameter injection
+35. DH with negotiated groups, and break with malicious "g" parameters
+36. Implement Secure Remote Password (SRP)
+37. Break SRP with a zero key
+38. Offline dictionary attack on simplified SRP
+39. Implement RSA
+40. Implement an E=3 RSA Broadcast attack
 
 Challenge 1-8 are basics. Then 9-16, 17-24, and 25-32 deal mainly with
 block ciphers. After that it gets into number-theoretic methods.
