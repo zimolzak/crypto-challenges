@@ -39,7 +39,8 @@ def extended_gcd(a, b):
 def invmod(a, m):
     D = extended_gcd(a,m)
     if D['G'] != 1:
-        raise Exception("a and m are not coprime.")
+        raise Exception("a and m are not coprime. "
+                        + str(a) + " " + str(m) + " " + str(D['G']))
     ans = D['B'][0]
     if ans < 0:
         ans += m
@@ -50,18 +51,38 @@ def prime_greater(x):
         if i > x:
             return i
 
-print invmod(17, 3120)
-print prime_greater(1000)
-print
+def keypair(maximum):
+    p = prime_greater(random.randint(2,maximum))
+    q = prime_greater(random.randint(2,maximum))
+    n = p * q
+    et = (p-1) * (q-1)
+    for test in gen_primes():
+        E = extended_gcd(test, et)
+        if E['G'] == 1:
+            e = test # I really think e can't always be 3.
+            break
+    d = invmod(e, et)
+    Public = [e, n]
+    Private = [d, n]
+    return [Public, Private]
 
+def crypt(message, key):
+    return pow(message, key[0], key[1])
+
+for i in range(20):
+    U, R = keypair(1000000)
+    msg = random.randint(1,10000)
+    ciphertext = crypt(msg, U)
+    decrypt = crypt(ciphertext, R)
+    print "The answer is", decrypt
+    assert msg == decrypt
+
+#### tests ####
 for i in range(20):
     a = prime_greater(random.randint(2,100000))
     m = prime_greater(random.randint(2,100000))
     x = invmod(a, m)
-    print a, "*", x, "=", a*x, "= 1 (mod", m, ")"
     assert (a*x) % m == 1
-
-#### tests ####
 
 assert prime_greater(1000) == 1009
 assert invmod(17, 3120) == 2753
