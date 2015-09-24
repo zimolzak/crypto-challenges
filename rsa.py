@@ -8,6 +8,11 @@ import gensafeprime
 import random
 from cryptopals import warn
 
+# Regarding gensafeprime: On OS X with Anaconda I had to do this [in
+# addition to easy_install]:
+# sudo ln -s /Users/ajz/anaconda/lib/libssl.1.0.0.dylib  /usr/lib
+# sudo ln -s /Users/ajz/anaconda/lib/libcrypto.1.0.0.dylib /usr/lib
+
 def extended_gcd(a, b):
     s = 0;    old_s = 1
     t = 1;    old_t = 0
