@@ -69,15 +69,45 @@ def keypair(maximum):
 def crypt(message, key):
     return pow(message, key[0], key[1])
 
+def hexord(char):
+    return hex(ord(char))[2:]
+
+def s2i(string):
+    """This is the cheesiest possible way I can think to do this."""
+    return int('0x' + ''.join((map(hexord, string))), 16)
+
+def i2s(integer):
+    out = ""
+    while integer:
+        out += chr(integer & 0xff)
+        integer = integer >> 8
+    f = list(out)
+    f.reverse()
+    return ''.join(f)
+
+hello = 'Hiya'
+integer = s2i(hello)
+print integer
+string = i2s(integer)
+print string
+
+U, R = keypair(10 ** 5)
+ciphertext = crypt(integer, U)
+print ciphertext
+decrypt = crypt(ciphertext, R)
+print decrypt
+print "The answer is", i2s(decrypt)
+assert hello == i2s(decrypt)
+
+#### tests ####
 for i in range(20):
-    U, R = keypair(1000000)
+    U, R = keypair(10 ** 5)
     msg = random.randint(1,10000)
     ciphertext = crypt(msg, U)
     decrypt = crypt(ciphertext, R)
     print "The answer is", decrypt
     assert msg == decrypt
 
-#### tests ####
 for i in range(20):
     a = prime_greater(random.randint(2,100000))
     m = prime_greater(random.randint(2,100000))
