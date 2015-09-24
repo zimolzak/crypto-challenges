@@ -7,6 +7,7 @@
 #     the file 'LICENSE' in the same directory as this file.
 
 from cryptopals import warn
+import random
 
 def gen_primes():
     """ Generate an infinite sequence of prime numbers.
@@ -44,14 +45,24 @@ def invmod(a, m):
         ans += m
     return ans
 
-print invmod(17, 3120)
+def prime_greater(x):
+    for i in gen_primes():
+        if i > x:
+            return i
 
-for i in gen_primes():
-    if i > 1000:
-        print i
-        break
+print invmod(17, 3120)
+print prime_greater(1000)
+print
+
+for i in range(20):
+    a = prime_greater(random.randint(2,100000))
+    m = prime_greater(random.randint(2,100000))
+    x = invmod(a, m)
+    print a, "*", x, "=", a*x, "= 1 (mod", m, ")"
+    assert (a*x) % m == 1
 
 #### tests ####
 
+assert prime_greater(1000) == 1009
 assert invmod(17, 3120) == 2753
 warn("Passed assertions:", __file__)
