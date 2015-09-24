@@ -59,6 +59,13 @@ def i2s(integer):
     f.reverse()
     return ''.join(f)
 
+def encrypt_string(string, public_key):
+    integer = s2i(string)
+    return crypt(integer, public_key)
+
+def decrypt_string(ciphertext, private_key):
+    return i2s(crypt(ciphertext, private_key))
+
 #### tests ####
 
 ## invmod

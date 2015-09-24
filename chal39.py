@@ -7,7 +7,7 @@
 #     the file 'LICENSE' in the same directory as this file.
 
 from cryptopals import warn
-from rsa import keypair, crypt, i2s, s2i
+import rsa
 
 # On OS X with Anaconda I had to do this [in addition to easy_install]:
 # sudo ln -s /Users/ajz/anaconda/lib/libssl.1.0.0.dylib  /usr/lib
@@ -15,12 +15,11 @@ from rsa import keypair, crypt, i2s, s2i
 
 hello = 'Hello, world! This is a message from me to you! I am typing this on a certain type of computer, and I wonder how many bits I will need.'
 
-integer = s2i(hello)
 bits = len(hello) * 8 / 2
 print bits, "bit key"
-U, R = keypair(bits)
-ciphertext = crypt(integer, U)
-decrypt = i2s(crypt(ciphertext, R))
+U, R = rsa.keypair(bits)
+ciphertext = rsa.encrypt_string(hello, U)
+decrypt = rsa.decrypt_string(ciphertext, R)
 print "Decrypted this message:", decrypt
 assert hello == decrypt
 
