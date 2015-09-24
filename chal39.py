@@ -8,37 +8,8 @@
 
 from cryptopals import warn
 import random
-import numpy
 import gensafeprime
 from math import log, ceil
-
-def gen_primes():
-    """ Generate an infinite sequence of prime numbers.
-    by David Eppstein, UC Irvine, 28 Feb 2002
-    """
-    D = {}
-    q = 2
-    while True:
-        if q not in D:
-            yield q
-            D[q * q] = [q]
-        else:
-            for p in D[q]:
-                D.setdefault(p + q, []).append(p)
-            del D[q]
-        q += 1
-
-def primesfrom2to(n):
-    # http://stackoverflow.com/questions/2068372/fastest-way-to-list-all-primes-below-n-in-python/3035188#3035188
-    """ Input n>=6, Returns a array of primes, 2 <= p < n """
-    sieve = numpy.ones(n/3 + (n%6==2), dtype=numpy.bool)
-    sieve[0] = False
-    for i in xrange(int(n**0.5)/3+1):
-        if sieve[i]:
-            k=3*i+1|1
-            sieve[      ((k*k)/3)      ::2*k] = False
-            sieve[(k*k+4*k-2*k*(i&1))/3::2*k] = False
-    return numpy.r_[2,3,((3*numpy.nonzero(sieve)[0]+1)|1)]
 
 def extended_gcd(a, b):
     s = 0;    old_s = 1
@@ -61,42 +32,21 @@ def invmod(a, m):
         ans += m
     return ans
 
-def rwh_primes2(n):
-    # http://stackoverflow.com/questions/2068372/fastest-way-to-list-all-primes-below-n-in-python/3035188#3035188
-    """ Input n>=6, Returns a list of primes, 2 <= p < n """
-    correction = (n%6>1)
-    n = {0:n,1:n-1,2:n+4,3:n+3,4:n+2,5:n+1}[n%6]
-    sieve = [True] * (n/3)
-    sieve[0] = False
-    for i in xrange(int(n**0.5)/3+1):
-      if sieve[i]:
-        k=3*i+1|1
-        sieve[      ((k*k)/3)      ::2*k]=[False]*((n/6-(k*k)/6-1)/k+1)
-        sieve[(k*k+4*k-2*k*(i&1))/3::2*k]=[False]*((n/6-(k*k+4*k-2*k*(i&1))/6-1)/k+1)
-    return [2,3] + [3*i+1|1 for i in xrange(1,n/3-correction) if sieve[i]]
-
 def prime_greater(x):
-#### Numpy
-#    return primesfrom2to(x)[-1]
-#### Standard
-#    for i in gen_primes():
-#        if i > x:
-#            return i
-#### RWH
-#    return rwh_primes2(x)[-1]
     bits = int(ceil(log(x) / log(2)))
     return gensafeprime.generate(bits)
 
 def keypair(maximum):
     p = prime_greater(maximum)
-    q = prime_greater(maximum)
+    q = prime_greater(maximum) # apparently q can be unrelated
     n = p * q
     et = (p-1) * (q-1)
-    for test in gen_primes():
-        E = extended_gcd(test, et)
-        if E['G'] == 1:
-            e = test # I really think e can't always be 3.
-            break
+#    for test in gen_primes():
+#        E = extended_gcd(test, et)
+#        if E['G'] == 1:
+#            e = test # I really think e can't always be 3.
+#            break
+    e = 3
     d = invmod(e, et)
     Public = [e, n]
     Private = [d, n]
@@ -121,11 +71,9 @@ def i2s(integer):
     f.reverse()
     return ''.join(f)
 
-print prime_greater(10 ** 10)
-    
 hello = 'Hiya'
 integer = s2i(hello)
-U, R = keypair(10 ** 5)
+U, R = keypair(10 ** 10)
 ciphertext = crypt(integer, U)
 decrypt = i2s(crypt(ciphertext, R))
 print "Decrypted this message:", decrypt
@@ -136,15 +84,15 @@ h = 'Hiya'
 assert i2s(s2i(h)) == h
 
 for i in range(10):
-    U, R = keypair(10 ** 5)
+    U, R = keypair(10 ** 10)
     msg = random.randint(1,10000)
     ciphertext = crypt(msg, U)
     decrypt = crypt(ciphertext, R)
     assert msg == decrypt
 
 for i in range(10):
-    a = prime_greater(random.randint(2,100000))
-    m = prime_greater(random.randint(2,100000))
+    a = prime_greater(10 ** 10)
+    m = prime_greater(10 ** 10)
     x = invmod(a, m)
     assert (a*x) % m == 1
 
