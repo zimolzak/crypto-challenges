@@ -17,28 +17,6 @@ message = 'Blah blah'
 bits = 1024
 U, R = rsa.keypair(bits)
 
-m2 = 0x0002
-c2 = rsa.crypt(m2, U)
-print "The block", m2, "encrypts in e=3 RSA to", c2
-d2 = rsa.crypt(c2, R)
-print "Decrypted this:", d2
-
-def sentence(bits):
-    letters = []
-    for i in range(ord('a'), ord('z')+1):
-        letters.append(chr(i))
-    s = ""
-    while len(s) < (bits / 8):
-        if len(s) % 8 == 7:
-            s += " "
-            continue
-        else:
-            s += random.choice(letters)
-    return s
-
-S = sentence(bits * 3)
-print cryptopals.text2blocks(S, bits / 8)
-
 hash = sha1("hi mom").digest()
 
 def pkcs_1_5(string, bits):
@@ -52,9 +30,18 @@ def pkcs_1_5(string, bits):
                     len(append))
     return prepend + ("\xff" * bytes_to_add) + append + string
 
-print [pkcs_1_5(hash, bits)]
+block = pkcs_1_5(hash, bits)
+signature = rsa.encrypt_string(block, R) # note sign w/ priv key
+verified = rsa.decrypt_string(signature, U) # verify w/ pub key
+for i in range((bits/8) - len(verified)):
+    verified = "\x00" + verified
+print [verified]
+
+def verify(sig, expected):
+    return False
 
 #### tests ####
-assert d2 == m2
+assert verified == block
+assert len(block) == bits / 8
 assert len(pkcs_1_5("HELLO", 1024)) == 1024 / 8
 warn("Passed assertions:", __file__)
