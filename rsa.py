@@ -53,7 +53,15 @@ def hexord(char):
 
 def s2i(string):
     """This is the cheesiest possible way I can think to do this."""
-    return int('0x' + ''.join((map(hexord, string))), 16)
+    hex_list = (map(hexord, string))
+    for i, s in enumerate(hex_list):
+        if len(s) == 1:
+            hex_list[i] = '0' + s
+        elif len(s) == 2:
+            pass
+        else:
+            assert 0, "No such thing as 3-hex digit ASCII."
+    return int('0x' + ''.join(hex_list), 16)
 
 def i2s(integer):
     out = ""
