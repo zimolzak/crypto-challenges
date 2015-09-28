@@ -95,6 +95,8 @@ for i in range(10):
     
 h = 'Hiya'
 assert i2s(s2i(h)) == h
+assert s2i(i2s(999999999)) == 999999999
+assert s2i(i2s(9999999999)) == 9999999999
 
 ## keypair and crypt
 
