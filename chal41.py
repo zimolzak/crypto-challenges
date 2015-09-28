@@ -9,6 +9,7 @@
 from cryptopals import warn
 import rsa
 from hashlib import sha1
+import random
 
 class RSAServer:
     def __init__(self, bits):
@@ -20,6 +21,7 @@ class RSAServer:
         result['pubkey'] = self.pub
         return result
     def decrypt(self, rsa_blob):
+        """Expects numeric argument, not string."""
         this_hash = sha1(str(rsa_blob)).digest()
         for logged_hash in self.log:
             if this_hash == logged_hash:
@@ -34,7 +36,7 @@ alice = RSAServer(global_bits)
 breakme = alice.encrypt('Only Bob is supposed to read this.')
 E = breakme['pubkey'][0] # pub key exponent
 N = breakme['pubkey'][1] # public key modulus
-C = breakme['ciphertext']
+C = breakme['ciphertext'] # long integer, not string
 
 print "Bob calls Alice and receives..."
 print alice.decrypt(C)
@@ -43,6 +45,24 @@ print alice.decrypt(C)
 
 print "Mallory calls Alice the 1st time and receives..."
 print alice.decrypt(C)
+print "C", C
+print
+
+print "Mallory calculates..."
+S = random.randint(2, 100000)
+assert S % N > 1
+print "S", S
+Cp = (pow(S, E, N) * C) % N
+print "Cp", Cp
+Pp_string = alice.decrypt(Cp)
+print "Pps ", Pp_string
+Pp = rsa.s2i(Pp_string)
+print "Pp", Pp
+print
+
+P = (Pp * rsa.invmod(S, N) ) % N
+print "P", P
+print "Ps", rsa.i2s(P)
 
 #### tests ####
 warn("Passed assertions:", __file__)
