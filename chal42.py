@@ -34,9 +34,10 @@ block = pkcs_1_5(hash, bits)
 signature = rsa.encrypt_string(block, R) # Note: signing is w/ priv key.
 
 def verify(sig, message, pubkey):
-    block = rsa.decrypt_string(signature, pubkey)
+    block = rsa.decrypt_string(sig, pubkey)
     for i in range((bits/8) - len(block)):
         block = "\x00" + block
+    print "VV:", str([block]) #deleteme
     return sha1(message).digest() == unpad(block)
 
 def unpad(string):
@@ -79,25 +80,34 @@ print
 msg_to_forge = "hi mom"
 hash_mom = sha1(msg_to_forge).digest()
 block_mom = ("\x00\x01\xff\xff\x00ASN.1" +
-             chr(len(msg_to_forge)) +
+             chr(len(hash_mom)) +
              hash_mom)
 bytes_to_add = (bits / 8) - len(block_mom)
 block_mom += "\x00" * bytes_to_add
 print [block_mom]
 
-while (find_cube_root(rsa.s2i(block_mom)) ** 3) != rsa.s2i(block_mom):
-    x = random.randint(1, 20)
-    if x > 1:
-        block_mom = (block_mom[:-x] +
-                     chr(ord(block_mom[-x]) + 1) +
-                     block_mom[-(x-1):])
-    else:
-        block_mom = (block_mom[:-x] +
-                     chr(ord(block_mom[-x]) + 1))        
-    if ord(block_mom[-3]) % 8 == 0:
-        print [block_mom[-20:]]
-        print len(block_mom)
-print block_mom
+block_mom_cube = "\x00" + rsa.i2s(find_cube_root(rsa.s2i(block_mom)) ** 3)
+
+# while (find_cube_root(rsa.s2i(block_mom)) ** 3) != rsa.s2i(block_mom):
+#     block_mom = rsa.i2s(rsa.s2i(block_mom) + 1)
+#     if ord(block_mom[-1]) % 8 == 0:
+#         print [block_mom[-20:]]
+#         print len(block_mom)
+print [block_mom_cube]
+
+forged_sig = find_cube_root(rsa.s2i(block_mom_cube))
+
+print forged_sig ** 3
+print [rsa.i2s(forged_sig ** 3)]
+
+#### Check the sig
+
+print "A poor fool received message:", msg_to_forge
+print "Along with signature..."
+print forged_sig
+print "Does it verify?"
+print verify(forged_sig, msg_to_forge, U)
+print
 
 #### tests ####
 #assert verified == block
