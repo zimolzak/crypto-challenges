@@ -14,11 +14,9 @@ from hashlib import sha1
 from chal40 import find_cube_root
 
 message = 'Blah blah'
-
 bits = 1024
 U, R = rsa.keypair(bits)
-
-hash = sha1("hi mom").digest()
+hash = sha1(message).digest()
 
 def pkcs_1_5(string, bits):
     assert len(string) < 256
@@ -35,11 +33,11 @@ def pkcs_1_5(string, bits):
 block = pkcs_1_5(hash, bits)
 signature = rsa.encrypt_string(block, R) # Note: signing is w/ priv key.
 
-def verify(sig, expected):
-    block = rsa.decrypt_string(signature, U) # Verifying is w/ pub key.
+def verify(sig, message, pubkey):
+    block = rsa.decrypt_string(signature, pubkey)
     for i in range((bits/8) - len(block)):
         block = "\x00" + block
-    return sha1(expected).digest() == unpad(block)
+    return sha1(message).digest() == unpad(block)
 
 def unpad(string):
     state = "start"
@@ -69,7 +67,37 @@ def unpad(string):
         else:
             return "FAIL " + str(i)
 
-print verify(signature, "hi mom")
+print "A user received message:", message
+print "Along with signature..."
+print signature
+print "Does it verify?"
+print verify(signature, message, U)
+print
+
+#### Forging
+
+msg_to_forge = "hi mom"
+hash_mom = sha1(msg_to_forge).digest()
+block_mom = ("\x00\x01\xff\xff\x00ASN.1" +
+             chr(len(msg_to_forge)) +
+             hash_mom)
+bytes_to_add = (bits / 8) - len(block_mom)
+block_mom += "\x00" * bytes_to_add
+print [block_mom]
+
+while (find_cube_root(rsa.s2i(block_mom)) ** 3) != rsa.s2i(block_mom):
+    x = random.randint(1, 20)
+    if x > 1:
+        block_mom = (block_mom[:-x] +
+                     chr(ord(block_mom[-x]) + 1) +
+                     block_mom[-(x-1):])
+    else:
+        block_mom = (block_mom[:-x] +
+                     chr(ord(block_mom[-x]) + 1))        
+    if ord(block_mom[-3]) % 8 == 0:
+        print [block_mom[-20:]]
+        print len(block_mom)
+print block_mom
 
 #### tests ####
 #assert verified == block
