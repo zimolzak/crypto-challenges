@@ -47,6 +47,14 @@ For more information, see http://cryptopals.com/
 38. Offline dictionary attack on simplified SRP
 39. Implement RSA
 40. Implement an E=3 RSA Broadcast attack
+41. Implement unpadded message recovery oracle
+42. Bleichenbacher's e=3 RSA Attack
+43. DSA key recovery from nonce
+44. DSA nonce recovery from repeated nonce
+45. DSA parameter tampering
+46. RSA parity oracle
+47. Bleichenbacher's PKCS 1.5 Padding Oracle (Simple Case)
+48. Bleichenbacher's PKCS 1.5 Padding Oracle (Complete Case)
 
 Challenge 1-8 are basics. Then 9-16, 17-24, and 25-32 deal mainly with
 block ciphers. After that it gets into number-theoretic methods.
@@ -60,7 +68,7 @@ was cut and pasted from http://cryptopals.com/sets/3/challenges/17 . I
 decided to commit *most* of the input files to this repo, with the
 exception of `8.txt` because it's big.
 
-Times noted in makefile are from MacBook Pro (8,1 early 2001, OS X,
+Times noted in makefile are from MacBook Pro (8,1 early 2011, OS X,
 2.7 GHz Intel Core i7), or iMac7,1 (Intel Core 2 Duo, 2.0-2.4 GHz
 circa 2007) running Ubuntu.
 
@@ -104,8 +112,8 @@ Conclusions / insights
 * 8 milliseconds per character in a string-compare is breakable. 7 ms
   is breakable with manual help. Specifically, set T to 6 and fill in
   some text from some replicates. This all feels a *lot* like DNA
-  sequencing. 6 ms similarly; set T to 5 ms, fill in my hand. I can
-  break 4ms by an automoated try-try-again and tracking the longest
+  sequencing. 6 ms similarly; set T to 5 ms, fill in by hand. I can
+  break 4ms by an automated try-try-again and tracking the longest
   guess on record. 3.7 ms is a good threshold for that. Probably will
   require some sort of voting, graphics, and/or statistics to get
   lower than that. Signal to noise is going to decrease toward the end
@@ -116,3 +124,21 @@ Conclusions / insights
   can break 3.5 ms with no help, with T=3.0, backup=1, and N=10
   replicates of each timing measurement! Probably helps to have the
   server as quiet as possible in terms of CPU.
+
+* Diffie-Hellman parameter injection feels weird and kind of hard to
+  understand or unrealistic?
+
+* I am surprised that my offline dictionary attack on SRP with a
+  stolen hash (HMAC) doesn't go faster. See `chal38.py` or `srp.py`,
+  class `Server` when `mitm=True`, specifically method
+  `validate_hash()`. Only 50 - 60 guesses per second?
+
+* SRP with zero key is indeed fun.
+
+* RSA implementation and several of the challenges about it were fun.
+
+* RSA without padding is bad. RSA that doesn't fully check for proper
+  padding or other compliance is also bad.
+
+* Once again, don't reuse your nonce, hence the name. When it comes to
+  DSA, I guess you can't even give it away or make it easy to guess?
