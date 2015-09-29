@@ -9,6 +9,7 @@
 from cryptopals import warn
 from rsa import invmod, i2s, s2i
 from hashlib import sha1
+import time
 
 import random
 
@@ -73,6 +74,7 @@ matasano_r = 548099063082341131477253921760299949438196259240
 matasano_s = 857042759984254168557880549501802188789837994940
 k_found = 0
 x_found = 0
+start = time.time()
 for k in range (1, 2 ** 16):
     r = pow(g, k, p) % q
     x = find_private_key(matasano_r, matasano_s, k, H, q)
@@ -82,6 +84,13 @@ for k in range (1, 2 ** 16):
         print "x =", x
         k_found = k
         x_found = x
+        # Deciding not to break out of the for loop, in rare event
+        # there would be two valid values of k.
+end = time.time()
+dur = end - start
+rate = k / dur
+print "Tried", k, "nonces in", int(dur), "s, for", int(rate), "per s."
+# 5800 per sec on MacBook Pro 8,1 (early 2011, OS X, 2.7 GHz Intel Core i7)
 
 S = hex(x_found).replace("L", "").replace("0x", "")
 print S
