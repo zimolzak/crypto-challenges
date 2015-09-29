@@ -7,6 +7,7 @@
 #     the file 'LICENSE' in the same directory as this file.
 
 from cryptopals import warn
+import random
 
 ps = """0x800000000000000089e1855218a0e7dac38136ffafa72eda7
 859f2171e25e65eac698c1702578b07dc2a1076da241c76c6
@@ -27,7 +28,18 @@ gs = """0x5958c9d3898b224b12672c0b98e06c60df923cb8bc999d119
 p = int(ps.replace("\n", ""), 16)
 g = int(gs.replace("\n", ""), 16)
 
-print p
+x = random.randint(1, q) # private key
+y = pow(g, x, p)
+public = [p, q, g, y]
+
+def sign(message):
+    r = 0
+    s = 0
+    while r == 0 or s == 0:
+        k = random.randint(1, q)
+        r = pow(g, k, p) % q
+        s = hash(message) + x*r * invmod(k, q)
+    return [r, s]
 
 #### tests ####
 warn("Passed assertions:", __file__)
