@@ -19,11 +19,18 @@ U, R = rsa.keypair(bits)
 hash = sha1(message).digest()
 
 def pkcs_1_5(string, bits):
+    """Pad a string to specified number of bits. Specifically, start with
+    0x0001, then a bunch of 0xFF, then 0x00, then some imitation ASN.1
+    data, then the string. In real life, ASN.1 data encodes the length
+    of the string, which I do too, to a point. There's also some other
+    data in there, and I completely ignore the implementation of
+    'other ASN.1 data'.
+    """
     assert len(string) < 256
     assert bits % 8 == 0
     byte_goal = bits / 8
     prepend = "\x00\x01"
-    append = "\x00ASN.1" + chr(len(string)) # not in real life
+    append = "\x00ASN.1" + chr(len(string)) 
     bytes_to_add = (byte_goal -
                     (len(string) % byte_goal) -
                     len(prepend) -
@@ -37,7 +44,6 @@ def verify(sig, message, pubkey):
     block = rsa.decrypt_string(sig, pubkey)
     for i in range((bits/8) - len(block)):
         block = "\x00" + block
-    print "VV:", str([block]) #deleteme
     return sha1(message).digest() == unpad(block)
 
 def unpad(string):
@@ -84,21 +90,8 @@ block_mom = ("\x00\x01\xff\xff\x00ASN.1" +
              hash_mom)
 bytes_to_add = (bits / 8) - len(block_mom)
 block_mom += "\x00" * bytes_to_add
-print [block_mom]
-
 block_mom_cube = "\x00" + rsa.i2s(find_cube_root(rsa.s2i(block_mom)) ** 3)
-
-# while (find_cube_root(rsa.s2i(block_mom)) ** 3) != rsa.s2i(block_mom):
-#     block_mom = rsa.i2s(rsa.s2i(block_mom) + 1)
-#     if ord(block_mom[-1]) % 8 == 0:
-#         print [block_mom[-20:]]
-#         print len(block_mom)
-print [block_mom_cube]
-
 forged_sig = find_cube_root(rsa.s2i(block_mom_cube))
-
-print forged_sig ** 3
-print [rsa.i2s(forged_sig ** 3)]
 
 #### Check the sig
 
@@ -106,11 +99,12 @@ print "A poor fool received message:", msg_to_forge
 print "Along with signature..."
 print forged_sig
 print "Does it verify?"
-print verify(forged_sig, msg_to_forge, U)
+result = verify(forged_sig, msg_to_forge, U)
+print result
 print
 
 #### tests ####
-#assert verified == block
+assert result
 assert unpad(pkcs_1_5("Hello", 1024)) == "Hello"
 assert len(block) == bits / 8
 assert len(pkcs_1_5("HELLO", 1024)) == 1024 / 8
