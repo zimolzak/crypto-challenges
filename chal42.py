@@ -6,12 +6,11 @@
 #     and licensed under GNU GPL version 3. Full notice is found in
 #     the file 'LICENSE' in the same directory as this file.
 
-from cryptopals import warn
+from cryptopals import warn, cuberoot
 import rsa
 import random
 import cryptopals
 from hashlib import sha1
-from chal40 import find_cube_root
 
 message = 'Blah blah'
 bits = 1024
@@ -90,8 +89,8 @@ block_mom = ("\x00\x01\xff\xff\x00ASN.1" +
              hash_mom)
 bytes_to_add = (bits / 8) - len(block_mom)
 block_mom += "\x00" * bytes_to_add
-block_mom_cube = "\x00" + rsa.i2s(find_cube_root(rsa.s2i(block_mom)) ** 3)
-forged_sig = find_cube_root(rsa.s2i(block_mom_cube))
+block_mom_cube = "\x00" + rsa.i2s(cuberoot(rsa.s2i(block_mom)) ** 3)
+forged_sig = cuberoot(rsa.s2i(block_mom_cube))
 
 #### Check the sig
 

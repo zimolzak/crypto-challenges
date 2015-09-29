@@ -5,6 +5,7 @@ test : 4.txt 6.txt quicktest 20.txt passwords.txt
 	./chal22.py                   # random, 15 - 30 sec
 	./chal24.py                   # 15 sec
 	./chal38.py                   # 25 sec
+	./chal42.py
 
 quicktest : 7.txt 8.txt 10.txt rand_bytes.txt unknown_key.txt 17.txt 19.txt 25.txt
 	./chal1.pl

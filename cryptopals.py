@@ -227,6 +227,19 @@ def i2h(n):
         return string[2:-1]
     else:
         return string[2:]
+
+def cuberoot(n):
+    # http://stackoverflow.com/questions/23621833/is-cube-root-integer
+    # From user "nneonneo".
+    lo = 0
+    hi = n
+    while lo < hi:
+        mid = (lo+hi)//2
+        if mid**3 < n:
+            lo = mid+1
+        else:
+            hi = mid
+    return lo
     
 #### tests ####
 

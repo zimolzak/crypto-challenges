@@ -6,7 +6,7 @@
 #     and licensed under GNU GPL version 3. Full notice is found in
 #     the file 'LICENSE' in the same directory as this file.
 
-from cryptopals import warn
+from cryptopals import warn, cuberoot
 import rsa
 import copy
 
@@ -45,20 +45,8 @@ for i in range(k):
 result = result % reduce(lambda a, b: a*b, n)
 
 # Get final text
-def find_cube_root(n):
-    # http://stackoverflow.com/questions/23621833/is-cube-root-integer
-    # From user "nneonneo".
-    lo = 0
-    hi = n
-    while lo < hi:
-        mid = (lo+hi)//2
-        if mid**3 < n:
-            lo = mid+1
-        else:
-            hi = mid
-    return lo
 
-overheard = rsa.i2s(find_cube_root(result))
+overheard = rsa.i2s(cuberoot(result))
 
 print "Eve hears this message:", overheard
 
