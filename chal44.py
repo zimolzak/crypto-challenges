@@ -9,6 +9,7 @@
 from cryptopals import warn
 from rsa import invmod
 from dsa import p, q, g, find_private_key
+from hashlib import sha1
 
 y_str = """2d026f4bf30195ede3a088da85e398ef869611d0f68f07
 13d51c9c1a3a26c95105d915e2d8cdf26d056b86b8a7b8
@@ -32,9 +33,6 @@ def first_row_where(ki, vi, list_of_dict):
                 return row
     return False
 
-h = [{'a':10, 'b':9, 'c':4}, {'a':777, 'b':99, 'c':42}, {'a':11, 'b':10, 'c':4}]
-print first_row_where('c', 42, h)
-
 #### parse the file
 row2 = {}
 for line in open('44.txt', 'r').read().splitlines():
@@ -53,9 +51,21 @@ for line in open('44.txt', 'r').read().splitlines():
         all_past.append(row2)
         continue
     #### get cracking
-    print row1
-    print row2
+    m1 = int(row1['m'], 16)
+    m2 = int(row2['m'], 16)
+    k = ((m1 - m2) *
+         invmod((row1['s'] - row2['s']), q) %
+         q)
+    print "k =", k
+    x = find_private_key(row1['r'], row1['s'], k, m1, q)
+    print "x =", x
+    hex_x = hex(x).replace('0x','').replace('L','')
+    s1x = sha1(hex_x).hexdigest()
+    print "sha1(x) =", s1x
     break
 
 #### tests ####
+h = [{'a':10, 'b':9, 'c':4}, {'a':777, 'b':99, 'c':42}, {'a':11, 'b':10, 'c':4}]
+assert first_row_where('c', 42, h) == {'a': 777, 'c': 42, 'b': 99}
+assert s1x == "ca8f6f7c66fa362d40760d135b763eb8527d3d52"
 warn("Passed assertions:", __file__)
