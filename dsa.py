@@ -41,7 +41,7 @@ def sign(message, g, p, q, x):
     i = 0
     while r == 0 or s == 0:
         i += 1
-        if i > 300000:
+        if i > 60000:
             return [r,s] # bad!
         k = random.randint(1, 2 ** 16) # bad !
         r = pow(g, k, p) % q
@@ -51,7 +51,9 @@ def sign(message, g, p, q, x):
 
 def verify(m, g, p, q, r, s, y):
     for j in [r, s]:
-        if j <= 0 or j >= q:
+        if j <= 0:
+            pass # Bad! Should reject, but breaking on purpose.
+        if j >= q:
             return False
     w = invmod(s, q)
     u1 = s2i(sha1(m).digest()) * w % q
