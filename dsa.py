@@ -4,7 +4,9 @@
 #     and licensed under GNU GPL version 3. Full notice is found in
 #     the file 'LICENSE' in the same directory as this file.
 
-from rsa import invmod
+from rsa import invmod, s2i
+import random
+from hashlib import sha1
 
 p_str = """0x800000000000000089e1855218a0e7dac38136ffafa72eda7
 859f2171e25e65eac698c1702578b07dc2a1076da241c76c6
@@ -28,3 +30,21 @@ g = int(g_str.replace("\n", ""), 16)
 def find_private_key(r, s, k, H, q):
     """s = (H+rx)/k. Therefore (sk-H)/r = x."""
     return ((s * k - H) * invmod(r, q)) % q
+
+def sign(message, g, p, q, x):
+    """DSA signing. Deliberately bad max value for k, the nonce. Really,
+    max should be = q. Also deliberately bad to give up and allow r =
+    0.
+    """
+    r = 0
+    s = 0
+    i = 0
+    while r == 0 or s == 0:
+        i += 1
+        if i > 300000:
+            return [r,s] # bad!
+        k = random.randint(1, 2 ** 16) # bad !
+        r = pow(g, k, p) % q
+        H = s2i(sha1(message).digest())
+        s = ((H + x * r) * invmod(k, q)) % q
+    return [r, s]

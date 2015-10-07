@@ -7,27 +7,15 @@
 #     the file 'LICENSE' in the same directory as this file.
 
 from cryptopals import warn
-from rsa import invmod, i2s, s2i
+from rsa import invmod
 from hashlib import sha1
 import time
-from dsa import p, q, g, find_private_key
+from dsa import p, q, g, find_private_key, sign
 import random
 
 x = random.randint(1, q) # private key
 y = pow(g, x, p)
 public = [p, q, g, y] # Turns out we don't even need y.
-
-def sign(message):
-    """DSA signing. Depends on globals q, g, p, and x."""
-    r = 0
-    s = 0
-    while r == 0 or s == 0:
-        # Deliberately bad max value for k, the nonce. Should be = q.
-        k = random.randint(1, 2 ** 16) 
-        r = pow(g, k, p) % q
-        H = s2i(sha1(message).digest())
-        s = ((H + x * r) * invmod(k, q)) % q
-    return [r, s]
 
 test_string = """For those that envy a MC it can be hazardous to your health
 So be friendly, a matter of life and death, just like a etch-a-sketch
@@ -37,7 +25,7 @@ H_string = sha1(test_string).hexdigest()
 print "Hash of test msg =", H_string
 H = int("0x" + H_string, 16)
 
-r, s = sign(test_string)
+r, s = sign(test_string, g, p, q, x)
 print "With random nonce k,"
 print "r =", r
 print "s =", s
