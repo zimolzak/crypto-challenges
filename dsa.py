@@ -48,3 +48,13 @@ def sign(message, g, p, q, x):
         H = s2i(sha1(message).digest())
         s = ((H + x * r) * invmod(k, q)) % q
     return [r, s]
+
+def verify(m, g, p, q, r, s, y):
+    for j in [r, s]:
+        if j <= 0 or j >= q:
+            return False
+    w = invmod(s, q)
+    u1 = s2i(sha1(m).digest()) * w % q
+    u2 = r * w % q
+    v = (pow(g, u1, p) * pow(y, u2, p)) % p % q
+    return v == r
