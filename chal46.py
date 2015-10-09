@@ -9,29 +9,48 @@
 from cryptopals import warn
 import rsa
 import random
+import base64
+from math import log
 
 print "Generating keypair..."
-U, R = rsa.keypair(1024)
+pubkey, privkey = rsa.keypair(1024)
+print "Done!"
 
-def parity(ciphertext, priv_key):
+def parity(ciphertext):
     """Ciphertext is an integer."""
-    decrypt_int = rsa.crypt(ciphertext, R)
+    decrypt_int = rsa.crypt(ciphertext, privkey)
     return int(decrypt_int % 2) # int, not a long.
 
-print "Checking bunch of parities..."
-P = []
-for i in range(100):
-    rand_chars = ''
-    for j in range(32):
-        if j % 8 == 7 and j < 31:
-            rand_chars += " "
-        else:
-            rand_chars += chr(random.randint(97,122))
-    ciphertext = rsa.encrypt_string(rand_chars, U)
-    P.append(parity(ciphertext, R))
+b64s = 'VGhhdCdzIHdoeSBJIGZvdW5kIHlvdSBkb24ndCBwbGF5IGFyb3VuZCB3aXRoIHRoZSBGdW5reSBDb2xkIE1lZGluYQ=='
 
-print P
-print "Proportion odd:", reduce(lambda x, y: x+y, P) / float(len(P))
+# um, if e=3, I don't think this string wraps the modulus. So in
+# theory, I think we could just cube-root it, but oh well.
+
+plaintext = base64.b64decode(b64s)
+ciphertext = rsa.encrypt_string(plaintext, pubkey)
+
+def double(ciphertext):
+    return ciphertext * rsa.crypt(2, pubkey)
+
+def cleanup(string):
+    safe = ''
+    for c in string:
+        if 32 <= ord(c) <= 126:
+            safe += c
+    return safe
+
+bounds = [0, pubkey[1]]
+for i in range(1000):
+    p = parity(double(ciphertext))
+    half_the_dist = (bounds[1] - bounds[0]) / 2
+    if p == 0:
+        bounds = [bounds[0], bounds[1] -  half_the_dist]
+    elif p == 1:
+        bounds = [bounds[0] + half_the_dist, bounds[1]]
+    ciphertext = ciphertext >> 1
+    if i % 8 == 7:
+        # print log(half_the_dist, 2)
+        print cleanup(rsa.i2s(bounds[1]))
 
 #### tests ####
 
