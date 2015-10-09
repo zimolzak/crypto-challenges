@@ -22,13 +22,16 @@ privkey = [169151236971710585782080448429715629946303074310797612011828838182424
 
 print "Done!"
 
+e = pubkey[0]
+n = pubkey[1]
+
 def parity(ciphertext):
     """Ciphertext is an integer."""
     decrypt_int = rsa.crypt(ciphertext, privkey)
     return int(decrypt_int % 2) # int, not a long.
 
-def double(ciphertext, e, n):
-    return (ciphertext * 2 ** e) % n
+def multiply(ciphertext, k, e, n):
+    return (ciphertext * k ** e) % n
 
 def cleanup(string, substitution=''):
     safe = ''
@@ -48,26 +51,35 @@ ciphertext = rsa.encrypt_string(plaintext, pubkey)
 #### test
 hi = 'Hi'
 c_hi = rsa.encrypt_string(hi, pubkey)
-D = double(c_hi, pubkey[0], pubkey[1])
+D = multiply(c_hi, 2, pubkey[0], pubkey[1])
 assert rsa.s2i(hi) * 2 == rsa.crypt(D, privkey)
 print "ok"
 ####
 
-e = pubkey[0]
-n = pubkey[1]
+M = [1, 2] # multiplier.
+Mr = [1.0, 2.0] # real num
 bounds = [0, n]
+half = rsa.invmod(2, n)
 for i in range(2048):
-    p = parity(double(ciphertext, e, n))
+    p = parity(multiply(ciphertext, M[i+1], e, n))
     half_the_dist = (bounds[1] - bounds[0]) / 2
     if p == 0:
         bounds = [bounds[0], bounds[1] -  half_the_dist]
+        M.append(M[i+1] * 2) # M up
+        Mr.append(Mr[i+1] * 2) # M up
     elif p == 1:
         bounds = [bounds[0] + half_the_dist, bounds[1]]
-    ciphertext = ciphertext >> 1
-    n = n >> 1
-    if i % 8 == 7:
+        M.append((M[i+1] + M[i]) * half) # M down
+        Mr.append((Mr[i+1] + Mr[i]) / 2) # M down
+#    if i % 8 == 7:
         # print log(half_the_dist, 2)
-        print cleanup(rsa.i2s(bounds[1]), '_') # get 256 char wide screen
+#    print cleanup(rsa.i2s(bounds[1]), '_') # get 256 char wide screen
+    printme = map(lambda x: round(x,1) , map(log, Mr))
+    if len(printme)<10:
+        print printme
+    else:
+        print printme[-10:]
+    
 
 #### tests ####
 
