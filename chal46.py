@@ -56,7 +56,7 @@ assert rsa.s2i(hi) * 2 == rsa.crypt(D, privkey)
 print "ok"
 ####
 
-M = 2.0
+M = 2
 bounds = [0, n]
 half = rsa.invmod(2, n)
 for i in range(2048):
@@ -64,10 +64,10 @@ for i in range(2048):
     half_the_dist = (bounds[1] - bounds[0]) / 2
     if p == 0:
         bounds = [bounds[0], bounds[1] -  half_the_dist]
-        M = M + 1.0/(2**i)
+        M = (M + rsa.invmod(2**i, n)) % n
     elif p == 1:
         bounds = [bounds[0] + half_the_dist, bounds[1]]
-        M = M - 1.0/(2**i)
+        M = (M - rsa.invmod(2**i, n)) % n
     ciphertext = ciphertext >> 1
     if i % 8 == 7:
         # print log(half_the_dist, 2)
