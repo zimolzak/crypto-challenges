@@ -60,7 +60,7 @@ M = 2
 bounds = [0, n]
 half = rsa.invmod(2, n)
 for i in range(2048):
-    p = parity(multiply(ciphertext, 2, e, n)) # fixme - replace 2.
+    p = parity(multiply(ciphertext, M, e, n))
     half_the_dist = (bounds[1] - bounds[0]) / 2
     if p == 0:
         bounds = [bounds[0], bounds[1] -  half_the_dist]
@@ -68,11 +68,10 @@ for i in range(2048):
     elif p == 1:
         bounds = [bounds[0] + half_the_dist, bounds[1]]
         M = (M - rsa.invmod(2**i, n)) % n
-    ciphertext = ciphertext >> 1
     if i % 8 == 7:
         # print log(half_the_dist, 2)
         print cleanup(rsa.i2s(bounds[1]), '_') # get 256 char wide screen
-        print M
+#        print M
 
 #### tests ####
 
