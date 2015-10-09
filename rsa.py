@@ -73,10 +73,12 @@ def i2s(integer):
     return ''.join(f)
 
 def encrypt_string(string, public_key):
+    """Take a string, return an integer."""
     integer = s2i(string)
     return crypt(integer, public_key)
 
 def decrypt_string(ciphertext, private_key):
+    """Take an integer, return a string."""
     return i2s(crypt(ciphertext, private_key))
 
 #### tests ####
