@@ -56,30 +56,23 @@ assert rsa.s2i(hi) * 2 == rsa.crypt(D, privkey)
 print "ok"
 ####
 
-M = [1, 2] # multiplier.
-Mr = [1.0, 2.0] # real num
+M = 2.0
 bounds = [0, n]
 half = rsa.invmod(2, n)
 for i in range(2048):
-    p = parity(multiply(ciphertext, M[i+1], e, n))
+    p = parity(multiply(ciphertext, 2, e, n)) # fixme - replace 2.
     half_the_dist = (bounds[1] - bounds[0]) / 2
     if p == 0:
         bounds = [bounds[0], bounds[1] -  half_the_dist]
-        M.append(M[i+1] * 2) # M up
-        Mr.append(Mr[i+1] * 2) # M up
+        M = M + 1.0/(2**i)
     elif p == 1:
         bounds = [bounds[0] + half_the_dist, bounds[1]]
-        M.append((M[i+1] + M[i]) * half) # M down
-        Mr.append((Mr[i+1] + Mr[i]) / 2) # M down
-#    if i % 8 == 7:
+        M = M - 1.0/(2**i)
+    ciphertext = ciphertext >> 1
+    if i % 8 == 7:
         # print log(half_the_dist, 2)
-#    print cleanup(rsa.i2s(bounds[1]), '_') # get 256 char wide screen
-    printme = map(lambda x: round(x,1) , map(log, Mr))
-    if len(printme)<10:
-        print printme
-    else:
-        print printme[-10:]
-    
+        print cleanup(rsa.i2s(bounds[1]), '_') # get 256 char wide screen
+        print M
 
 #### tests ####
 
