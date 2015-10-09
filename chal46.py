@@ -8,7 +8,6 @@
 
 from cryptopals import warn
 import rsa
-import random
 import base64
 from math import log
 
@@ -26,7 +25,7 @@ e = pubkey[0]
 n = pubkey[1]
 
 def parity(ciphertext):
-    """Ciphertext is an integer."""
+    """Ciphertext is an integer. Depends on privkey."""
     decrypt_int = rsa.crypt(ciphertext, privkey)
     return int(decrypt_int % 2) # int, not a long.
 
@@ -48,6 +47,8 @@ ciphertext = rsa.encrypt_string(plaintext, pubkey)
 # um, if e=3, I don't think this string wraps the modulus. So in
 # theory, I think we could just cube-root it, but oh well.
 
+print len(plaintext)
+
 #### test
 hi = 'Hi'
 c_hi = rsa.encrypt_string(hi, pubkey)
@@ -57,21 +58,33 @@ print "ok"
 ####
 
 M = 2
+maxxed = False
 bounds = [0, n]
 half = rsa.invmod(2, n)
+interval = 0 # what unit to add or subtract
+
 for i in range(2048):
     p = parity(multiply(ciphertext, M, e, n))
+#    print "prod", multiply(ciphertext, M, e, n)
+#    print "pari", p
     half_the_dist = (bounds[1] - bounds[0]) / 2
+#    print "M", M
     if p == 0:
         bounds = [bounds[0], bounds[1] -  half_the_dist]
-        M = (M + rsa.invmod(2**i, n)) % n
+        if not maxxed:
+            M = M * 2 % n
+        else:
+            M = (M + interval) % n
     elif p == 1:
+        maxxed = True
         bounds = [bounds[0] + half_the_dist, bounds[1]]
-        M = (M - rsa.invmod(2**i, n)) % n
-    if i % 8 == 7:
+        if not maxxed:
+            interval = M * half * half % n # example M=8, inter=2
+        M = (M - interval) % n
+    interval = interval * half % n
+#    if i % 8 == 7:
         # print log(half_the_dist, 2)
-        print cleanup(rsa.i2s(bounds[1]), '_') # get 256 char wide screen
-#        print M
+    print p, i, cleanup(rsa.i2s(bounds[1]), '_') # get 256 char wide screen
 
 #### tests ####
 
