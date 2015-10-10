@@ -64,24 +64,15 @@ half = rsa.invmod(2, n)
 interval = 0 # what unit to add or subtract
 
 for i in range(2048):
-    p = parity(multiply(ciphertext, M, e, n))
+    p = parity(multiply(ciphertext, 2**(i+1), e, n))
 #    print "prod", multiply(ciphertext, M, e, n)
 #    print "pari", p
     half_the_dist = (bounds[1] - bounds[0]) / 2
 #    print "M", M
     if p == 0:
         bounds = [bounds[0], bounds[1] -  half_the_dist]
-        if not maxxed:
-            M = M * 2 % n
-        else:
-            M = (M + interval) % n
     elif p == 1:
-        maxxed = True
         bounds = [bounds[0] + half_the_dist, bounds[1]]
-        if not maxxed:
-            interval = M * half * half % n # example M=8, inter=2
-        M = (M - interval) % n
-    interval = interval * half % n
 #    if i % 8 == 7:
         # print log(half_the_dist, 2)
     print p, i, cleanup(rsa.i2s(bounds[1]), '_') # get 256 char wide screen
