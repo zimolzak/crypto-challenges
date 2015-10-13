@@ -87,6 +87,28 @@ while s1 < n:
 
 print "Found s1?", oracle(x, privkey, Bits * 2), s1
 
+#### Step 2.c [ search w/ 1 interval left in O(log n) ]
+
+a = 2*B
+b = 3*B - 1
+
+j = 0
+
+r2 = 2 * (b*s1 - 2*B) / n # starts here & grows to...
+while r2 < n:
+    s2 = (2*B + r2*n)/b # starts here & grows to...
+    while s2 < (3*B + r2*n) / a:
+        x = c0 * pow(s2, e, n) % n # multiplies plaintext_0 by s2
+        if oracle(x, privkey, Bits * 2):
+            break
+        if j % 1000 == 0:
+            print r2, s2
+        s2 += 1
+        j += 1
+    r2 += 1
+
+print "Found s2?", oracle(x, privkey, Bits * 2), s2
+
 #### tests ####
 short_message2 = "testing"
 m2 = pkcs_1(short_message2, Bits)
