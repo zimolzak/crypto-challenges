@@ -81,6 +81,7 @@ c = [c]
 # M is a list of sets of intervals.
 M = [[[2*B, 3*B-1]]]
 i = 1
+start = time()
 
 while(1):
     #### Step 2
@@ -91,10 +92,8 @@ while(1):
             x = c[0] * pow(s[i], e, n) % n # multiplies plaintext_0 by s1
             if oracle(x, privkey, Bits * 2):
                 break
-            if s[i] % 16000 == 0:
-                print "i=", i, "si=?", s[i]
             s[i] += 1
-        print "Found s1?", oracle(x, privkey, Bits * 2), "i=", i, "s=", s[i]
+        print "Found si?", oracle(x, privkey, Bits * 2), "i=", i, "s=", s[i],
     elif i > 1 and len(M[i-1]) >= 2:
         #print "Step 2.b"
         s.append(s[i-1] + 1) # set s[i]
@@ -102,13 +101,15 @@ while(1):
             x = c[0] * pow(s[i], e, n) % n # multiplies plaintext_0 by s1
             if oracle(x, privkey, Bits * 2):
                 break
-            if s[i] % 16000 == 0:
-                print "i=", i, "si=?", s[i]
             s[i] += 1
-        print "Found si?", oracle(x, privkey, Bits * 2), "i=", i, "s=", s[i]
+        print "Found si?", oracle(x, privkey, Bits * 2), "i=", i, "s=", s[i],
             
     elif len(M[i-1]) == 1:
         #print "Step 2.c"
+
+        #### FIXME this part may be broken, but I wouldn't know
+        #### because it rarely executes.
+
         a = M[i-1][0][0]
         b = M[i-1][0][1]
     
@@ -149,11 +150,13 @@ while(1):
         break
     else:
         if len(M[i]) > 1:
-            print "Iterate because len", len(M[i])
+            print "Iterate because len", len(M[i]), ';',
         else:
-            print "Iterate because range", M[i][0][0] - M[i][0][1]
+            print "Iterate because range", M[i][0][0] - M[i][0][1], ';',
+        now = time()
+        mins = (now-start) / 60
+        print round(mins,2), "min. Rt=", round(i / mins, 3)
         i += 1
-        print
 
 #### tests ####
 short_message2 = "testing"
