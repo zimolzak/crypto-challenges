@@ -9,6 +9,7 @@
 from cryptopals import warn
 import rsa
 from random import randint
+from time import time
 
 def pkcs_1(string, bits):
     """Pad a string to specified number of bits.
@@ -33,17 +34,11 @@ def oracle(ciphertext, privkey, bits):
     key.
     """
     plaintext = rsa.decrypt_string(ciphertext, privkey)
-    #pt_n = pow(ciphertext, privkey[0], privkey[1])
-    #print pt_n
-    #assert pt_n < privkey[1]
-    #print [plaintext]
     assert bits % 8 == 0
     bytes = bits / 8
     diff = bytes - len(plaintext)
     plaintext = "\x00" * diff + plaintext
     assert len(plaintext) == bytes, len(plaintext)
-    if plaintext[0] == "\x00":
-        print [plaintext[0:2]]
     return plaintext[0] == "\x00" and plaintext[1] == "\x02"
 
 Bits = 256
@@ -61,20 +56,28 @@ n = pubkey[1]
 k = Bits * 2 / 8 # Length of n in bytes
 B = 2 ** (8 * (k - 2))
 print "Conforming plaintexts are between", hex(2 * B)[:10], "... and", hex(3 * B - 1)[:10], "...."
-
-
+start = time()
+s0 = None
+c0 = None
 
 for i in range(2**19): # Like 8x coverage of 2**16 (two bytes)
     s0 = randint(2, 2**62) # not a Long int
-    x = c * pow(s0, e, n) % n # multiplies plaintext by s0
-    assert x < n
-    found_s0 = oracle(x, privkey, Bits * 2)
-    if i % 1000 == 0:
+    c0 = c * pow(s0, e, n) % n # multiplies plaintext by s0
+    assert c0 < n
+    found_s0 = oracle(c0, privkey, Bits * 2)
+    if i % 10000 == 0: # rate usually 1000 per sec
         print i
     if found_s0:
         break
 
-print "success?", found_s0, s0
+end = time()
+print "Found s0?", found_s0, s0
+dur = end - start
+rate = i / dur
+print i, "guesses in", round(dur, 1), "sec for", round(rate,1), "per sec."
+
+#### Step 2.a
+
 
 
 #### tests ####
