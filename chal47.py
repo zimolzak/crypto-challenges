@@ -73,6 +73,7 @@ n = pubkey[1]
 k = Bits * 2 / 8 # Length of n in bytes
 B = 2 ** (8 * (k - 2))
 print "Conforming plaintexts are between", hex(2 * B)[:10], "... and", hex(3 * B - 1)[:10], "...."
+print
 
 assert oracle(c, privkey, Bits*2)
 s = [1]
@@ -81,67 +82,78 @@ c = [c]
 M = [[[2*B, 3*B-1]]]
 i = 1
 
-#### Step 2
-
-if i == 1:
-    print "Step 2.a"
-    s.append(int(n / (3 * B))) # Set s[1]. Don't use range() or it breaks.
-    while s[1] < n:
-        x = c[0] * pow(s[1], e, n) % n # multiplies plaintext_0 by s1
-        if oracle(x, privkey, Bits * 2):
-            break
-        if s[1] % 4000 == 0:
-            print s
-        s[1] += 1
-    print "Found s1?", oracle(x, privkey, Bits * 2), s
-elif i > 1 and len(M[i-1]) >= 2:
-    print "Step 2.b"
-    pass
-elif len(M[i-1]) == 1:
-    print "Step 2.c"
-    a = M[i-1][0][0]
-    b = M[i-1][0][1]
-
-    r2 = 2 * (b*s1 - 2*B) / n # starts here & grows to...
-    while r2 < n:
-        s2 = (2*B + r2*n)/b # starts here & grows to...
-        while s2 < (3*B + r2*n) / a:
-            x = c0 * pow(s2, e, n) % n # multiplies plaintext_0 by s2
+while(1):
+    #### Step 2
+    if i == 1:
+        #print "Step 2.a"
+        s.append(int(n / (3 * B))) # Set s[1]. Don't use range() or it breaks.
+        while s[i] < n:
+            x = c[0] * pow(s[i], e, n) % n # multiplies plaintext_0 by s1
             if oracle(x, privkey, Bits * 2):
                 break
-            s2 += 1
-        r2 += 1
-    print "Found s2?", oracle(x, privkey, Bits * 2), s2
-
-#### Step 3
-
-print "Step 3"
-m_set = []
-for [a,b] in M[i-1]:
-    rlow = (a * s[i] - 3*B + 1) / n
-    rhigh = (b * s[i] - 2*B) / n
-    for r in range(rlow, rhigh+1):
-        mlow = max(a, ceildiv(2*B + r*n, s[i]))
-        mhigh =  min(b, (3*B - 1 + r*n) / s[i])
-        if [mlow, mhigh] not in m_set:
-            m_set.append([mlow, mhigh])
-M.append(m_set)
-
-#### Step 4
-
-print "Step 4"
-if len(M[i]) == 1 and M[i][0][0] == M[i][0][1]:
-    a = M[i][0][0]
-    m = a * rsa.invmod(s[0], n) % n
-    print "hooray", n
-else:
-    print "go around again because..."
-    if len(M[i]) > 1:
-        print "len", len(M[i])
+            if s[i] % 16000 == 0:
+                print "i=", i, "si=?", s[i]
+            s[i] += 1
+        print "Found s1?", oracle(x, privkey, Bits * 2), "i=", i, "s=", s[i]
+    elif i > 1 and len(M[i-1]) >= 2:
+        #print "Step 2.b"
+        s.append(s[i-1] + 1) # set s[i]
+        while s[i] < n:
+            x = c[0] * pow(s[i], e, n) % n # multiplies plaintext_0 by s1
+            if oracle(x, privkey, Bits * 2):
+                break
+            if s[i] % 16000 == 0:
+                print "i=", i, "si=?", s[i]
+            s[i] += 1
+        print "Found si?", oracle(x, privkey, Bits * 2), "i=", i, "s=", s[i]
+            
+    elif len(M[i-1]) == 1:
+        #print "Step 2.c"
+        a = M[i-1][0][0]
+        b = M[i-1][0][1]
+    
+        r2 = 2 * (b*s1 - 2*B) / n # starts here & grows to...
+        while r2 < n:
+            s2 = (2*B + r2*n)/b # starts here & grows to...
+            while s2 < (3*B + r2*n) / a:
+                x = c0 * pow(s2, e, n) % n # multiplies plaintext_0 by s2
+                if oracle(x, privkey, Bits * 2):
+                    break
+                s2 += 1
+            r2 += 1
+        print "Found s2?", oracle(x, privkey, Bits * 2), s2
+    
+    #### Step 3
+    
+    #print "Step 3"
+    m_set = []
+    for [a,b] in M[i-1]:
+        rlow = (a * s[i] - 3*B + 1) / n
+        rhigh = (b * s[i] - 2*B) / n
+        for r in range(rlow, rhigh+1):
+            mlow = max(a, ceildiv(2*B + r*n, s[i]))
+            mhigh =  min(b, (3*B - 1 + r*n) / s[i])
+            if [mlow, mhigh] not in m_set:
+                m_set.append([mlow, mhigh])
+    M.append(m_set)
+    
+    #### Step 4
+    
+    #print "Step 4"
+    if len(M[i]) == 1 and M[i][0][0] == M[i][0][1]:
+        a = M[i][0][0]
+        m = a * rsa.invmod(s[0], n) % n
+        print "hooray", m
+        print "i2s=", rsa.i2s(m)
+        print "s", s
+        break
     else:
-        print "range", M[i][0][0] - M[i][0][1]
-    i += 1
-    print
+        if len(M[i]) > 1:
+            print "Iterate because len", len(M[i])
+        else:
+            print "Iterate because range", M[i][0][0] - M[i][0][1]
+        i += 1
+        print
 
 #### tests ####
 short_message2 = "testing"
