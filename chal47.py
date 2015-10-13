@@ -78,7 +78,14 @@ print i, "guesses in", round(dur, 1), "sec for", round(rate,1), "per sec."
 
 #### Step 2.a
 
+s1 = n / (3 * B) # don't use range() or it breaks
+while s1 < n:
+    x = c0 * pow(s1, e, n) % n # multiplies plaintext_0 by s1
+    if oracle(x, privkey, Bits * 2):
+        break
+    s1 += 1
 
+print "Found s1?", oracle(x, privkey, Bits * 2), s1
 
 #### tests ####
 short_message2 = "testing"
