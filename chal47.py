@@ -63,7 +63,7 @@ pubkey, privkey = rsa.keypair(Bits)
 
 #privkey = [6490137810956100414550747410517446322902959333699048009179666136367807921373131849354707838340464847438729993288283438687391902142174646364993310402589795, 9735206716434150621826121115776169484354439000548572013769499204551711882059896149904093367744988308059944044877240224792294074570476059825549758422564041]
 
-short_message = "kick it, CC"
+#short_message = "kick it, CC"
 short_message = "Hi"  #fixme - delete
 m = pkcs_1(short_message, Bits * 2) # Bits*2 = length of n
 c = rsa.encrypt_string(m, pubkey)
@@ -90,7 +90,7 @@ start = time()
 while(1):
     #### Step 2
     if i == 1:
-        s.append(ceildiv(n , (3 * B))) # Set s[1]. range() breaks.
+        s.append(ceildiv(n , (3 * B))) # starting value - will increment later.
         print "step 2a (sometimes takes a while)"
     elif i > 1 and len(M[i-1]) >= 2:
         s.append(s[i-1] + 1) # set s[i]
@@ -101,7 +101,8 @@ while(1):
             if oracle(x, privkey, Bits * 2):
                 break
             s[i] += 1
-        print "Found si?", oracle(x, privkey, Bits * 2), "i=", i, "s=", s[i],
+        print "Found s[i]?", oracle(x, privkey, Bits * 2), "i=", i, "s=", s[i],
+        print hex(rsa.crypt(x, privkey)),
     elif len(M[i-1]) == 1:
         #pdb.set_trace() # step 2c
         #### FIXME this part may be broken, but I wouldn't know
@@ -124,9 +125,14 @@ while(1):
                     break
                 s[i] += 1
             r += 1
-        print "Found s[i]?", oracle(x, privkey, Bits * 2), s[i]
-    
+        print "Found s[i]?", oracle(x, privkey, Bits * 2), "i=", i, "s=", s[i],
+        print hex(rsa.crypt(x, privkey)),
+
     #### Step 3
+    """Here is the bug. If s[1] is large, then rlf and rhf are going to be
+    more than 1.0 away from each other (in other words, the interval
+    encompasses more than one integer r).
+    """
     m_set = []
     a, b = M[i-1][0] # assume only 1 interval in set
     rlow = ceildiv(a * s[i] - 3*B + 1, n) # is it a bug not to use ceil???
@@ -134,7 +140,8 @@ while(1):
     rhigh = (b * s[i] - 2*B) // n
     rlf = float(a * s[i] - 3*B + 1) / n
     rhf = float(b * s[i] - 2*B) / n
-    if rlow_floor == rhigh:
+    print rlf, rhf,
+    if rlow_floor == rhigh:  ## SHOULDN'T HAVE TO DO. should be far enough.
         rlow = rlow_floor # else let rlow use ceiling
     assert rlow <= rhigh, [a,b, rlow, rhigh, rlf, rhf]
     #pdb.set_trace() #step 3 (narrowing, about to add to M)
@@ -142,7 +149,7 @@ while(1):
     #print rnlow, rnhigh, n
     #while rn <= rnhigh:
     mlow = max(a, ceildiv(2*B + r*n, s[i]))
-    mhigh =  min(b, (3*B - 1 + r*n) / s[i])
+    mhigh =  min(b, (3*B - 1 + r*n) // s[i])
     assert mlow <= mhigh, [mlow, mhigh, mlow-a, b-mhigh, rlow, rhigh, r, rlf, rhf]
     this_interval = [mlow, mhigh]
     #this_interval.sort() # is it a bad sign that this is needed??
@@ -167,7 +174,7 @@ while(1):
         if len(M[i]) > 1:
             print "Iterate because len", len(M[i]), ';',
         else:
-            print "Iterate because range", M[i][0][1] - M[i][0][0], ';',
+            print "Iterate", map(hex,M[i][0]), ';',
         now = time()
         mins = (now-start) / 60
         print round(mins,2), "min. Rt=", round(i / mins, 3)
