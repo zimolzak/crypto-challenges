@@ -85,30 +85,30 @@ i = 1
 while(1):
     #### Step 2
     if i == 1:
-        s.append(ceildiv(n , (3 * B))) # starting value - will increment later.
+        s.append(ceildiv(n , (3 * B))) # will increment
         print "step 2a (sometimes takes a while)"
     elif i > 1 and len(M[i-1]) >= 2:
-        s.append(s[i-1] + 1) # set s[i]
+        s.append(s[i-1] + 1) # will increment
     if i == 1 or (i > 1 and len(M[i-1]) >= 2):
         while s[i] < n:
-            x = c[0] * pow(s[i], e, n) % n # multiplies plaintext_0 by s1
+            x = c[0] * pow(s[i], e, n) % n # multiplies plaintext_0 by s[i]
             if oracle(x, privkey, Bits * 2):
                 break
             s[i] += 1
         print "i=", i, "s=", s[i], ' ' * (14 - len(str(s[i]))),
     elif len(M[i-1]) == 1:
         a, b = M[i-1][0]
-        r = ceildiv(2 * (b*s[i-1] - 2*B) , n) # starts here & grows. NOTE CEIL.
+        r = ceildiv(2 * (b*s[i-1] - 2*B) , n) # will increment
         conforming = False
-        s.append(None) # need to create an s[i] but only once!
+        s.append(None) # need to create a slot for s[i]
         while not conforming:
             sLow = ceildiv(2*B + r*n, b)
             sHigh = ceildiv(3*B + r*n,  a)
-            s[i] = sLow # starts here & grows to... NOTE CEIL
+            s[i] = sLow # will increment
             while s[i] <= sHigh: # tricky ceil and < vs <=
                 x = c[0] * pow(s[i], e, n) % n # multiplies plaintext_0 by s[i]
                 if oracle(x, privkey, Bits * 2):
-                    conforming = True # fixed BUG - needs to break out of both
+                    conforming = True # breaks out of both while loops
                     break
                 s[i] += 1
             r += 1
@@ -117,7 +117,7 @@ while(1):
     #### Step 3
     m_set = []
     for a, b in M[i-1]:
-        rlow = ceildiv(a * s[i] - 3*B + 1, n) # is it a bug not to use ceil???
+        rlow = ceildiv(a * s[i] - 3*B + 1, n)
         rhigh = (b * s[i] - 2*B) // n
         if rlow > rhigh:
             continue
