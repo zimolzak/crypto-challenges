@@ -141,7 +141,10 @@ while(1):
     rlf = float(a * s[i] - 3*B + 1) / n
     rhf = float(b * s[i] - 2*B) / n
     print rlf, rhf,
+    if rhf - rlf > 1.0:
+        pdb.set_trace()
     if rlow_floor == rhigh:  ## SHOULDN'T HAVE TO DO. should be far enough.
+        pdb.set_trace()
         rlow = rlow_floor # else let rlow use ceiling
     assert rlow <= rhigh, [a,b, rlow, rhigh, rlf, rhf]
     #pdb.set_trace() #step 3 (narrowing, about to add to M)
