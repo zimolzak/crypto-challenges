@@ -98,17 +98,11 @@ while(1):
             s[i] += 1
         print "i=", i, "s=", s[i], ' ' * (14 - len(str(s[i]))),
     elif len(M[i-1]) == 1:
-        #pdb.set_trace() # step 2c
-        #### FIXME this part may be broken, but I wouldn't know
-        #### because it rarely executes.
         a, b = M[i-1][0]
         r = ceildiv(2 * (b*s[i-1] - 2*B) , n) # starts here & grows. NOTE CEIL.
-        rlf = 2.0 * (b*s[i-1] - 2*B) / n
         conforming = False
         s.append(None) # need to create an s[i] but only once!
         while not conforming:
-            slf = (2.0*B + r*n) / b
-            shf = (3.0*B + r*n) / a
             sLow = ceildiv(2*B + r*n, b)
             sHigh = ceildiv(3*B + r*n,  a)
             s[i] = sLow # starts here & grows to... NOTE CEIL
@@ -122,21 +116,11 @@ while(1):
         print "i=", i, "s=", s[i], ' ' * (14 - len(str(s[i]))),
 
     #### Step 3
-    """Here is the bug. If s[1] is large, then rlf and rhf are going to be
-    more than 1.0 away from each other (in other words, the interval
-    encompasses more than one integer r).
-    """
     m_set = []
     for a, b in M[i-1]:
-
         rlow = ceildiv(a * s[i] - 3*B + 1, n) # is it a bug not to use ceil???
         rlow_floor = (a * s[i] - 3*B + 1) // n
         rhigh = (b * s[i] - 2*B) // n
-        rlf = float(a * s[i] - 3*B + 1) / n
-        rhf = float(b * s[i] - 2*B) / n
-        if rhf - rlf > 1.0:
-            #pdb.set_trace()
-            pass
         if rlow > rhigh:
             #pdb.set_trace()
             continue
