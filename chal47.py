@@ -134,10 +134,11 @@ while(1):
     encompasses more than one integer r).
     """
     m_set = []
-    a, b = M[i-1][0] # assume only 1 interval in set
+    a, b = M[i-1][0] # assume only 1 interval in set. FIXME BIG TIME!!
     rlow = ceildiv(a * s[i] - 3*B + 1, n) # is it a bug not to use ceil???
     rlow_floor = (a * s[i] - 3*B + 1) // n
     rhigh = (b * s[i] - 2*B) // n
+    # if rlow > rhigh: continue
     rlf = float(a * s[i] - 3*B + 1) / n
     rhf = float(b * s[i] - 2*B) / n
     print rlf, rhf,
@@ -148,17 +149,15 @@ while(1):
         rlow = rlow_floor # else let rlow use ceiling
     assert rlow <= rhigh, [a,b, rlow, rhigh, rlf, rhf]
     #pdb.set_trace() #step 3 (narrowing, about to add to M)
-    r = rlow # why does this work, just throwing away rhigh?
-    #print rnlow, rnhigh, n
-    #while rn <= rnhigh:
-    mlow = max(a, ceildiv(2*B + r*n, s[i]))
-    mhigh =  min(b, (3*B - 1 + r*n) // s[i])
-    assert mlow <= mhigh, [mlow, mhigh, mlow-a, b-mhigh, rlow, rhigh, r, rlf, rhf]
-    this_interval = [mlow, mhigh]
-    #this_interval.sort() # is it a bad sign that this is needed??
-    #if this_interval not in m_set:
-    m_set.append(this_interval)
-    #rn += n
+    for r in range(rlow, rhigh+1):
+        mlow = max(a, ceildiv(2*B + r*n, s[i]))
+        mhigh =  min(b, (3*B - 1 + r*n) // s[i])
+        assert mlow <= mhigh, [mlow, mhigh, mlow-a, b-mhigh, rlow, rhigh,
+                               r, rlf, rhf]
+        this_interval = [mlow, mhigh]
+        #this_interval.sort() # is it a bad sign that this is needed??
+        if this_interval not in m_set:
+            m_set.append(this_interval)
     #print m_set
     #print simplify(m_set), 
     #print len(m_set), "-->", len(simplify(m_set)), 
