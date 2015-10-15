@@ -79,8 +79,7 @@ print
 assert oracle(c, privkey, Bits*2)
 s = [1]
 c = [c]
-# M is a list of sets of intervals.
-M = [[[2*B, 3*B-1]]]
+M = [[[2*B, 3*B-1]]] # M is a list of sets of intervals.
 i = 1
 
 while(1):
@@ -119,30 +118,19 @@ while(1):
     m_set = []
     for a, b in M[i-1]:
         rlow = ceildiv(a * s[i] - 3*B + 1, n) # is it a bug not to use ceil???
-        rlow_floor = (a * s[i] - 3*B + 1) // n
         rhigh = (b * s[i] - 2*B) // n
         if rlow > rhigh:
-            #pdb.set_trace()
             continue
-        if rlow_floor == rhigh:  ## SHOULDN'T HAVE TO DO. should be far enough.
-            pdb.set_trace()
-            rlow = rlow_floor # else let rlow use ceiling
         assert rlow <= rhigh, [a,b, rlow, rhigh, rlf, rhf]
-        #pdb.set_trace() #step 3 (narrowing, about to add to M)
         for r in range(rlow, rhigh+1):
             mlow = max(a, ceildiv(2*B + r*n, s[i]))
             mhigh =  min(b, (3*B - 1 + r*n) // s[i])
             assert mlow <= mhigh, [mlow, mhigh, mlow-a, b-mhigh, rlow, rhigh,
                                    r, rlf, rhf]
             this_interval = [mlow, mhigh]
-            #this_interval.sort() # is it a bad sign that this is needed??
             if this_interval not in m_set:
                 m_set.append(this_interval)
-        #print m_set
-        #print simplify(m_set), 
-        #print len(m_set), "-->", len(simplify(m_set)), 
         M.append(simplify(m_set))
-        #print M
     
     #### Step 4
     if len(M[i]) == 1 and M[i][0][0] == M[i][0][1]:
