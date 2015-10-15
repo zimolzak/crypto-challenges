@@ -110,12 +110,12 @@ while(1):
         rhigh = (b * s[i] - 2*B) // n
         if rlow > rhigh:
             continue
-        assert rlow <= rhigh, [a,b, rlow, rhigh, rlf, rhf]
+        assert rlow <= rhigh, [a, b, rlow, rhigh]
         for r in range(rlow, rhigh+1):
             mlow = max(a, ceildiv(2*B + r*n, s[i]))
             mhigh =  min(b, (3*B - 1 + r*n) // s[i])
-            assert mlow <= mhigh, [mlow, mhigh, mlow-a, b-mhigh, rlow, rhigh,
-                                   r, rlf, rhf]
+            assert mlow <= mhigh, [mlow, mhigh, mlow - a, b - mhigh,
+                                   rlow, rhigh, r]
             this_interval = [mlow, mhigh]
             if this_interval not in m_set:
                 m_set.append(this_interval)
