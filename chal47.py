@@ -48,35 +48,18 @@ def oracle(ciphertext, privkey, bits):
     return plaintext[0] == "\x00" and plaintext[1] == "\x02"
 
 Bits = 256
-Bits = 32 #fixme - delete
-
 pubkey, privkey = rsa.keypair(Bits)
-
-# Set to two static keys known to yield a low s1, for efficiency's
-# sake while testing. FIXME - delete these two static values maybe,
-# and reinstitute random keypair generation?
-
-#pubkey = [3, 9735206716434150621826121115776169484354439000548572013769499204551711882059896149904093367744988308059944044877240224792294074570476059825549758422564041]
-
-#privkey = [6490137810956100414550747410517446322902959333699048009179666136367807921373131849354707838340464847438729993288283438687391902142174646364993310402589795, 9735206716434150621826121115776169484354439000548572013769499204551711882059896149904093367744988308059944044877240224792294074570476059825549758422564041]
-
-#short_message = "kick it, CC"
-short_message = "Hi"  #fixme - delete
+short_message = "kick it, CC"
 m = pkcs_1(short_message, Bits * 2) # Bits*2 = length of n
 c = rsa.encrypt_string(m, pubkey)
-
 print "Oracle says that raw ciphertext conforms?", oracle(c, privkey, Bits * 2)
+assert oracle(c, privkey, Bits*2)
 
-#### Step 1. Can be skipped if c is already PKCS conforming
-
+#### Step 1 (Easy if c is already PKCS conforming)
 e = pubkey[0]
 n = pubkey[1]
 k = Bits * 2 / 8 # Length of n in bytes
 B = 2 ** (8 * (k - 2))
-print "Conforming plaintexts are between", hex(2 * B)[:10], "... and", hex(3 * B - 1)[:10], "...."
-print
-
-assert oracle(c, privkey, Bits*2)
 s = [1]
 c = [c]
 M = [[[2*B, 3*B-1]]] # M is a list of sets of intervals.
@@ -95,7 +78,9 @@ while(1):
             if oracle(x, privkey, Bits * 2):
                 break
             s[i] += 1
-        print "i=", i, "s=", s[i], ' ' * (14 - len(str(s[i]))),
+            if s[i] % 4000 == 0:
+                print "  ", s[i]
+        print "i=", i,
     elif len(M[i-1]) == 1:
         a, b = M[i-1][0]
         r = ceildiv(2 * (b*s[i-1] - 2*B) , n) # will increment
@@ -112,7 +97,8 @@ while(1):
                     break
                 s[i] += 1
             r += 1
-        print "i=", i, "s=", s[i], ' ' * (14 - len(str(s[i]))),
+        if i % 20 == 0:
+            print "i=", i,
 
     #### Step 3
     m_set = []
@@ -146,7 +132,8 @@ while(1):
         if len(M[i]) > 1:
             print "Iterate because len", len(M[i])
         else:
-            print "Iterate", map(hex,M[i][0])
+            if i % 20 == 0:
+                print "Iterate because interval > 0"
         i += 1
 
 #### tests ####
