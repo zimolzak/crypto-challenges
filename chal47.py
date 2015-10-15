@@ -11,6 +11,7 @@ import rsa
 from random import randint
 from time import time
 import math
+from interval import simplify
 
 def ceildiv(x, y):
     if x % y == 0:
@@ -49,18 +50,21 @@ def oracle(ciphertext, privkey, bits):
     return plaintext[0] == "\x00" and plaintext[1] == "\x02"
 
 Bits = 256
+Bits = 32 #fixme - delete
 
-#pubkey, privkey = rsa.keypair(Bits)
+pubkey, privkey = rsa.keypair(Bits)
+print pubkey, privkey
 
 # Set to two static keys known to yield a low s1, for efficiency's
 # sake while testing. FIXME - delete these two static values maybe,
 # and reinstitute random keypair generation?
 
-pubkey = [3, 9735206716434150621826121115776169484354439000548572013769499204551711882059896149904093367744988308059944044877240224792294074570476059825549758422564041]
+#pubkey = [3, 9735206716434150621826121115776169484354439000548572013769499204551711882059896149904093367744988308059944044877240224792294074570476059825549758422564041]
 
-privkey = [6490137810956100414550747410517446322902959333699048009179666136367807921373131849354707838340464847438729993288283438687391902142174646364993310402589795, 9735206716434150621826121115776169484354439000548572013769499204551711882059896149904093367744988308059944044877240224792294074570476059825549758422564041]
+#privkey = [6490137810956100414550747410517446322902959333699048009179666136367807921373131849354707838340464847438729993288283438687391902142174646364993310402589795, 9735206716434150621826121115776169484354439000548572013769499204551711882059896149904093367744988308059944044877240224792294074570476059825549758422564041]
 
 short_message = "kick it, CC"
+short_message = "Hi"  #fixme - delete
 m = pkcs_1(short_message, Bits * 2) # Bits*2 = length of n
 c = rsa.encrypt_string(m, pubkey)
 
@@ -129,14 +133,24 @@ while(1):
     #print "Step 3"
     m_set = []
     for [a,b] in M[i-1]:
-        rlow = (a * s[i] - 3*B + 1) / n
-        rhigh = (b * s[i] - 2*B) / n
-        for r in range(rlow, rhigh+1):
-            mlow = max(a, ceildiv(2*B + r*n, s[i]))
-            mhigh =  min(b, (3*B - 1 + r*n) / s[i])
-            if [mlow, mhigh] not in m_set:
-                m_set.append([mlow, mhigh])
-    M.append(m_set)
+        rnlow = (a * s[i] - 3*B + 1)
+        rnhigh = (b * s[i] - 2*B)
+        assert rnlow < rnhigh, [a,b, rnlow, rnhigh, float(a * s[i] - 3*B + 1) / n]
+        rn = rnlow
+        #print rnlow, rnhigh, n
+        while rn <= rnhigh:
+            mlow = max(a, ceildiv(2*B + rn, s[i]))
+            mhigh =  min(b, (3*B - 1 + rn) / s[i])
+            this_interval = [mlow, mhigh]
+            this_interval.sort() # is it a bad sign that this is needed??
+            if this_interval not in m_set:
+                m_set.append(this_interval)
+            rn += n
+    #print m_set
+    print simplify(m_set), 
+    print len(m_set), "-->", len(simplify(m_set)), 
+    M.append(simplify(m_set))
+    #print M
     
     #### Step 4
     
@@ -152,7 +166,7 @@ while(1):
         if len(M[i]) > 1:
             print "Iterate because len", len(M[i]), ';',
         else:
-            print "Iterate because range", M[i][0][0] - M[i][0][1], ';',
+            print "Iterate because range", M[i][0][1] - M[i][0][0], ';',
         now = time()
         mins = (now-start) / 60
         print round(mins,2), "min. Rt=", round(i / mins, 3)
