@@ -8,9 +8,6 @@
 
 from cryptopals import warn
 import rsa
-from random import randint
-from time import time
-import math
 from interval import simplify
 import pdb
 
@@ -85,7 +82,6 @@ c = [c]
 # M is a list of sets of intervals.
 M = [[[2*B, 3*B-1]]]
 i = 1
-start = time()
 
 while(1):
     #### Step 2
@@ -94,15 +90,13 @@ while(1):
         print "step 2a (sometimes takes a while)"
     elif i > 1 and len(M[i-1]) >= 2:
         s.append(s[i-1] + 1) # set s[i]
-        print "step 2b"
     if i == 1 or (i > 1 and len(M[i-1]) >= 2):
         while s[i] < n:
             x = c[0] * pow(s[i], e, n) % n # multiplies plaintext_0 by s1
             if oracle(x, privkey, Bits * 2):
                 break
             s[i] += 1
-        print "Found s[i]?", oracle(x, privkey, Bits * 2), "i=", i, "s=", s[i],
-        print hex(rsa.crypt(x, privkey)),
+        print "i=", i, "s=", s[i], ' ' * (14 - len(str(s[i]))),
     elif len(M[i-1]) == 1:
         #pdb.set_trace() # step 2c
         #### FIXME this part may be broken, but I wouldn't know
@@ -125,8 +119,7 @@ while(1):
                     break
                 s[i] += 1
             r += 1
-        print "Found s[i]?", oracle(x, privkey, Bits * 2), "i=", i, "s=", s[i],
-        print hex(rsa.crypt(x, privkey)),
+        print "i=", i, "s=", s[i], ' ' * (14 - len(str(s[i]))),
 
     #### Step 3
     """Here is the bug. If s[1] is large, then rlf and rhf are going to be
@@ -141,7 +134,6 @@ while(1):
         rhigh = (b * s[i] - 2*B) // n
         rlf = float(a * s[i] - 3*B + 1) / n
         rhf = float(b * s[i] - 2*B) / n
-        print rlf, rhf,
         if rhf - rlf > 1.0:
             #pdb.set_trace()
             pass
@@ -172,21 +164,22 @@ while(1):
     if len(M[i]) == 1 and M[i][0][0] == M[i][0][1]:
         a = M[i][0][0]
         m = a * rsa.invmod(s[0], n) % n
-        print "hooray", m
-        print "i2s=", rsa.i2s(m)
-        print "s", s
+        print
+        print
+        print "Hooray! m=", m
+        result = rsa.i2s(m)
+        print "i2s=", [result]
         break
     else:
         if len(M[i]) > 1:
-            print "Iterate because len", len(M[i]), ';',
+            print "Iterate because len", len(M[i])
         else:
-            print "Iterate", map(hex,M[i][0]), ';',
-        now = time()
-        mins = (now-start) / 60
-        print round(mins,2), "min. Rt=", round(i / mins, 3)
+            print "Iterate", map(hex,M[i][0])
         i += 1
 
 #### tests ####
+nc = len(short_message)
+assert result[-nc:] == short_message
 short_message2 = "du"
 m2 = pkcs_1(short_message2, Bits*2)
 c2 = rsa.encrypt_string(m2, pubkey)
