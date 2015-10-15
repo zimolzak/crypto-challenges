@@ -5,9 +5,12 @@ test : 4.txt 6.txt quicktest 20.txt passwords.txt
 	./chal22.py                   # random, 15 - 30 sec
 	./chal24.py                   # 15 sec
 	./chal38.py                   # 25 sec
-	./chal42.py
+	./chal42.py                   # 12 sec
 	./chal43.py                   # 11 sec
-	./chal46.py
+	./chal46.py                   # 1.5 min
+	./chal47.py                   # quite variable. 25 sec to > 3 min.
+
+# Takes about 4 min to do challenges 1 through 46.
 
 quicktest : 7.txt 8.txt 10.txt rand_bytes.txt unknown_key.txt 17.txt 19.txt 25.txt 44.txt
 	./chal1.pl

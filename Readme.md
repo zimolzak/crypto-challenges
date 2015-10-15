@@ -142,3 +142,14 @@ Conclusions / insights
 
 * Once again, don't reuse your nonce, hence the name. When it comes to
   DSA, I guess you can't even give it away or make it easy to guess?
+
+* Don't provide a mechanism to give away even one bit of your RSA
+  plaintext. Not in error messages, not in any way. Seriously. And if
+  you use an implementation written by someone who accidentally does
+  provide such a mechanism, then everything's ruined if Mallory finds
+  this mechanism.
+
+* When translating intricate paper methods to code, it helps to do it
+  first using a toy case that runs really fast. Also, I finally
+  graduated from Print Statement High School and matriculated as a
+  freshman at Debugger University.

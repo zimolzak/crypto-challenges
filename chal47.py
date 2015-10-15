@@ -20,13 +20,13 @@ def ceildiv(x, y):
 def pkcs_1(string, bits):
     """Pad a string to specified number of bits.
 
-    Start with 0x0001, then a bunch of 0xFF, then 0x00, then the
+    Start with 0x0002, then a bunch of 0xFF, then 0x00, then the
     string. Not to be confused with a slightly different function I
     wrote called pkcs_1_5().
     """
-    assert len(string) < 256
     assert bits % 8 == 0
     byte_goal = bits / 8
+    assert len(string) <= byte_goal - 3
     prepend = "\x00\x02"
     append = "\x00"
     bytes_to_add = (byte_goal -
@@ -50,7 +50,9 @@ def oracle(ciphertext, privkey, bits):
 Bits = 768 / 2
 pubkey, privkey = rsa.keypair(Bits)
 print pubkey[1].bit_length(), "bit modulus"
-short_message = "kick it, CC"
+short_message = """Now these points of data make a beautiful line
+And we're out of beta; we're releasing on time"""
+
 m = pkcs_1(short_message, Bits * 2) # Bits*2 = length of n
 c = rsa.encrypt_string(m, pubkey)
 print "Oracle says that raw ciphertext conforms?", oracle(c, privkey, Bits * 2)
