@@ -47,8 +47,9 @@ def oracle(ciphertext, privkey, bits):
     assert len(plaintext) == bytes, len(plaintext)
     return plaintext[0] == "\x00" and plaintext[1] == "\x02"
 
-Bits = 256
+Bits = 768 / 2
 pubkey, privkey = rsa.keypair(Bits)
+print pubkey[1].bit_length(), "bit modulus"
 short_message = "kick it, CC"
 m = pkcs_1(short_message, Bits * 2) # Bits*2 = length of n
 c = rsa.encrypt_string(m, pubkey)
