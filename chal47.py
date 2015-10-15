@@ -12,6 +12,7 @@ from random import randint
 from time import time
 import math
 from interval import simplify
+import pdb
 
 def ceildiv(x, y):
     if x % y == 0:
@@ -53,7 +54,6 @@ Bits = 256
 Bits = 32 #fixme - delete
 
 pubkey, privkey = rsa.keypair(Bits)
-print pubkey, privkey
 
 # Set to two static keys known to yield a low s1, for efficiency's
 # sake while testing. FIXME - delete these two static values maybe,
@@ -90,71 +90,72 @@ start = time()
 while(1):
     #### Step 2
     if i == 1:
-        #print "Step 2.a"
-        s.append(int(n / (3 * B))) # Set s[1]. Don't use range() or it breaks.
-        while s[i] < n:
-            x = c[0] * pow(s[i], e, n) % n # multiplies plaintext_0 by s1
-            if oracle(x, privkey, Bits * 2):
-                break
-            s[i] += 1
-        print "Found si?", oracle(x, privkey, Bits * 2), "i=", i, "s=", s[i],
+        s.append(ceildiv(n , (3 * B))) # Set s[1]. range() breaks.
+        print "step 2a (sometimes takes a while)"
     elif i > 1 and len(M[i-1]) >= 2:
-        #print "Step 2.b"
         s.append(s[i-1] + 1) # set s[i]
+        print "step 2b"
+    if i == 1 or (i > 1 and len(M[i-1]) >= 2):
         while s[i] < n:
             x = c[0] * pow(s[i], e, n) % n # multiplies plaintext_0 by s1
             if oracle(x, privkey, Bits * 2):
                 break
             s[i] += 1
         print "Found si?", oracle(x, privkey, Bits * 2), "i=", i, "s=", s[i],
-            
     elif len(M[i-1]) == 1:
-        #print "Step 2.c"
-
+        #pdb.set_trace() # step 2c
         #### FIXME this part may be broken, but I wouldn't know
         #### because it rarely executes.
-
-        a = M[i-1][0][0]
-        b = M[i-1][0][1]
-    
-        r2 = 2 * (b*s1 - 2*B) / n # starts here & grows to...
-        while r2 < n:
-            s2 = (2*B + r2*n)/b # starts here & grows to...
-            while s2 < (3*B + r2*n) / a:
-                x = c0 * pow(s2, e, n) % n # multiplies plaintext_0 by s2
+        a, b = M[i-1][0]
+        r = ceildiv(2 * (b*s[i-1] - 2*B) , n) # starts here & grows. NOTE CEIL.
+        rlf = 2.0 * (b*s[i-1] - 2*B) / n
+        conforming = False
+        s.append(None) # need to create an s[i] but only once!
+        while not conforming:
+            slf = (2.0*B + r*n) / b
+            shf = (3.0*B + r*n) / a
+            sLow = ceildiv(2*B + r*n, b)
+            sHigh = ceildiv(3*B + r*n,  a)
+            s[i] = sLow # starts here & grows to... NOTE CEIL
+            while s[i] <= sHigh: # tricky ceil and < vs <=
+                x = c[0] * pow(s[i], e, n) % n # multiplies plaintext_0 by s[i]
                 if oracle(x, privkey, Bits * 2):
+                    conforming = True # fixed BUG - needs to break out of both
                     break
-                s2 += 1
-            r2 += 1
-        print "Found s2?", oracle(x, privkey, Bits * 2), s2
+                s[i] += 1
+            r += 1
+        print "Found s[i]?", oracle(x, privkey, Bits * 2), s[i]
     
     #### Step 3
-    
-    #print "Step 3"
     m_set = []
-    for [a,b] in M[i-1]:
-        rnlow = (a * s[i] - 3*B + 1)
-        rnhigh = (b * s[i] - 2*B)
-        assert rnlow < rnhigh, [a,b, rnlow, rnhigh, float(a * s[i] - 3*B + 1) / n]
-        rn = rnlow
-        #print rnlow, rnhigh, n
-        while rn <= rnhigh:
-            mlow = max(a, ceildiv(2*B + rn, s[i]))
-            mhigh =  min(b, (3*B - 1 + rn) / s[i])
-            this_interval = [mlow, mhigh]
-            this_interval.sort() # is it a bad sign that this is needed??
-            if this_interval not in m_set:
-                m_set.append(this_interval)
-            rn += n
+    a, b = M[i-1][0] # assume only 1 interval in set
+    rlow = ceildiv(a * s[i] - 3*B + 1, n) # is it a bug not to use ceil???
+    rlow_floor = (a * s[i] - 3*B + 1) // n
+    rhigh = (b * s[i] - 2*B) // n
+    rlf = float(a * s[i] - 3*B + 1) / n
+    rhf = float(b * s[i] - 2*B) / n
+    if rlow_floor == rhigh:
+        rlow = rlow_floor # else let rlow use ceiling
+    assert rlow <= rhigh, [a,b, rlow, rhigh, rlf, rhf]
+    #pdb.set_trace() #step 3 (narrowing, about to add to M)
+    r = rlow # why does this work, just throwing away rhigh?
+    #print rnlow, rnhigh, n
+    #while rn <= rnhigh:
+    mlow = max(a, ceildiv(2*B + r*n, s[i]))
+    mhigh =  min(b, (3*B - 1 + r*n) / s[i])
+    assert mlow <= mhigh, [mlow, mhigh, mlow-a, b-mhigh, rlow, rhigh, r, rlf, rhf]
+    this_interval = [mlow, mhigh]
+    #this_interval.sort() # is it a bad sign that this is needed??
+    #if this_interval not in m_set:
+    m_set.append(this_interval)
+    #rn += n
     #print m_set
-    print simplify(m_set), 
-    print len(m_set), "-->", len(simplify(m_set)), 
+    #print simplify(m_set), 
+    #print len(m_set), "-->", len(simplify(m_set)), 
     M.append(simplify(m_set))
     #print M
     
     #### Step 4
-    
-    #print "Step 4"
     if len(M[i]) == 1 and M[i][0][0] == M[i][0][1]:
         a = M[i][0][0]
         m = a * rsa.invmod(s[0], n) % n
@@ -173,7 +174,7 @@ while(1):
         i += 1
 
 #### tests ####
-short_message2 = "testing"
+short_message2 = "du"
 m2 = pkcs_1(short_message2, Bits*2)
 c2 = rsa.encrypt_string(m2, pubkey)
 assert oracle(c2, privkey, Bits*2)
