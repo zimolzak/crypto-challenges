@@ -10,6 +10,7 @@ from cryptopals import warn
 import rsa
 from interval import simplify
 import pdb
+from time import time
 
 def ceildiv(x, y):
     if x % y == 0:
@@ -68,6 +69,7 @@ c = [c]
 M = [[[2*B, 3*B-1]]] # M is a list of sets of intervals.
 i = 1
 
+start = time()
 while(1):
     #### Step 2
     if i == 1:
@@ -81,8 +83,10 @@ while(1):
             if oracle(x, privkey, Bits * 2):
                 break
             s[i] += 1
-            if s[i] % 4000 == 0:
-                print "  ", s[i]
+            if s[i] % 1000 == 0:
+                now = time()
+                Q = s[i] - ceildiv(n , (3 * B))
+                print "  ", s[i], Q, '/', round(now - start, 1), '=', round(Q/(now - start), 1)
         print "i=", i,
     elif len(M[i-1]) == 1:
         a, b = M[i-1][0]
